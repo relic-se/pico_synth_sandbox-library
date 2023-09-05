@@ -1,11 +1,11 @@
 # pico_synth_sandbox
 Raspberry Pi Pico digital synthesizer board with I2S or PWM audio, a PDM microphone, MIDI i/o, a capacitive keybed, 1602 display, a rotary encoder, and LiPo battery. Designed for use with CircuitPython and synthio.
 
-<p style="display:flex;flex-flow:row nowrap;justify-content:space-between;align-items:center;">
-<img src="./images/front-side.jpg" style="width:33%;flex:0 0 auto;height:auto;">
-<img src="./images/back-side.jpg" style="width:33%;flex:0 0 auto;height:auto;">
-<img src="./images/bottom.jpg" style="width:33%;flex:0 0 auto;height:auto;">
-</div>
+<p float="left" align="middle">
+<img alt="Front view of 3d rendered board" src="./images/front-side.jpg" width="32%" />
+<img alt="Back view of 3d rendered board" src="./images/back-side.jpg" width="32%" />
+<img alt="Bottom view of 3d rendered board" src="./images/bottom.jpg" width="32%" />
+</p>
 
 ## Features
 * PCM5102 I2S DAC module compatibility or with populated components
