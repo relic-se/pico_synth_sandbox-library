@@ -57,3 +57,7 @@ Some pins require solder jumper configuration if you do not use the default pin 
 ## Build Instructions
 
 Please see the included [build.md](./build.md) for instructions on how to build this device.
+
+## Attribution
+
+* Project inspired by [todbot/pico_test_synth](https://github.com/todbot/pico_test_synth)
