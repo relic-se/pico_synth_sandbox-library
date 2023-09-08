@@ -53,3 +53,7 @@ Some pins require solder jumper configuration if you do not use the default pin 
 ## Schematic
 
 [<img src="./schematic/pico_synth_sandbox-schematic.jpg" style="width:50%;height:auto;">](./schematic/pico_synth_sandbox-schematic.pdf)
+
+## Build Instructions
+
+Please see the included [build.md](./build.md) for instructions on how to build this device.
