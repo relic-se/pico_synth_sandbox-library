@@ -6,8 +6,8 @@
 
   (title_block
     (title "pico_synth_sandbox")
-    (date "2023-08-30")
-    (rev "1")
+    (date "2023-09-19")
+    (rev "2")
     (comment 3 "dcdalrymple.com/picosynth/")
     (comment 4 "D Cooper Dalrymple")
   )

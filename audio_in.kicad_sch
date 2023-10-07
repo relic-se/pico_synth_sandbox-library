@@ -6,8 +6,8 @@
 
   (title_block
     (title "pico_synth_sandbox")
-    (date "2023-08-30")
-    (rev "1")
+    (date "2023-09-19")
+    (rev "2")
     (comment 3 "dcdalrymple.com/picosynth/")
     (comment 4 "D Cooper Dalrymple")
   )
@@ -450,7 +450,7 @@
   (symbol (lib_id "power:GND") (at 162.56 104.14 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 23fcaba8-b653-4e6e-8474-596164acf6bc)
-    (property "Reference" "#PWR075" (at 162.56 110.49 0)
+    (property "Reference" "#PWR076" (at 162.56 110.49 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GND" (at 162.56 109.22 0)
@@ -466,7 +466,7 @@
     (instances
       (project "pico_synth_sandbox"
         (path "/bfc01388-33ce-4b1a-9d2f-82d750172e5a/93632245-6c20-4ae6-b62e-7dbbebc316d1"
-          (reference "#PWR075") (unit 1)
+          (reference "#PWR076") (unit 1)
         )
       )
     )
@@ -504,7 +504,7 @@
   (symbol (lib_id "power:+3.3V") (at 162.56 88.9 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 262527de-5fcf-426c-b3b0-4fc8abdd8ba3)
-    (property "Reference" "#PWR074" (at 162.56 92.71 0)
+    (property "Reference" "#PWR075" (at 162.56 92.71 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "+3.3V" (at 162.56 83.82 0)
@@ -520,7 +520,7 @@
     (instances
       (project "pico_synth_sandbox"
         (path "/bfc01388-33ce-4b1a-9d2f-82d750172e5a/93632245-6c20-4ae6-b62e-7dbbebc316d1"
-          (reference "#PWR074") (unit 1)
+          (reference "#PWR075") (unit 1)
         )
       )
     )
@@ -607,7 +607,7 @@
   (symbol (lib_id "power:+3.3V") (at 105.41 87.63 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 5fee69ed-9bad-4bad-97bb-4778a71c0dca)
-    (property "Reference" "#PWR070" (at 105.41 91.44 0)
+    (property "Reference" "#PWR071" (at 105.41 91.44 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "+3.3V" (at 105.41 82.55 0)
@@ -623,7 +623,7 @@
     (instances
       (project "pico_synth_sandbox"
         (path "/bfc01388-33ce-4b1a-9d2f-82d750172e5a/93632245-6c20-4ae6-b62e-7dbbebc316d1"
-          (reference "#PWR070") (unit 1)
+          (reference "#PWR071") (unit 1)
         )
       )
     )
@@ -632,7 +632,7 @@
   (symbol (lib_id "power:+3.3V") (at 118.11 82.55 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 7dbbfa81-3a61-4212-a7e9-58f91da429c3)
-    (property "Reference" "#PWR072" (at 118.11 86.36 0)
+    (property "Reference" "#PWR073" (at 118.11 86.36 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "+3.3V" (at 118.11 77.47 0)
@@ -648,7 +648,7 @@
     (instances
       (project "pico_synth_sandbox"
         (path "/bfc01388-33ce-4b1a-9d2f-82d750172e5a/93632245-6c20-4ae6-b62e-7dbbebc316d1"
-          (reference "#PWR072") (unit 1)
+          (reference "#PWR073") (unit 1)
         )
       )
     )
@@ -683,7 +683,7 @@
   (symbol (lib_id "power:GND") (at 118.11 105.41 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid aa1f6952-a32f-45a1-ae12-65ff001c0981)
-    (property "Reference" "#PWR073" (at 118.11 111.76 0)
+    (property "Reference" "#PWR074" (at 118.11 111.76 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GND" (at 118.11 110.49 0)
@@ -699,7 +699,7 @@
     (instances
       (project "pico_synth_sandbox"
         (path "/bfc01388-33ce-4b1a-9d2f-82d750172e5a/93632245-6c20-4ae6-b62e-7dbbebc316d1"
-          (reference "#PWR073") (unit 1)
+          (reference "#PWR074") (unit 1)
         )
       )
     )
@@ -708,7 +708,7 @@
   (symbol (lib_id "power:GND") (at 105.41 102.87 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid f266dc06-1b86-45ae-8ef6-c7a4e7476989)
-    (property "Reference" "#PWR071" (at 105.41 109.22 0)
+    (property "Reference" "#PWR072" (at 105.41 109.22 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GND" (at 105.41 107.95 0)
@@ -724,7 +724,7 @@
     (instances
       (project "pico_synth_sandbox"
         (path "/bfc01388-33ce-4b1a-9d2f-82d750172e5a/93632245-6c20-4ae6-b62e-7dbbebc316d1"
-          (reference "#PWR071") (unit 1)
+          (reference "#PWR072") (unit 1)
         )
       )
     )
