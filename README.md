@@ -45,10 +45,10 @@ Some pins require solder jumper configuration if you do not use the default pin 
 | GP19          | I2S Data                                     |
 | GP20          | 1602 Reset                                   |
 | GP21          | 1602 Enable                                  |
-| GP22          | 1602 D7                                      |
-| GP26          | 1602 D6                                      |
-| GP27          | 1602 D5                                      |
-| GP28          | 1602 D4                                      |
+| GP22          | 1602 D4                                      |
+| GP26          | 1602 D5                                      |
+| GP27          | 1602 D6                                      |
+| GP28          | 1602 D7                                      |
 
 ## Schematic
 
