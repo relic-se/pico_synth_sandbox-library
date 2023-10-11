@@ -39,6 +39,7 @@ class Keyboard:
             self._arpeggiator.set_release(callback)
     def set_arpeggiator(self, arpeggiator):
         self._arpeggiator = arpeggiator
+        self._arpeggiator.set_keyboard(self)
         if self._press:
             self._arpeggiator.set_press(self._press)
         if self._release:
@@ -60,7 +61,7 @@ class Keyboard:
                 for note in self._sustained:
                     found = False
                     if not self.has_note(note[0], False) and self._release:
-                        self._release(note[0])
+                        self._release(note[0], note[2])
 
             self._sustained = []
             if self._sustain:
@@ -129,22 +130,22 @@ class Keyboard:
         else: # self.MODE_LAST
             return self._get_last()
 
-    def append(self, notenum, velocity, update=True):
-        self.remove(notenum, False, True)
-        note = (notenum, velocity)
+    def append(self, notenum, velocity, keynum=None, update=True):
+        self.remove(notenum, None, False, True)
+        note = (notenum, velocity, keynum)
         self._notes.append(note)
         if self._sustain:
             self._sustained.append(note)
         if update:
             self._update()
-    def remove(self, notenum, update=True, remove_sustained=False):
+    def remove(self, notenum, keynum=None, update=True, remove_sustained=False):
         if not self.has_note(notenum):
             return
         self._notes = [note for note in self._notes if note[0] != notenum]
         if remove_sustained and self._sustain and self._sustained:
             self._sustained = [note for note in self._sustained if note[0] != notenum]
         if self._release and (remove_sustained or not self.has_note(notenum)):
-            self._release(notenum)
+            self._release(notenum, keynum)
         if update:
             self._update()
 
@@ -153,9 +154,9 @@ class Keyboard:
             for i in range(len(self.keys)):
                 j = self.keys[i].check()
                 if j == Key.PRESS:
-                    self.append(self.root + i, 127) # Velocity is hard-coded
+                    self.append(self.root + i, 127, i) # Velocity is hard-coded
                 elif j == Key.RELEASE:
-                    self.remove(self.root + i)
+                    self.remove(self.root + i, i)
 
         if self._arpeggiator:
             self._arpeggiator.update()
@@ -164,7 +165,7 @@ class Keyboard:
         if not self._arpeggiator or not self._arpeggiator.is_enabled():
             note = self.get()
             if note and self._press:
-                self._press(note[0], note[1])
+                self._press(note[0], note[1], note[2])
         elif self.has_notes():
             self._arpeggiator.update_notes(self.get_notes())
         else:

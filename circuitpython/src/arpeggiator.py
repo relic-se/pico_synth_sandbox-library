@@ -38,6 +38,8 @@ class Arpeggiator:
         self.set_mode(os.getenv("ARPEGGIATOR_MODE", 0))
         self._octaves = 0
 
+        self._keyboard = None
+
     def _update_timing(self, bpm=None, steps=None):
         if bpm:
             self._bpm = bpm
@@ -73,6 +75,8 @@ class Arpeggiator:
         if self._notes:
             self.update_notes(self._raw_notes)
 
+    def set_keyboard(self, keyboard):
+        self._keyboard = keyboard
     def is_enabled(self):
         return self._enabled
     def set_enabled(self, value, keyboard=None):
@@ -80,15 +84,21 @@ class Arpeggiator:
             self.enable(keyboard)
         else:
             self.disable()
+    def toggle(self, keyboard=None):
+        self.set_enabled(not self.is_enabled(), keyboard)
     def enable(self, keyboard=None):
         self._enabled = True
         self._now = time.monotonic() - self._step_time
+        if keyboard is None and not self._keyboard is None:
+            keyboard = self._keyboard
         if keyboard:
             self.update_notes(keyboard.get_notes())
     def disable(self, keyboard=None):
         self._enabled = False
         self.update_notes()
         self._do_release()
+        if keyboard is None and not self._keyboard is None:
+            keyboard = self._keyboard
         if keyboard:
             keyboard.update()
 

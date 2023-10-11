@@ -13,7 +13,7 @@ class TouchPad(Key):
 class TouchKeyboard(Keyboard):
     def __init__(self, voices=1):
         Keyboard.__init__(self, [
-            TouchPad(board.GP16),
+            TouchPad(board.GP19),
             TouchPad(board.GP3),
             TouchPad(board.GP6),
             TouchPad(board.GP7),

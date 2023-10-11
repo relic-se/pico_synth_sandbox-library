@@ -1,10 +1,14 @@
-DEVICE = /media/$(USER)/CIRCUITPY/
+DEVICE := /media/$(USER)/CIRCUITPY/
+ifeq ($(wildcard $(DEVICE).),)
+	DEVICE := /run/media/$(USER)/CIRCUITPY/
+endif
+
 MPYCROSS = ./bin/mpy-cross
 
 SRCDIR = ./src
 
 LIB = pico_synth_sandbox
-LIB_SRCS := $(SRCDIR)/import.py $(SRCDIR)/global.py $(SRCDIR)/display.py $(SRCDIR)/encoder.py $(SRCDIR)/audio.py $(SRCDIR)/midi.py $(SRCDIR)/keyboard.py $(SRCDIR)/touch-keyboard.py $(SRCDIR)/arpeggiator.py
+LIB_SRCS := $(SRCDIR)/import.py $(SRCDIR)/global.py $(SRCDIR)/display.py $(SRCDIR)/encoder.py $(SRCDIR)/audio.py $(SRCDIR)/midi.py $(SRCDIR)/keyboard.py $(SRCDIR)/touch-keyboard.py $(SRCDIR)/arpeggiator.py $(SRCDIR)/waveform.py $(SRCDIR)/voice.py $(SRCDIR)/synth.py
 LIB_PY = ./$(LIB).py
 LIB_MPY = ./$(LIB).mpy
 

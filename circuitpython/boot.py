@@ -3,10 +3,10 @@
 # GPL v3 License
 # Version 0.1
 
-import gc
+import gc, os
 import storage, usb_hid, usb_cdc
 import usb_midi
-from pico_synth_sandbox import check_dir
+from pico_synth_sandbox import free_module, check_dir
 
 # Disable write protection and unnecessary usb features
 storage.remount("/", False, disable_concurrent_write_protection=True)
