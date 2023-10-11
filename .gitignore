@@ -35,3 +35,7 @@ pico_synth_sandbox.kicad_pcb.zip
 # CircuitPython
 circuitpython/pico_synth_sandbox.py
 circuitpython/pico_synth_sandbox.mpy
+__pycache__
+
+# Sphinx Documentation
+docs/build
