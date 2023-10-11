@@ -15,7 +15,7 @@ class Key:
             print(self.name + " released")
 
 keys = [
-    Key("C", board.GP16),
+    Key("C", board.GP19),
     Key("C#", board.GP3),
     Key("D", board.GP6),
     Key("D#", board.GP7),

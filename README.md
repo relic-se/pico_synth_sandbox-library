@@ -39,10 +39,10 @@ Some pins require solder jumper configuration if you do not use the default pin 
 | GP13          | Touch Pad 10 (A)                             |
 | GP14          | Touch Pad 11 (A#)                            |
 | GP15          | Touch Pad 12 (B)                             |
-| GP16          | Touch Pad 1 (C)                              |
-| GP17          | I2S Clock or Left PWM (JP3/JP5)              |
-| GP18          | I2S Word (LR) Select or Right PWM (JP4/JP6)  |
-| GP19          | I2S Data                                     |
+| GP16          | I2S Clock or Left PWM (JP3/JP5)              |
+| GP17          | I2S Word (LR) Select or Right PWM (JP4/JP6)  |
+| GP18          | I2S Data                                     |
+| GP19          | Touch Pad 1 (C)                              |
 | GP20          | 1602 Reset                                   |
 | GP21          | 1602 Enable                                  |
 | GP22          | 1602 D4                                      |
