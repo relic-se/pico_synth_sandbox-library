@@ -1,4 +1,4 @@
-# pico_synth_sandbox - Simple Synth Example
+# pico_synth_sandbox - Basic Example
 # 2023 Cooper Dalrymple - me@dcdalrymple.com
 # GPL v3 License
 
