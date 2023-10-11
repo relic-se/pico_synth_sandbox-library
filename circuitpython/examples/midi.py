@@ -4,35 +4,11 @@
 
 from pico_synth_sandbox import *
 
-gc.collect()
-
 display = Display()
 display.write("PicoSynthSandbox", (0,0))
 display.write("Loading...", (0,1))
 
 mod_value = 0
-keyboard_str = list("_" * 12)
-def update_display():
-    display.write("".join(keyboard_str), (0,1), 12)
-    display.write(str(mod_value), (13,1), 3, True)
-
-encoder = Encoder()
-
-def increment():
-    global mod_value
-    if mod_value < 127:
-        mod_value += 1
-        midi.send_control_change(1, mod_value)
-        update_display()
-encoder.set_increment(increment)
-
-def decrement():
-    global mod_value
-    if mod_value > 0:
-        mod_value -= 1
-        midi.send_control_change(1, mod_value)
-        update_display()
-encoder.set_decrement(decrement)
 
 midi = Midi()
 midi.set_thru(True)
@@ -41,27 +17,42 @@ keyboard = TouchKeyboard()
 arpeggiator = Arpeggiator()
 keyboard.set_arpeggiator(arpeggiator)
 
-def press(notenum, velocity):
+def press(notenum, velocity, keynum=None):
     midi.send_note_on(notenum, velocity)
-    keyboard_str[(notenum - keyboard.root) % len(keyboard_str)] = "*"
-    update_display()
+    display.write("*", (keynum,1), 1)
 keyboard.set_press(press)
 
-def release(notenum):
+def release(notenum, keynum=None):
     midi.send_note_off(notenum)
-    keyboard_str[(notenum - keyboard.root) % len(keyboard_str)] = "_"
-    update_display()
+    display.write("_", (keynum,1), 1)
 keyboard.set_release(release)
+
+encoder = Encoder()
+def increment():
+    global mod_value
+    if mod_value < 127:
+        mod_value += 1
+        midi.send_control_change(1, mod_value)
+        display.write(str(mod_value), (13,1), 3, True)
+def decrement():
+    global mod_value
+    if mod_value > 0:
+        mod_value -= 1
+        midi.send_control_change(1, mod_value)
+        display.write(str(mod_value), (13,1), 3, True)
+def click():
+    arpeggiator.toggle(keyboard)
+encoder.set_increment(increment)
+encoder.set_decrement(decrement)
+encoder.set_click(click)
 
 def control_change(control, value):
     if control == 64: # Sustain
         keyboard.set_sustain(value)
 midi.set_control_change(control_change)
 
-gc.collect()
-
-update_display()
-
+display.write("_"*12, (0,1))
+display.write(str(mod_value), (13,1), 3, True)
 while True:
     encoder.update()
     keyboard.update()
