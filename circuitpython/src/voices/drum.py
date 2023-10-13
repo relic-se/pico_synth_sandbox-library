@@ -63,6 +63,9 @@ class Drum(Voice):
             return False
         self._lfo.retrigger()
         return True
+    def release(self):
+        Voice.release(self)
+        return False
 
     def set_level(self, value):
         for note in self.get_notes():
