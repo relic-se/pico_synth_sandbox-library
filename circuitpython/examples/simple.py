@@ -10,8 +10,7 @@ display.write("Loading...", (0,1))
 
 audio = get_audio_driver()
 synth = Synth(audio)
-for i in range(12):
-    synth.add_voice(Oscillator())
+synth.add_voices(Oscillator() for i in range(12))
 
 keyboard = TouchKeyboard()
 arpeggiator = Arpeggiator()

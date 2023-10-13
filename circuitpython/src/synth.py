@@ -22,6 +22,9 @@ class Synth:
         self.voices.append(voice)
         for block in voice.get_blocks():
             self._synth.blocks.append(block)
+    def add_voices(self, voices):
+        for voice in voices:
+            self.add_voice(voice)
 
     def build_filter(self, type, frequency, resonance):
         if type == Synth.FILTER_LPF:
