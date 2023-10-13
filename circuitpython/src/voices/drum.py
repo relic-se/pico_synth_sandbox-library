@@ -93,7 +93,7 @@ class Kick(Drum):
             filter_frequency=2000,
             frequencies=[53, 72, 41],
             times=[0.075, 0.055, 0.095],
-            waveforms=[Waveform.get_offset_sine(), Waveform.get_sine(), Waveform.get_offset_sine()],
+            waveforms=[Waveform.get_offset_sine(), Waveform.get_sine(), Waveform.get_offset_sine()]
         )
 
 class Snare(Drum):
@@ -103,27 +103,34 @@ class Snare(Drum):
             filter_frequency=9500,
             frequencies=[90, 135, 165],
             times=[0.115, 0.095, 0.115],
-            waveforms=[Waveform.get_sine_noise(), Waveform.get_offset_sine_noise(), Waveform.get_offset_sine_noise()],
+            waveforms=[Waveform.get_sine_noise(), Waveform.get_offset_sine_noise(), Waveform.get_offset_sine_noise()]
         )
 
-min_hat_time = 0.115 / 2
-max_hat_time = 0.115 * 2
 class Hat(Drum):
-    def __init__(self):
+    def __init__(self, min_time, max_time):
         Drum.__init__(self,
             count=3,
             filter_type=Synth.FILTER_HPF,
             filter_frequency=9500,
             frequencies=[90, 135, 165],
-            waveforms=[Waveform.get_noise()],
+            waveforms=[Waveform.get_noise()]
         )
+        self._min_time = max(min_time, 0.0)
+        self._max_time = max(max_time, self._min_time)
         self.set_time()
 
     def set_time(self, value=0.5):
-        global min_hat_time, max_hat_time
-        value = map_value(value, min_hat_time, max_hat_time)
+        value = map_value(value, self._min_time, self._max_time)
         self.set_times([
             value,
             clamp(value-0.02),
             value
         ])
+
+class ClosedHat(Hat):
+    def __init__(self):
+        Hat.__init__(self, 0.025, 0.2)
+
+class OpenHat(Hat):
+    def __init__(self):
+        Hat.__init__(self, 0.25, 1.0)

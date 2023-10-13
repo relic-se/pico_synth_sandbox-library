@@ -12,8 +12,11 @@ audio = get_audio_driver()
 synth = Synth(audio)
 synth.add_voice(Kick())
 synth.add_voice(Snare())
-hat = Hat() # Keep local variable for changing envelope
-synth.add_voice(hat)
+# Keep local variable for changing envelope
+closed_hat = ClosedHat()
+open_hat = OpenHat()
+synth.add_voice(closed_hat)
+synth.add_voice(open_hat)
 
 keyboard = TouchKeyboard()
 arpeggiator = Arpeggiator()
@@ -23,6 +26,8 @@ def press(notenum, velocity, keynum=None):
     if keynum is None:
         keynum = notenum - keyboard.root
     synth.press(keynum, notenum, velocity)
+    if keynum % 12 == 2: # Closed Hat
+        synth.release(open_hat, True) # Force release
     display.write("*", (keynum,1), 1)
 keyboard.set_press(press)
 
@@ -36,7 +41,8 @@ keyboard.set_release(release)
 mod_value = 64
 encoder = Encoder()
 def update_envelope():
-    hat.set_time(float(mod_value) / 127.0)
+    closed_hat.set_time(float(mod_value) / 127.0)
+    open_hat.set_time(float(mod_value) / 127.0)
 def increment():
     global mod_value
     if mod_value < 127:
