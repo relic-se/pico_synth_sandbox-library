@@ -46,12 +46,12 @@ class Synth:
         else:
             return False
         return True
-    def release(self, voice=None):
+    def release(self, voice=None, force=False):
         if isinstance(voice, int) and len(self.voices) > 0:
             voice = self.voices[voice % len(self.voices)]
         if isinstance(voice, synthio.Note):
             self._synth.release(voice)
-        elif isinstance(voice, Voice) and voice.release():
+        elif isinstance(voice, Voice) and (voice.release() or force):
             self._synth.release(voice.get_notes())
         elif voice is None and len(self.voices) > 0:
             for voice in self.voices:
