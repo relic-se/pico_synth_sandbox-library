@@ -72,7 +72,7 @@ class Oscillator(Voice):
         self._filter_envelope.press()
         return True
     def release(self):
-        if not self.release():
+        if not Voice.release(self):
             return False
         self._filter_envelope.release()
         return True
