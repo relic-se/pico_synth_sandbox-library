@@ -64,4 +64,4 @@ display.write("_"*12, (0,1))
 while True:
     encoder.update()
     keyboard.update()
-    synth.update() # May not be necessary
+    synth.update()
