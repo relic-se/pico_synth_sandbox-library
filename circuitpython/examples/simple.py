@@ -10,6 +10,8 @@ display.write("Loading...", (0,1))
 
 audio = get_audio_driver()
 synth = Synth(audio)
+for i in range(12):
+    synth.add_voice(Oscillator())
 
 keyboard = TouchKeyboard()
 arpeggiator = Arpeggiator()
@@ -18,14 +20,14 @@ keyboard.set_arpeggiator(arpeggiator)
 def press(notenum, velocity, keynum=None):
     if keynum is None:
         keynum = notenum - keyboard.root
-    synth.voices[keynum].press(notenum, velocity)
+    synth.press(keynum, notenum, velocity)
     display.write("*", (keynum,1), 1)
 keyboard.set_press(press)
 
 def release(notenum, keynum=None):
     if keynum is None:
         keynum = notenum - keyboard.root
-    synth.voices[keynum].release()
+    synth.release(keynum)
     display.write("_", (keynum,1), 1)
 keyboard.set_release(release)
 

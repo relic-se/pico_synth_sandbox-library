@@ -6,9 +6,10 @@ from pico_synth_sandbox import *
 
 audio = get_audio_driver()
 synth = Synth(audio)
+synth.add_voice(Oscillator())
 
 while True:
-    synth.press(46)
+    synth.press(notenum=46)
     time.sleep(1)
     synth.release()
     time.sleep(1)

@@ -10,26 +10,28 @@ display.write("Loading...", (0,1))
 
 audio = get_audio_driver()
 synth = Synth(audio)
+for i in range(12):
+    synth.add_voice(Oscillator())
 synth.set_waveform(Waveform.get_saw())
-synth.set_envelope(
-    attack_time=0.1,
-    decay_time=0.2,
-    release_time=1.0,
-    attack_level=1.0,
-    sustain_level=0.5
-)
-synth.set_filter(
-    type=Synth.FILTER_LPF,
-    frequency=1.0,
-    resonance=0.5,
-    envelope_attack_time=1.0,
-    envelope_release_time=1.0,
-    envelope_amount=0.05,
-    lfo_rate=0.5,
-    lfo_depth=0.05
-)
-
-mod_value = 127
+for voice in synth.voices:
+    voice.set_envelope(
+        attack_time=0.1,
+        decay_time=0.2,
+        release_time=1.0,
+        attack_level=1.0,
+        sustain_level=0.5
+    )
+    voice.set_filter(
+        type=Synth.FILTER_LPF,
+        frequency=1.0,
+        resonance=0.5,
+        envelope_attack_time=1.0,
+        envelope_release_time=1.0,
+        envelope_amount=0.05,
+        lfo_rate=0.5,
+        lfo_depth=0.05,
+        synth=synth
+    )
 
 keyboard = TouchKeyboard()
 arpeggiator = Arpeggiator()
@@ -42,17 +44,18 @@ keyboard.set_arpeggiator(arpeggiator)
 def press(notenum, velocity, keynum=None):
     if keynum is None:
         keynum = notenum - keyboard.root
-    synth.voices[keynum % len(synth.voices)].press(notenum, velocity)
+    synth.press(keynum, notenum, velocity)
     display.write("*", (keynum % 12,1), 1)
 keyboard.set_press(press)
 
 def release(notenum, keynum=None):
     if keynum is None:
         keynum = notenum - keyboard.root
-    synth.voices[keynum % len(synth.voices)].release()
+    synth.release(keynum)
     display.write("_", (keynum % 12,1), 1)
 keyboard.set_release(release)
 
+mod_value = 127
 encoder = Encoder()
 def update_filter():
     synth.set_filter_frequency(float(mod_value) / 127.0)
