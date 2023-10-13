@@ -11,15 +11,13 @@ class Audio:
         """Constructor method
         """
         if count < 1: count = 1
-        self._rate = os.getenv("AUDIO_RATE", 22050)
-        self._size = os.getenv("AUDIO_BUFFER", 2048)
         self._mixer = Mixer(
             voice_count=count,
-            sample_rate=self._rate,
+            sample_rate=Audio.get_sample_rate(),
             channel_count=2,
             bits_per_sample=16,
             samples_signed=True,
-            buffer_size=self._size
+            buffer_size=Audio.get_buffer_size()
         )
         self._output = output
         self._output.play(self._mixer)
@@ -49,20 +47,23 @@ class Audio:
         if index >= 0 and index < len(self._mixer.voice):
             self._mixer.voice[index].play(source)
 
-    def get_sample_rate(self):
+    @staticmethod
+    def get_sample_rate():
         """Returns the sample rate of the audio mixer as defined by the settings.toml file.
 
         :return: sample rate
         :rtype: int
         """
-        return self._rate
-    def get_buffer_size(self):
+        return os.getenv("AUDIO_RATE", 22050)
+
+    @staticmethod
+    def get_buffer_size():
         """Returns the buffer size of the audio mixer as defined by the settings.toml file.
 
         :return: buffer size
         :rtype: int
         """
-        return self._size
+        return os.getenv("AUDIO_BUFFER", 2048)
 
 class I2SAudio(Audio):
     """This class helps manage audio output and mixing using an :class:`audioio.AudioOut` object of type :class:`audiobusio.I2SOut`.

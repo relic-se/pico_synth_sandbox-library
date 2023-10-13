@@ -1,4 +1,3 @@
-
 # Global Functions
 
 def free_module(mod):
@@ -43,3 +42,11 @@ def truncate_str(value, length, right_aligned=False):
         else:
             value = value + " " * (length - len(value))
     return value
+
+def clamp(value, minimum=0.0, maximum=1.0):
+    return min(max(value, minimum), maximum)
+
+def map_value(value, minimum, maximum):
+    return clamp(value) * (maximum - minimum) + minimum
+def unmap_value(value, minimum, maximum):
+    return (clamp(value, minimum, maximum) - minimum) / (maximum - minimum)
