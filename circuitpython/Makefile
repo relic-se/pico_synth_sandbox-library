@@ -22,10 +22,7 @@ LIB_SRCS := \
 	$(SRCDIR)/synth.py \
 	$(SRCDIR)/voice.py \
 	$(SRCDIR)/voices/oscillator.py \
-	$(SRCDIR)/voices/drum.py \
-	$(SRCDIR)/voices/drums/kick.py \
-	$(SRCDIR)/voices/drums/snare.py \
-	$(SRCDIR)/voices/drums/hat.py
+	$(SRCDIR)/voices/drum.py
 LIB_PY = ./$(LIB).py
 LIB_MPY = ./$(LIB).mpy
 
