@@ -1,0 +1,40 @@
+[build-system]
+requires = [
+    "setuptools",
+    "wheel",
+    "setuptools-scm",
+]
+
+[project]
+name = "pico_synth_sandbox"
+description = "Hardware abstraction library for the pico_synth_sandbox device with additional music-based functionality."
+version = "0.1.0"
+readme = "README.rst"
+authors = [
+    {name = "Cooper Dalrymple", email = "me@dcdalrymple.com"}
+]
+urls = {Homepage = "https://github.com/dcooperdalrymple/pico_synth_sandbox/"}
+keywords = [
+    "circuitpython",
+    "micropython",
+    "i2s",
+    "pdm",
+    "audio",
+    "synthio",
+]
+license = {text = "GPLv3"}
+classifiers = [
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development :: Embedded Systems",
+    "Topic :: System :: Hardware",
+    "Programming Language :: Python :: 3",
+]
+dynamic = ["dependencies", "optional-dependencies"]
+
+[tool.setuptools]
+py-modules = []
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["circuitpython/requirements.txt"]}
+optional-dependencies = {optional = {file = []}}
