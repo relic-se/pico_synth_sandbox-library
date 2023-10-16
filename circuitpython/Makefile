@@ -17,6 +17,7 @@ LIB_SRCS := \
 	$(SRCDIR)/midi.py \
 	$(SRCDIR)/keyboard.py \
 	$(SRCDIR)/touch-keyboard.py \
+	$(SRCDIR)/timer.py \
 	$(SRCDIR)/arpeggiator.py \
 	$(SRCDIR)/waveform.py \
 	$(SRCDIR)/synth.py \
