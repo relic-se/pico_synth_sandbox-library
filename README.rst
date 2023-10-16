@@ -1,6 +1,14 @@
 pico_synth_sandbox
 ==================
 
+.. image:: https://readthedocs.org/projects/pico-synth-sandbox/badge/?version=latest
+    :target: https://pico-synth-sandbox.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
+
+.. image:: https://img.shields.io/badge/License-GPLv3-blue.svg
+    :target:https://www.gnu.org/licenses/gpl-3.0
+    :alt: GPL v3 License
+
 Raspberry Pi Pico digital synthesizer board with I2S or PWM audio, a PDM microphone, MIDI i/o, a capacitive keybed, 1602 display, a rotary encoder, and LiPo battery. Designed for use with CircuitPython and synthio.
 
 .. list-table::
@@ -95,6 +103,11 @@ Schematic
 .. image:: _static/schematic.jpg
    :alt: Hardware schematic of pico_synth_sandbox device
    :target: _static/pico_synth_sandbox-schematic.pdf
+
+Documentation
+-------------
+
+API documentation for the included CircuitPython library can be found on `Read the Docs<https://pico-synth-sandbox.readthedocs.io/>`_.
 
 Attribution
 -----------
