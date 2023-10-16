@@ -45,3 +45,12 @@ Use the display, touch keyboard, and encoder to play synthesized drum samples us
 .. literalinclude:: ../circuitpython/examples/drums.py
     :caption: circuitpython/examples/drums.py
     :linenos:
+
+Drum Sequencer
+--------------
+
+Utilizes the Sequencer class to create a simple drum sequencer using the display, touch keyboard, encoder, and synthesized drum samples (similar to the "Drums" example). Encoder controls either the selected voice or beats per minute (aka "bpm") and is switched by clicking the encoder. There is a total of 16 steps used by the sequencer, and the first 8 keys can be used to toggle whether a note is played on that particular step for the selected voice. The 12th key is used to switch between the lower and upper 8 steps. The 9th through 11th keys are not used in this example.
+
+.. literalinclude:: ../circuitpython/examples/sequencer.py
+    :caption: circuitpython/examples/sequencer.py
+    :linenos:
