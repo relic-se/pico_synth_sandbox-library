@@ -11,7 +11,9 @@ class Display:
         self._lcd.cursor = False
         self._lcd.text_direction = self._lcd.LEFT_TO_RIGHT
 
-        self._cursor = False
+        self._cursor_enabled = None
+        self._cursor_blink = None
+        self._cursor_position = (-1,-1)
 
     def clear(self):
         self._lcd.clear()
@@ -25,13 +27,22 @@ class Display:
         self._lcd.cursor_position(position[0], position[1])
         self._lcd.message = truncate_str(str(value), length, right_aligned)
 
-    def set_cursor(self, enabled=False, position=(0,0)):
-        self._lcd.cursor = enabled
-        self._lcd.blink = enabled
-        if enabled:
-            self._lcd.cursor_position(position[0], position[1])
+    def set_cursor_enabled(self, value):
+        if self._cursor_enabled != value:
+            self._cursor_enabled = value
+            self._lcd.cursor = value
+    def set_cursor_position(self, column=0, row=0):
+        if self._cursor_position[0] != column or self._cursor_position[1] != row:
+            self._cursor_position = (column, row)
+            self._lcd.cursor_position(column, row)
+    def set_cursor_blink(self, value):
+        if self._cursor_blink != value:
+            self._cursor_blink = value
+            self._lcd.blink = value
 
     def show_cursor(self, column=0, row=0):
-        self.set_cursor(True, (column, row))
+        self.set_cursor_enabled(True)
+        self.set_cursor_position(column, row)
     def hide_cursor(self):
+        self.set_cursor_disabled(False)
         self.set_cursor(False)
