@@ -36,5 +36,5 @@ dynamic = ["dependencies", "optional-dependencies"]
 py-modules = []
 
 [tool.setuptools.dynamic]
-dependencies = {file = ["circuitpython/requirements.txt"]}
+dependencies = {file = []}
 optional-dependencies = {optional = {file = []}}
