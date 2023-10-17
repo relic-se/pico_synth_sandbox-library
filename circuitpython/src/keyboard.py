@@ -1,24 +1,42 @@
 # TODO: Add Output Buffer Voices
 
 class Key:
-    NONE=0
-    PRESS=1
-    RELEASE=2
+    """An abstract layer to use physical key objects with the :class:`pico_synth_sandbox.Keyboard` class.
+    """
+
+    NONE=0 #: Indicates that the key hasn't been activated in any way
+    PRESS=1 #: Indicates that the key has been pressed
+    RELEASE=2 #: Indicates that the key has been released
+
     def __init__(self):
         pass
+
     def check(self):
+        """Updates any necessary logic and returns the current state of the key object.
+
+        :return: Key state constant
+        :rtype: int
+        """
         return self.NONE
 
 class Keyboard:
-    NUM_MODES=3
-    MODE_HIGH=0
-    MODE_LOW=1
-    MODE_LAST=2
+    """Manage note allocation, arpeggiator assignment, sustain, and note callbacks using this class. The root of the keyboard (lowest note) is designated by the `KEYBOARD_ROOT` variable in `settings.toml`. The default note allocation mode is defined by the `KEYBOARD_MODE` variable in `settings.toml`. This class is inherited by the :class:`pico_synth_sandbox.TouchKeyboard` class.
 
-    def __init__(self, keys=[], voices=1):
+    :param keys: An array of Key objects used to include physical key inputs as notes during the update routine.
+    :type keys: array
+    :param max_notes: The maximum number of notes to be played at once. Currently, this feature is not implemented. When using the `get` method, the result is monophonic (1 note).
+    :type max_notes: int
+    """
+
+    NUM_MODES=3 #: The number of available keyboard note allocation modes.
+    MODE_HIGH=0 #: When the keyboard is set as this mode, it will prioritize the highest note value.
+    MODE_LOW=1 #: When the keyboard is set as this mode, it will prioritize the lowest note value.
+    MODE_LAST=2 #: When the keyboard is set as this mode, it will prioritize notes by the order in when they were played/appended.
+
+    def __init__(self, keys=[], max_notes=1):
         self.root = os.getenv("KEYBOARD_ROOT", 36)
         self.keys = keys
-        self.voices = voices # Not implemented
+        self.max_notes = max(max_notes, 1) # Not implemented
 
         self._notes = []
         self._sustain = False
@@ -30,14 +48,32 @@ class Keyboard:
         self.set_mode(os.getenv("KEYBOARD_MODE", self.MODE_HIGH))
 
     def set_press(self, callback):
+        """Set the callback method you would like to be called when a new note is pressed.
+
+        :param callback: The callback method. Must have 3 parameters for note value, velocity, and keynum (if sourced from a :class:`pico_synth_sandbox.Key` class). Ie: `def press(notenum, velocity, keynum=None):`.
+        :type callback: function
+        """
         self._press = callback
         if self._arpeggiator:
             self._arpeggiator.set_press(callback)
     def set_release(self, callback):
+        """Set the callback method you would like to be called when a note is released.
+
+        :param callback: The callback method. Must have 2 parameters for note value, and keynum (if sourced from a :class:`pico_synth_sandbox.Key` class). Velocity is always assumed to be 0. Ie: `def release(notenum, keynum=None):`.
+        :type callback: function
+        """
         self._release = callback
         if self._arpeggiator:
             self._arpeggiator.set_release(callback)
     def set_arpeggiator(self, arpeggiator):
+        """Assign an arpeggiator class to the keyboard. Must be of type :class:`pico_synth_sandbox.Arpeggiator` or a child of that class. When notes are appended to this object, the arpeggiator will automatically be updated. Callbacks from the arpeggiator will also be routed through the press and release callbacks of this object.
+
+        :param arpeggiator: The arpeggiator object to be assigned ot the keyboard. If this class is called multiple times, the callbacks of the previously allocated arpeggiator will be unassigned.
+        :type callback: :class:`pico_synth_sandbox.Arpeggiator`
+        """
+        if self._arpeggiator:
+            self._arpeggiator.set_press(None)
+            self._arpeggiator.set_release(None)
         self._arpeggiator = arpeggiator
         self._arpeggiator.set_keyboard(self)
         if self._press:
@@ -46,13 +82,34 @@ class Keyboard:
             self._arpeggiator.set_release(self._release)
 
     def get_mode(self):
+        """Get the current note allocation mode of this object.
+
+        :return: keyboard mode
+        :rtype: int
+        """
         return self._mode
     def set_mode(self, value):
+        """Set the note allocation mode of this object. Use one of the mode constants of this class such as `pico_synth_sandbox.Keyboard.MODE_HIGH`. Note allocation won't be updated until the next update call.
+
+        :param value: The desired mode type.
+        :type value: int
+        """
         self._mode = value % self.NUM_MODES
 
     def get_sustain(self):
+        """Get the current sustain state of the keyboard.
+
+        :return: sustain
+        :rtype: bool
+        """
         return self._sustain
     def set_sustain(self, value, update=True):
+        """Set the sustain state of the keyboard. If sustain is set as `True`, it will prevent current and future notes from being released until sustain is set as `False`.
+
+        :param value: The desired state of sustain. If sustain is set as `False`, any notes that are no longer being held will be released immediately.
+        :type value: bool
+        :param update: Whether or not you would like to update the current list notes after changing the sustained state. This may trigger a new note press according to the note allocation rules immediately.
+        """
         if value != self._sustain:
             self._sustain = value
 
@@ -71,12 +128,26 @@ class Keyboard:
                 self._update()
 
     def has_notes(self, include_sustained=True):
+        """Check whether the keyboard has any active notes.
+
+        :param include_sustained: If set as `True`, any sustained notes (if sustain is active) will be included in the check.
+        :type include_sustained: bool
+        :returns: has notes
+        :rtype: bool
+        """
         if include_sustained and self._sustain and self._sustained:
             return True
         if self._notes:
             return True
         return False
     def get_notes(self, include_sustained=True):
+        """Get all active notes in the keyboard object. Notes are tuples with 3 elements of `(notenum, velocity, keynum)`. `keynum` may be set as None if note came from an external source instead of a :class:`pico_synth_sandbox.Key` object.
+
+        :param include_sustained: If set as `True`, any sustained notes will be included in the returned value.
+        :type include_sustained: bool
+        :returns: note tuples
+        :rtype: array
+        """
         if not self.has_notes(include_sustained):
             return []
         if include_sustained:
@@ -85,6 +156,13 @@ class Keyboard:
             return self._notes
 
     def has_note(self, notenum, include_sustained=True):
+        """Check whether the keyboard has an active note of a particular note value.
+
+        :param include_sustained: If set as `True`, any sustained notes (if sustain is active) will be included in the check.
+        :type include_sustained: bool
+        :returns: has note
+        :rtype: bool
+        """
         for note in self.get_notes(include_sustained):
             if note[0] == notenum:
                 return True
@@ -123,6 +201,11 @@ class Keyboard:
             return self._notes[-1]
         return None
     def get(self):
+        """Retrieve the current note allocated according to the keyboard mode. Only a single monophonic note is currently supported, but polyphony up to the initial `max_notes` value will be added in the future.
+
+        :returns: note as (notenum, velocity, keynum)
+        :rtype: tuple
+        """
         if self._mode == self.MODE_HIGH:
             return self._get_high()
         elif self._mode == self.MODE_LOW:
@@ -130,7 +213,18 @@ class Keyboard:
         else: # self.MODE_LAST
             return self._get_last()
 
-    def append(self, notenum, velocity, keynum=None, update=True):
+    def append(self, notenum, velocity=127, keynum=None, update=True):
+        """Add a note to the keyboard buffer. Useful when working with MIDI input or another note source. Any previous notes with the same notenum value will be removed automatically.
+
+        :param notenum: The number of the note. Can be defined by MIDI notes, a designated sample index, etc. When using MODE_HIGH or MODE_LOW, the value of this parameter will affect the order.
+        :type notenum: int
+        :param velocity: The velocity of the note from 1 through 127.
+        :type velocity: int
+        :param keynum: An additional index reference typically used to associate the note with a physical :class:`pico_synth_sandbox.Key` object. Not required for use of the keyboard.
+        :type keynum: int
+        :param update: Whether or not to update the keyboard logic and potentially trigger any associated callbacks.
+        :type update: bool
+        """
         self.remove(notenum, None, False, True)
         note = (notenum, velocity, keynum)
         self._notes.append(note)
@@ -139,6 +233,17 @@ class Keyboard:
         if update:
             self._update()
     def remove(self, notenum, keynum=None, update=True, remove_sustained=False):
+        """Remove a note from the keyboard buffer. Useful when working with MIDI input or another note source. If the note is found (and the keyboard isn't being sustained or remove_sustained is set as `True`), the release callback will trigger automatically regardless of the `update` parameter.
+
+        :param notenum: The number of the note that you would like to removed. All notes in the buffer with this value will be removed. Can be defined by MIDI notes, a designated sample index, etc.
+        :type notenum: int
+        :param keynum: An additional index reference typically used to associate the note with a physical :class:`pico_synth_sandbox.Key` object. This value will be used in the release callback if triggered. Not required for use of the keyboard.
+        :type keynum: int
+        :param update: Whether or not to update the keyboard logic and potentially trigger any associated callbacks.
+        :type update: bool
+        :param remove_sustained: Whether or not you would like to override the current sustained state of the keyboard and release any notes that are being sustained.
+        :type remove_sustained: bool
+        """
         if not self.has_note(notenum):
             return
         self._notes = [note for note in self._notes if note[0] != notenum]
@@ -150,6 +255,8 @@ class Keyboard:
             self._update()
 
     def update(self):
+        """Update the keyboard logic and call any pre-defined callbacks if triggered. If any :class:`pico_synth_sandbox.Key` objects (during initialization) or an :class:`pico_synth_sandbox.Arpeggiator` object (using the `set_arpeggiator` method) were associated with this object, it will also be updated in this process.
+        """
         if self.keys:
             for i in range(len(self.keys)):
                 j = self.keys[i].check()
