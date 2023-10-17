@@ -1,4 +1,6 @@
 class Encoder:
+    """Use the on-board encoder to control your program with simple function callbacks. Supports increment, decrement, click, double click, and long press actions.
+    """
 
     def __init__(self):
         self._encoder = IncrementalEncoder(board.GP1, board.GP0)
@@ -21,17 +23,44 @@ class Encoder:
         self._long_press = None
 
     def set_increment(self, callback):
+        """Set the callback method you would like to be called when the encoder is incremented (turned right).
+
+        :param callback: The callback method. No callback parameters are defined.
+        :type callback: function
+        """
         self._increment = callback
     def set_decrement(self, callback):
+        """Set the callback method you would like to be called when the encoder is decremented (turned left).
+
+        :param callback: The callback method. No callback parameters are defined.
+        :type callback: function
+        """
         self._decrement = callback
     def set_click(self, callback):
+        """Set the callback method you would like to be called when the encoder is pressed with a short click (at least 200ms).
+
+        :param callback: The callback method. No callback parameters are defined.
+        :type callback: function
+        """
         self._click = callback
     def set_double_click(self, callback):
+        """Set the callback method you would like to be called when the encoder is pressed with two short clicks.
+
+        :param callback: The callback method. No callback parameters are defined.
+        :type callback: function
+        """
         self._double_click = callback
     def set_long_press(self, callback):
+        """Set the callback method you would like to be called when the encoder is pressed with a single long press (at least 500ms).
+
+        :param callback: The callback method. No callback parameters are defined.
+        :type callback: function
+        """
         self._long_press = callback
 
     def update(self):
+        """Update the encoder logic and call any pre-defined callbacks if triggered.
+        """
         position = self._encoder.position
         if not self._position is None and position != self._position:
             p = position
