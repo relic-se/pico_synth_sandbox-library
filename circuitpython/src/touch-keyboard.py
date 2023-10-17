@@ -1,7 +1,18 @@
 class TouchPad(Key):
+    """This class is used by the :class:`pico_synth_sandbox.TouchKeyboard` class to handle logic related to the capacitive touch inputs of the hardware platform.
+
+    :param pin: The GPIO pin of the capacitive touch input. Must use a pull-down resistor of around 1M ohms.
+    :type pin: :class:`microcontroller.Pin`
+    """
     def __init__(self, pin):
         self.switch = Debouncer(TouchIn(pin))
+
     def check(self):
+        """Updates the capacitive touch input with basic debouncing and returns the current key state.
+
+        :return: Key state constant
+        :rtype: int
+        """
         self.switch.update()
         if self.switch.rose:
             return self.PRESS
@@ -11,7 +22,12 @@ class TouchPad(Key):
             return self.NONE
 
 class TouchKeyboard(Keyboard):
-    def __init__(self, voices=1):
+    """Use the built-in 12 capacitive touch inputs as a :class:`pico_synth_sandbox.Keyboard` object.
+
+    :param max_notes: The maximum number of notes to be played at once. Currently, this feature is not implemented. When using the `get` method, the result is monophonic (1 note).
+    :type max_notes: int
+    """
+    def __init__(self, max_notes=1):
         Keyboard.__init__(self, [
             TouchPad(board.GP19),
             TouchPad(board.GP3),
@@ -25,4 +41,4 @@ class TouchKeyboard(Keyboard):
             TouchPad(board.GP13),
             TouchPad(board.GP14),
             TouchPad(board.GP15)
-        ], 1)
+        ], max_notes)
