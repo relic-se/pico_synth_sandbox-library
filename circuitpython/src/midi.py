@@ -1,4 +1,6 @@
 class Midi:
+    """Send and receive both hardware UART and USB MIDI messages using :class:`adafruit_midi.MIDI`. UART can be enabled with the `MIDI_UART` variable and USB can be enabled with the `MIDI_USB` variable in `settings.toml`. The midi channel is limited to a single value for both input and output and is determined by the `MIDI_CHANNEL` variable in `settings.toml` with a range of 0-15. However, the channel can be changed once a :class:`pico_synth_sandbox.Midi` object is created by calling the `set_channel` function. By default, the onboard led will be used to indicate incoming midi messages. At the moment, this feature cannot be disabled.
+    """
 
     def __init__(self):
         self._thru = False
@@ -43,17 +45,47 @@ class Midi:
         self._led_last = time.monotonic()
 
     def set_note_on(self, callback):
+        """Set the callback method you would like to be called when a `adafruit_midi.note_on.NoteOn` message is received.
+
+        :param callback: The callback method. Must have 2 parameters for note value and velocity (0.0-1.0). Ie: `def note_on(notenum, velocity):`.
+        :type callback: function
+        """
         self._note_on = callback
     def set_note_off(self, callback):
+        """Set the callback method you would like to be called when a `adafruit_midi.note_off.NoteOff` message is received.
+
+        :param callback: The callback method. Must have 1 parameter for the note value. Ie: `def note_off(notenum):`.
+        :type callback: function
+        """
         self._note_off = callback
     def set_control_change(self, callback):
+        """Set the callback method you would like to be called when a `adafruit_midi.control_change.ControlChange` message is received.
+
+        :param callback: The callback method. Must have 2 parameters for control number and control value (0.0-1.0). Ie: `def control_change(control, value):`.
+        :type callback: function
+        """
         self._control_change = callback
     def set_pitch_bend(self, callback):
+        """Set the callback method you would like to be called when a `adafruit_midi.pitch_bend.PitchBend` message is received.
+
+        :param callback: The callback method. Must have 1 parameter for the pitch bend value (-1.0-1.0). Ie: `def pitch_bend(value):`.
+        :type callback: function
+        """
         self._pitch_bend = callback
     def set_program_change(self, callback):
+        """Set the callback method you would like to be called when a `adafruit_midi.program_change.ProgramChange` message is received.
+
+        :param callback: The callback method. Must have 1 parameter for the patch number requested. Ie: `def program_change(patch):`.
+        :type callback: function
+        """
         self._program_change = callback
 
     def set_channel(self, value):
+        """Set the midi channel for messages to be received and sent from.
+
+        :param value: The desired channel from 0 to 15.
+        :type value: int
+        """
         if self._uart_midi:
             self._uart_midi.in_channel = value
             self._uart_midi.out_channel = value
@@ -61,6 +93,11 @@ class Midi:
             self._usb_midi.in_channel = value
             self._usb_midi.out_channel = value
     def set_thru(self, value):
+        """Set whether you would like to forward incoming midi messages through the enabled outputs automatically.
+
+        :param value: Whether or not you would like to enable midi thru.
+        :type value: bool
+        """
         self._thru = value
 
     def _process_message(self, msg):
@@ -103,6 +140,8 @@ class Midi:
             limit = limit - 1
 
     def update(self):
+        """Process any incoming midi messages from the enabled midi devices. Will trigger any pre-defined callbacks if the appropriate messages are received.
+        """
         if self._uart_midi:
             self._process_messages(self._uart_midi)
         if self._usb_midi:
@@ -115,19 +154,40 @@ class Midi:
         self._led.value = True
         self._led_last = time.monotonic()
 
-    def send_note_on(self, note, velocity):
+    def send_note_on(self, notenum, velocity=1.0):
+        """Send an :class:`adafruit_midi.note_on.NoteOn` message through the enabled midi outputs.
+
+        :param notenum: The value of the midi note to send.
+        :type notenum: int
+        :param velocity: The velocity of the note from 0.0 through 1.0.
+        :type velocity: float
+        """
+        velocity = int(clamp(velocity) * 127.0)
         if self._uart_midi:
-            self._uart_midi.send(NoteOn(note, velocity))
+            self._uart_midi.send(NoteOn(notenum, velocity))
         if self._usb_midi:
-            self._usb_midi.send(NoteOn(note, velocity))
+            self._usb_midi.send(NoteOn(notenum, velocity))
         self._trigger_led()
-    def send_note_off(self, note):
+    def send_note_off(self, notenum):
+        """Send an :class:`adafruit_midi.note_off.NoteOff` message through the enabled midi outputs.
+
+        :param notenum: The value of the midi note to send.
+        :type notenum: int
+        """
         if self._uart_midi:
-            self._uart_midi.send(NoteOff(note))
+            self._uart_midi.send(NoteOff(notenum))
         if self._usb_midi:
-            self._usb_midi.send(NoteOff(note))
+            self._usb_midi.send(NoteOff(notenum))
         self._trigger_led()
     def send_control_change(self, control, value):
+        """Send an :class:`adafruit_midi.control_change.ControlChange` message through the enabled midi outputs.
+
+        :param control: The number of the midi control to send.
+        :type control: int
+        :param value: The value to set of the desired control from 0.0 through 1.0.
+        :type value: float
+        """
+        value = int(clamp(value) * 127.0)
         if self._uart_midi:
             self._uart_midi.send(ControlChange(control, value))
         if self._usb_midi:
