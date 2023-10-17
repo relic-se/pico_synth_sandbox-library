@@ -34,8 +34,8 @@ class Sequencer(Timer):
 
     def get_position(self):
         return self._pos
-    
-    def set_note(self, position, notenum, velocity=100, track=0):
+
+    def set_note(self, position, notenum, velocity=1.0, track=0):
         track = clamp(track, 0, self._tracks)
         position = clamp(position, 0, self._length)
         self._data[track][position] = (notenum, velocity)
@@ -53,7 +53,7 @@ class Sequencer(Timer):
     def get_track(self, track=0):
         track = clamp(track, 0, self._tracks)
         return self._data[track]
-    
+
     def _update(self):
         self._pos = (self._pos+1) % self._length
         for i in range(self._tracks):

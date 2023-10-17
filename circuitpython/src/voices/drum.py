@@ -58,7 +58,7 @@ class Drum(Voice):
         for i, note in enumerate(self.get_notes()):
             note.waveform = values[i % len(values)]
 
-    def press(self, notenum, velocity=100):
+    def press(self, notenum, velocity=1.0):
         if not Voice.press(self, notenum, velocity):
             return False
         self._lfo.retrigger()

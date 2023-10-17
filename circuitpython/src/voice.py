@@ -82,7 +82,7 @@ class Voice:
     def get_blocks(self):
         return []
 
-    def press(self, notenum, velocity=100):
+    def press(self, notenum, velocity=1.0):
         self._velocity = velocity
         self._update_envelope()
         if notenum == self._notenum: return False

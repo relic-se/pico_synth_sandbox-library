@@ -50,7 +50,7 @@ class Keyboard:
     def set_press(self, callback):
         """Set the callback method you would like to be called when a new note is pressed.
 
-        :param callback: The callback method. Must have 3 parameters for note value, velocity, and keynum (if sourced from a :class:`pico_synth_sandbox.Key` class). Ie: `def press(notenum, velocity, keynum=None):`.
+        :param callback: The callback method. Must have 3 parameters for note value (1-127), velocity (0.0-1.0), and keynum (if sourced from a :class:`pico_synth_sandbox.Key` class). Ie: `def press(notenum, velocity, keynum=None):`.
         :type callback: function
         """
         self._press = callback
@@ -59,7 +59,7 @@ class Keyboard:
     def set_release(self, callback):
         """Set the callback method you would like to be called when a note is released.
 
-        :param callback: The callback method. Must have 2 parameters for note value, and keynum (if sourced from a :class:`pico_synth_sandbox.Key` class). Velocity is always assumed to be 0. Ie: `def release(notenum, keynum=None):`.
+        :param callback: The callback method. Must have 2 parameters for note value (1-127), and keynum (if sourced from a :class:`pico_synth_sandbox.Key` class). Velocity is always assumed to be 0.0. Ie: `def release(notenum, keynum=None):`.
         :type callback: function
         """
         self._release = callback
@@ -213,13 +213,13 @@ class Keyboard:
         else: # self.MODE_LAST
             return self._get_last()
 
-    def append(self, notenum, velocity=127, keynum=None, update=True):
+    def append(self, notenum, velocity=1.0, keynum=None, update=True):
         """Add a note to the keyboard buffer. Useful when working with MIDI input or another note source. Any previous notes with the same notenum value will be removed automatically.
 
         :param notenum: The number of the note. Can be defined by MIDI notes, a designated sample index, etc. When using MODE_HIGH or MODE_LOW, the value of this parameter will affect the order.
         :type notenum: int
-        :param velocity: The velocity of the note from 1 through 127.
-        :type velocity: int
+        :param velocity: The velocity of the note from 0.0 through 1.0.
+        :type velocity: float
         :param keynum: An additional index reference typically used to associate the note with a physical :class:`pico_synth_sandbox.Key` object. Not required for use of the keyboard.
         :type keynum: int
         :param update: Whether or not to update the keyboard logic and potentially trigger any associated callbacks.
@@ -261,7 +261,7 @@ class Keyboard:
             for i in range(len(self.keys)):
                 j = self.keys[i].check()
                 if j == Key.PRESS:
-                    self.append(self.root + i, 127, i) # Velocity is hard-coded
+                    self.append(self.root + i, 1.0, i) # Velocity is hard-coded
                 elif j == Key.RELEASE:
                     self.remove(self.root + i, i)
 

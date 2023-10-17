@@ -66,7 +66,7 @@ def key_press(notenum, velocity, keynum=None):
             sequencer.set_note(
                 position=position,
                 notenum=voice+1,
-                velocity=100,
+                velocity=1.0,
                 track=voice
             )
             display.write("*", (position,1), 1)

@@ -64,7 +64,7 @@ class Oscillator(Voice):
             self._note.panning,
         ]
 
-    def press(self, notenum, velocity=100):
+    def press(self, notenum, velocity=1.0):
         if not Voice.press(self, notenum, velocity):
             return False
         frequency = synthio.midi_to_hz(notenum)

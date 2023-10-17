@@ -36,7 +36,7 @@ class Synth:
 
     def append(self, block):
         self._synth.blocks.append(block)
-    def press(self, voice=0, notenum=1, velocity=100):
+    def press(self, voice=0, notenum=1, velocity=1.0):
         if isinstance(voice, int) and len(self.voices) > 0:
             voice = self.voices[voice % len(self.voices)]
         if isinstance(voice, synthio.Note):
