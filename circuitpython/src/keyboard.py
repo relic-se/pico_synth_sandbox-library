@@ -50,7 +50,7 @@ class Keyboard:
     def set_press(self, callback):
         """Set the callback method you would like to be called when a new note is pressed.
 
-        :param callback: The callback method. Must have 3 parameters for note value (1-127), velocity (0.0-1.0), and keynum (if sourced from a :class:`pico_synth_sandbox.Key` class). Ie: `def press(notenum, velocity, keynum=None):`.
+        :param callback: The callback method. Must have 3 parameters for note value, velocity (0.0-1.0), and keynum (if sourced from a :class:`pico_synth_sandbox.Key` class). Ie: `def press(notenum, velocity, keynum=None):`.
         :type callback: function
         """
         self._press = callback
@@ -59,7 +59,7 @@ class Keyboard:
     def set_release(self, callback):
         """Set the callback method you would like to be called when a note is released.
 
-        :param callback: The callback method. Must have 2 parameters for note value (1-127), and keynum (if sourced from a :class:`pico_synth_sandbox.Key` class). Velocity is always assumed to be 0.0. Ie: `def release(notenum, keynum=None):`.
+        :param callback: The callback method. Must have 2 parameters for note value, and keynum (if sourced from a :class:`pico_synth_sandbox.Key` class). Velocity is always assumed to be 0.0. Ie: `def release(notenum, keynum=None):`.
         :type callback: function
         """
         self._release = callback
