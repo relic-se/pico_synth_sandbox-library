@@ -28,6 +28,15 @@ Use the display, touch keyboard, and encoder to control a more advanced synth ob
     :caption: circuitpython/examples/filter.py
     :linenos:
 
+Monophonic Synth
+----------------
+
+Control two different oscillators in sync with a single note from the touch keyboard. The encoder is used to increase or decrease the pitch of both oscillators by semitones.
+
+.. literalinclude:: ../circuitpython/examples/monophonic.py
+    :caption: circuitpython/examples/monophonic.py
+    :linenos:
+
 Midi Controller
 ---------------
 
