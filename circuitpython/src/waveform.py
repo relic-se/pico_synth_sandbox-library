@@ -1,15 +1,32 @@
 class Waveform:
+    """A static helper class to quickly generate waveforms. Stores generated waveform arrays locally to improve memory efficiency.
+    """
 
     @staticmethod
     def get_samples():
+        """Retrieve the number of samples in a waveform as defined by `WAVE_SAMPLES` in the settings.toml file.
+
+        :return: waveform buffer size
+        :rtype: int
+        """
         return os.getenv("WAVE_SAMPLES", 256)
 
     @staticmethod
     def get_amplitude():
+        """Retrieve the maximum level peak-to-peak (+/-) of waveform sample values as defined by `WAVE_AMPLITUDE` in the settings.toml file.
+
+        :return: waveform amplitude level
+        :rtype: int
+        """
         return os.getenv("WAVE_AMPLITUDE", 12000)
 
     @staticmethod
     def get_saw():
+        """Generate a decrementing sawtooth waveform.
+
+        :return: waveform
+        :rtype: numpy array
+        """
         if not hasattr(Waveform, "_saw"):
             Waveform._saw = numpy.linspace(Waveform.get_amplitude(), -Waveform.get_amplitude(), num=Waveform.get_samples(), dtype=numpy.int16)
         return Waveform._saw
@@ -20,30 +37,55 @@ class Waveform:
 
     @staticmethod
     def get_sine():
+        """Generate a sine waveform.
+
+        :return: waveform
+        :rtype: numpy array
+        """
         if not hasattr(Waveform, "_sine"):
             Waveform._sine = Waveform._get_sine()
         return Waveform._sine
 
     @staticmethod
     def get_offset_sine():
+        """Generate a sine waveform offset by a quarter period (PI/2).
+
+        :return: waveform
+        :rtype: numpy array
+        """
         if not hasattr(Waveform, "_offset_sine"):
             Waveform._offset_sine = Waveform._get_sine(0.5)
         return Waveform._offset_sine
 
     @staticmethod
     def get_square():
+        """Generate a square waveform.
+
+        :return: waveform
+        :rtype: numpy array
+        """
         if not hasattr(Waveform, "_square"):
             Waveform._square = numpy.concatenate((numpy.ones(Waveform.get_samples()//2, dtype=numpy.int16)*Waveform.get_amplitude(),numpy.ones(Waveform.get_samples()//2, dtype=numpy.int16)*-Waveform.get_amplitude()))
         return Waveform._square
 
     @staticmethod
     def get_noise():
+        """Generate a white (random) noise waveform.
+
+        :return: waveform
+        :rtype: numpy array
+        """
         if not hasattr(Waveform, "_noise"):
             Waveform._noise = numpy.array([random.randint(-Waveform.get_amplitude(), Waveform.get_amplitude()) for i in range(Waveform.get_samples())], dtype=numpy.int16)
         return Waveform._noise
 
     @staticmethod
     def get_sine_noise():
+        """Generate a sine waveform with white noise added. Useful for percussion synthesis.
+
+        :return: waveform
+        :rtype: numpy array
+        """
         if not hasattr(Waveform, "_sine_noise"):
             Waveform.get_sine()
             Waveform.get_noise()
@@ -52,6 +94,11 @@ class Waveform:
 
     @staticmethod
     def get_offset_sine_noise():
+        """Generate a sine waveform offset by a quarter period (PI/2) with white noise added. Useful for percussion synthesis.
+
+        :return: waveform
+        :rtype: numpy array
+        """
         if not hasattr(Waveform, "_offset_sine_noise"):
             Waveform.get_offset_sine()
             Waveform.get_noise()
