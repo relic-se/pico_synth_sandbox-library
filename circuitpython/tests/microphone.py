@@ -25,5 +25,5 @@ samples = array.array('H', [0] * 160)
 while True:
     mic.record(samples, len(samples))
     magnitude = normalized_rms(samples)
-    print((magnitude,))
+    print(magnitude)
     time.sleep(0.1)

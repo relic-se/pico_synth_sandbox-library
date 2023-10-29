@@ -36,7 +36,7 @@ keyboard = TouchKeyboard()
 arpeggiator = Arpeggiator()
 arpeggiator.set_octaves(1)
 arpeggiator.set_bpm(80)
-arpeggiator.set_step_option(1)
+arpeggiator.set_steps(Timer.STEP_EIGHTH)
 arpeggiator.set_gate(0.5)
 keyboard.set_arpeggiator(arpeggiator)
 
