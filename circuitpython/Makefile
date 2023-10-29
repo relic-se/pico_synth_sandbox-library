@@ -28,11 +28,12 @@ LIB_SRCS := \
 LIB_PY = ./$(LIB).py
 LIB_MPY = ./$(LIB).mpy
 
-SRCS := settings.toml boot.py code.py $(LIB_MPY)
+SRCS := boot.py $(LIB_MPY)
+SETTINGS = settings.toml
 
 all: upload
 
-upload: clean $(LIB_MPY) src lib
+upload: clean $(LIB_MPY) src lib settings
 
 update: clean $(LIB_MPY) src
 
@@ -56,3 +57,7 @@ src: $(SRCS)
 
 lib:
 	circup update
+
+settings:
+	@echo $(SETTINGS) "=>" $(DEVICE)$(SETTINGS)
+	@cp $(SETTINGS) $(DEVICE)$(SETTINGS)
