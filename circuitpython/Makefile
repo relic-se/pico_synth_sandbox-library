@@ -56,7 +56,7 @@ src: $(SRCS)
 	done
 
 lib:
-	circup update
+	circup install -r requirements.txt
 
 settings:
 	@echo $(SETTINGS) "=>" $(DEVICE)$(SETTINGS)
