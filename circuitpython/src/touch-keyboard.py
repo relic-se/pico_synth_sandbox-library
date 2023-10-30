@@ -26,8 +26,10 @@ class TouchKeyboard(Keyboard):
 
     :param max_notes: The maximum number of notes to be played at once. Currently, this feature is not implemented. When using the `get` method, the result is monophonic (1 note).
     :type max_notes: int
+    :param root: Set the base note number of the physical key inputs. If left as `None`, the `KEYBOARD_ROOT` settings.toml value will be used instead.
+    :type root: int
     """
-    def __init__(self, max_notes=1):
+    def __init__(self, max_notes=1, root=None):
         Keyboard.__init__(self, [
             TouchPad(board.GP19),
             TouchPad(board.GP3),
@@ -41,4 +43,4 @@ class TouchKeyboard(Keyboard):
             TouchPad(board.GP13),
             TouchPad(board.GP14),
             TouchPad(board.GP15)
-        ], max_notes)
+        ], max_notes, root)

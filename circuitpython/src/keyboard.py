@@ -26,6 +26,8 @@ class Keyboard:
     :type keys: array
     :param max_notes: The maximum number of notes to be played at once. Currently, this feature is not implemented. When using the `get` method, the result is monophonic (1 note).
     :type max_notes: int
+    :param root: Set the base note number of the physical key inputs. If left as `None`, the `KEYBOARD_ROOT` settings.toml value will be used instead.
+    :type root: int
     """
 
     NUM_MODES=3 #: The number of available keyboard note allocation modes.
@@ -33,8 +35,11 @@ class Keyboard:
     MODE_LOW=1 #: When the keyboard is set as this mode, it will prioritize the lowest note value.
     MODE_LAST=2 #: When the keyboard is set as this mode, it will prioritize notes by the order in when they were played/appended.
 
-    def __init__(self, keys=[], max_notes=1):
-        self.root = os.getenv("KEYBOARD_ROOT", 36)
+    def __init__(self, keys=[], max_notes=1, root=None):
+        if root is None:
+            self.root = os.getenv("KEYBOARD_ROOT", 36)
+        else:
+            self.root = root
         self.keys = keys
         self.max_notes = max(max_notes, 1) # Not implemented
 
