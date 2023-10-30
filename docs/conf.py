@@ -52,7 +52,8 @@ autodoc_mock_imports = [
     "adafruit_character_lcd",
     "pwmio",
     "audiopwmio",
-    "audiobusio"
+    "audiobusio",
+    "adafruit_wave"
 ]
 
 templates_path = ['_templates']
