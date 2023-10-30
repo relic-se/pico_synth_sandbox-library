@@ -63,3 +63,21 @@ Utilizes the Sequencer class to create a simple drum sequencer using the display
 .. literalinclude:: ../circuitpython/examples/sequencer.py
     :caption: circuitpython/examples/sequencer.py
     :linenos:
+
+Horizontal Bar Graph
+--------------------
+
+Use custom characters to draw a horizontal bar on the lcd display. Useful for demonstrating parameter values. **NOTE:** vertical and horizontal bars cannot be displayed simultaneously, and `display.enable_horizontal_graph` must be called prior to `display.write_horizontal_graph`.
+
+.. literalinclude:: ../circuitpython/examples/display-bar-horizontal.py
+    :caption: circuitpython/examples/display-bar-horizontal.py
+    :linenos:
+
+Vertical Bar Graph
+--------------------
+
+Use custom characters to draw a vertical bar on the lcd display. Useful for demonstrating levels. **NOTE:** vertical and horizontal bars cannot be displayed simultaneously, and `display.enable_vertical_graph` must be called prior to `display.write_vertical_graph`.
+
+.. literalinclude:: ../circuitpython/examples/display-bar-vertical.py
+    :caption: circuitpython/examples/display-bar-vertical.py
+    :linenos:

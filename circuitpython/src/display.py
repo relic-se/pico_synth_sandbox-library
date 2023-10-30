@@ -94,3 +94,63 @@ class Display:
         """A quick method to hide the cursor.
         """
         self.set_cursor_enabled(False)
+
+    def enable_vertical_graph(self):
+        data = []
+        for i in range(1, 8):
+            data.append([0x00 for i in range(8-i)] + [0x1f for i in range(i)])
+        self.load_character_data(data)
+    def enable_horizontal_graph(self):
+        data = []
+        for i in range(1, 5):
+            val = 0x00
+            for j in range(i):
+                val |= (1<<(4-j))
+            data.append([val for j in range(8)])
+        self.load_character_data(data)
+    def load_character_data(self, data):
+        for i in range(min(len(data), 8)):
+            self._lcd.create_char(i, data[i])
+
+    def _write_graph(self, value=0.0, minimum=0.0, maximum=1.0, position=(0,0), length=1, vertical=False, reset_cursor=True):
+        if reset_cursor: cursor_pos = self._cursor_position
+
+        length = clamp(length, 1, (2 if vertical else 16) - position[1 if vertical else 0])
+        value = unmap_value(value, minimum, maximum)
+
+        segment = 1.0 / length
+        bar = segment / (9.0 if vertical else 6.0)
+
+        data = []
+        for i in range(length):
+            if value >= segment*(i+1)-bar:
+                char = 0xff
+            elif value <= segment*i+bar:
+                char = 0xfe
+            else:
+                char = 0x00 + int(math.floor((value - (segment*i+bar)) / bar))
+            data.append(chr(char))
+        
+        if vertical:
+            for i in range(length):
+                self.write(
+                    data[i],
+                    (position[0], position[1]+(length-i-1)),
+                    length=1,
+                    reset_cursor=False
+                )
+        else:
+            self.write(
+                "".join(data),
+                position,
+                length=length,
+                reset_cursor=False
+            )
+
+        if reset_cursor: self.set_cursor_position(cursor_pos[0], cursor_pos[1])
+
+    def write_vertical_graph(self, value=0.0, minimum=0.0, maximum=1.0, position=(0,0), height=1, reset_cursor=True):
+        self._write_graph(value, minimum, maximum, position, height, True, reset_cursor)
+
+    def write_horizontal_graph(self, value=0.0, minimum=0.0, maximum=1.0, position=(0,0), width=1, reset_cursor=True):
+        self._write_graph(value, minimum, maximum, position, width, False, reset_cursor)
