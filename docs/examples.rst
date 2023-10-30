@@ -82,6 +82,24 @@ Use the included Fast Fourier Transform utility to calculate and display the ran
     :caption: circuitpython/examples/microphone-fft.py
     :linenos:
 
+Simple Sample Playback Example
+------------------------------
+
+Create a `Sample` voice and load the included `/samples/hey.wav` file. File is loaded during voice initialization and only one monophonic voice is available. The sample voice is set to not loop playback. Use the encoder click to toggle the arpeggiator.
+
+.. literalinclude:: ../circuitpython/examples/sample-simple.py
+    :caption: circuitpython/examples/sample-simple.py
+    :linenos:
+
+Filtered Sample Example
+-----------------------
+
+Create 12 `Sample` voices using a single looping sample, the included `/samples/hey.wav` file. All of the available `Oscillator` parameters are defined to create a unique sound. Press the encoder to toggle between controlling the tune and filter frequency of the synthesizer.
+
+.. literalinclude:: ../circuitpython/examples/sample-filtered.py
+    :caption: circuitpython/examples/sample-filtered.py
+    :linenos:
+
 Horizontal Bar Graph
 --------------------
 
