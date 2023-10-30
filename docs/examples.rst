@@ -64,6 +64,24 @@ Utilizes the Sequencer class to create a simple drum sequencer using the display
     :caption: circuitpython/examples/sequencer.py
     :linenos:
 
+Microphone Example
+------------------
+
+Display the current microphone level as a horizontal bar graph. Set the record trigger level using the encoder dial. Begin the record process by pressing the encoder. The microphone will continue recording until the input level is detected below the trigger level. The generated wave file will be saved to `/samples/test.wav`.
+
+.. literalinclude:: ../circuitpython/examples/microphone.py
+    :caption: circuitpython/examples/microphone.py
+    :linenos:
+
+Microphone FFT Example
+----------------------
+
+Use the included Fast Fourier Transform utility to calculate and display the range of frequencies from the microphone input as a row of vertical bar graphs.
+
+.. literalinclude:: ../circuitpython/examples/microphone-fft.py
+    :caption: circuitpython/examples/microphone-fft.py
+    :linenos:
+
 Horizontal Bar Graph
 --------------------
 
