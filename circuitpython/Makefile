@@ -24,7 +24,8 @@ LIB_SRCS := \
 	$(SRCDIR)/synth.py \
 	$(SRCDIR)/voice.py \
 	$(SRCDIR)/voices/oscillator.py \
-	$(SRCDIR)/voices/drum.py
+	$(SRCDIR)/voices/drum.py \
+	$(SRCDIR)/microphone.py
 LIB_PY = ./$(LIB).py
 LIB_MPY = ./$(LIB).mpy
 
@@ -35,7 +36,7 @@ all: upload
 
 upload: clean $(LIB_MPY) src lib settings
 
-update: clean $(LIB_MPY) src
+update: clean $(LIB_MPY) src lib
 
 compile: clean $(LIB_MPY)
 

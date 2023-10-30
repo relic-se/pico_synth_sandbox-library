@@ -2,7 +2,8 @@
 # 2023 Cooper Dalrymple - me@dcdalrymple.com
 # GPL v3 License
 
-import gc, os, sys, time, math, random, board
+import gc, os, sys, time, math, array, random, board
+import ulab
 import ulab.numpy as numpy
 import synthio
 from audiomixer import Mixer
@@ -26,3 +27,6 @@ from adafruit_character_lcd.character_lcd import Character_LCD_Mono
 from pwmio import PWMOut
 from audiopwmio import PWMAudioOut
 from audiobusio import I2SOut
+
+from audiobusio import PDMIn
+import adafruit_wave

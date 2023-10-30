@@ -1,3 +1,7 @@
+# Global Constants
+
+log2 = math.log(2) # for octave conversion
+
 # Global Functions
 
 def free_module(mod):
@@ -50,3 +54,19 @@ def map_value(value, minimum, maximum):
     return clamp(value) * (maximum - minimum) + minimum
 def unmap_value(value, minimum, maximum):
     return (clamp(value, minimum, maximum) - minimum) / (maximum - minimum)
+
+def fft(data, log=True, dtype=numpy.int16):
+    if dtype is numpy.uint16:
+        mean = int(numpy.mean(data))
+        data = numpy.array([x - mean for x in data], dtype=numpy.int16)
+    data = ulab.utils.spectrogram(data)
+    data = data[1:(len(data)//2)-1]
+    if log:
+        data = numpy.log(data)
+    return data
+
+def fftfreq(data, sample_rate=None, dtype=numpy.int16):
+    if sample_rate is None:
+        sample_rate = Audio.get_sample_rate()
+    data = fft(data, log=False, dtype=dtype)
+    return numpy.argmax(data) / len(data) * sample_rate / 4
