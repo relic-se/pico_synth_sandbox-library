@@ -96,8 +96,8 @@ Filtered Sample Example
 
 Create 12 `Sample` voices using a single looping sample, the included `/samples/hey.wav` file. All of the available `Oscillator` parameters are defined to create a unique sound. Press the encoder to toggle between controlling the tune and filter frequency of the synthesizer.
 
-.. literalinclude:: ../circuitpython/examples/sample-filtered.py
-    :caption: circuitpython/examples/sample-filtered.py
+.. literalinclude:: ../circuitpython/examples/sample-filter.py
+    :caption: circuitpython/examples/sample-filter.py
     :linenos:
 
 Horizontal Bar Graph
