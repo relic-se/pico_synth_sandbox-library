@@ -36,7 +36,7 @@ class Arpeggiator(Timer):
         self._keyboard = keyboard
     def _enable(self):
         if self._keyboard:
-            self.update_notes(keyboard.get_notes())
+            self.update_notes(self._keyboard.get_notes())
     def _disable(self):
         if self._keyboard:
             self._keyboard.update()
@@ -84,8 +84,9 @@ class Arpeggiator(Timer):
         self._notes = self._get_notes(notes)
 
     def _update(self):
-        if self.get_mode() == self.MODE_RANDOM:
-            self._pos = random.randrange(0,len(self._notes),1)
-        else:
-            self._pos = (self._pos+1) % len(self._notes)
-        self._do_press(self._notes[self._pos][0], self._notes[self._pos][1])
+        if self._notes:
+            if self.get_mode() == self.MODE_RANDOM:
+                self._pos = random.randrange(0,len(self._notes),1)
+            else:
+                self._pos = (self._pos+1) % len(self._notes)
+            self._do_press(self._notes[self._pos][0], self._notes[self._pos][1])

@@ -32,7 +32,7 @@ keyboard.set_release(release)
 
 encoder = Encoder()
 def click():
-    arpeggiator.toggle(keyboard)
+    arpeggiator.toggle()
 encoder.set_click(click)
 encoder.set_long_press(click)
 

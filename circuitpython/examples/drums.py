@@ -54,7 +54,7 @@ def decrement():
         mod_value -= 1
         update_envelope()
 def click():
-    arpeggiator.toggle(keyboard)
+    arpeggiator.toggle()
 encoder.set_increment(increment)
 encoder.set_decrement(decrement)
 encoder.set_click(click)

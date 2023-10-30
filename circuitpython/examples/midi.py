@@ -41,7 +41,7 @@ def decrement():
         midi.send_control_change(1, mod_value)
         display.write(str(mod_value), (13,1), 3, True)
 def click():
-    arpeggiator.toggle(keyboard)
+    arpeggiator.toggle()
 encoder.set_increment(increment)
 encoder.set_decrement(decrement)
 encoder.set_click(click)
