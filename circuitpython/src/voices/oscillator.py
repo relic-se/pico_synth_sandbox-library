@@ -1,5 +1,3 @@
-log2 = math.log(2) # for octave conversion
-
 class Oscillator(Voice):
     def __init__(self, root=440.0):
         Voice.__init__(self)

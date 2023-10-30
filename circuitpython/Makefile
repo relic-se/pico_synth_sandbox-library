@@ -25,6 +25,7 @@ LIB_SRCS := \
 	$(SRCDIR)/voice.py \
 	$(SRCDIR)/voices/oscillator.py \
 	$(SRCDIR)/voices/drum.py \
+	$(SRCDIR)/voices/sample.py \
 	$(SRCDIR)/microphone.py
 LIB_PY = ./$(LIB).py
 LIB_MPY = ./$(LIB).mpy
