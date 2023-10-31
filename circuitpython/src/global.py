@@ -55,10 +55,30 @@ def map_value(value, minimum, maximum):
 def unmap_value(value, minimum, maximum):
     return (clamp(value, minimum, maximum) - minimum) / (maximum - minimum)
 
-def fft(data, log=True, dtype=numpy.int16):
+def is_pow2(value):
+    value = math.log(value)/log2
+    return math.ceil(value) == math.floor(value)
+
+def fft(data, log=True, dtype=numpy.int16, length=1024):
+    if len(data) > length:
+        offset = (len(data)-length)//2
+        data = data[offset:len(data)-offset]
+
     if dtype is numpy.uint16:
         mean = int(numpy.mean(data))
         data = numpy.array([x - mean for x in data], dtype=numpy.int16)
+
+    # Ensure that data length is a power of 2
+    if len(data) < 2:
+        return None
+    if not is_pow2(len(data)):
+        j = 2
+        while True:
+            j *= 2
+            if j > len(data):
+                data = data[:int(j//2)]
+                break
+
     data = ulab.utils.spectrogram(data)
     data = data[1:(len(data)//2)-1]
     if log:
