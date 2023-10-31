@@ -32,10 +32,12 @@ LIB_MPY = ./$(LIB).mpy
 
 SRCS := boot.py $(LIB_MPY)
 SETTINGS = settings.toml
+SAMPLES_DIR = ./samples
+SAMPLES := $(shell find $(SAMPLES_DIR) -type f)
 
 all: upload
 
-upload: clean $(LIB_MPY) src lib settings
+upload: clean $(LIB_MPY) src lib settings samples
 
 update: clean $(LIB_MPY) src lib
 
@@ -63,3 +65,10 @@ lib:
 settings:
 	@echo $(SETTINGS) "=>" $(DEVICE)$(SETTINGS)
 	@cp $(SETTINGS) $(DEVICE)$(SETTINGS)
+
+samples:
+	@mkdir $(DEVICE)$(SAMPLES_DIR) || true
+	@for file in $(SAMPLES) ; do \
+		echo $${file} "=>" $(DEVICE)$${file} ; \
+		cp $${file} $(DEVICE)$${file} ; \
+	done

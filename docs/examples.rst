@@ -100,6 +100,15 @@ Create 12 `Sample` voices using a single looping sample, the included `/samples/
     :caption: circuitpython/examples/sample-filter.py
     :linenos:
 
+Sample Browser Example
+----------------------
+
+Browse through every wav sample available in the `/samples` directory. 12 `Sample` voices are created to play through selected sample using touch keyboard. Press the encoder to toggle between controlling the tune and scrolling through the samples. Perform a long press of the encoder to load the selected sample. An `*` indicator in the upper right corner of the screen will indicate if the currently selected sample is loaded.
+
+.. literalinclude:: ../circuitpython/examples/sample-browser.py
+    :caption: circuitpython/examples/sample-browser.py
+    :linenos:
+
 Horizontal Bar Graph
 --------------------
 
