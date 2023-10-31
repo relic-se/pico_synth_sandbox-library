@@ -109,7 +109,7 @@ class Waveform:
     def load_from_file(filepath, max_samples=4096):
         data = None
         sample_rate = 0
-        
+
         with adafruit_wave.open(filepath, "rb") as wave:
             if wave.getsampwidth() != 2 or wave.getnchannels() > 2:
                 return False
@@ -128,4 +128,5 @@ class Waveform:
                 for i in range(len(data)):
                     data[i] = int(clamp(float(data[i]) * 32767.0 / max_level, -32767.0, 32767.0))
 
+        gc.collect()
         return data, sample_rate

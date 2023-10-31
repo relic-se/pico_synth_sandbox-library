@@ -29,13 +29,22 @@ class Sample(Oscillator):
         data, sample_rate = Waveform.load_from_file(filepath, max_samples)
         self.load(data, sample_rate)
 
+    def unload(self):
+        self._wave_rate = self._sample_rate
+        self.set_waveform(None)
+        self._root = self._desired_frequency
+        self._wave_duration = 1.0 / self._root
+        self._sample_duration = 0.0
+        self._sample_tune = 0.0
+        self._update_root()
+
     def press(self, notenum, velocity):
         if not Oscillator.press(self, notenum, velocity):
             return False
         if not self._loop:
             self._start = time.monotonic()
         return True
-    
+
     def get_duration(self):
         return self._sample_duration * self._root / pow(2,self._note.bend.value) / self._desired_frequency
 

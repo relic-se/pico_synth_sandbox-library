@@ -83,10 +83,14 @@ def fft(data, log=True, dtype=numpy.int16, length=1024):
     data = data[1:(len(data)//2)-1]
     if log:
         data = numpy.log(data)
+    gc.collect()
     return data
 
 def fftfreq(data, sample_rate=None, dtype=numpy.int16):
     if sample_rate is None:
         sample_rate = Audio.get_sample_rate()
     data = fft(data, log=False, dtype=dtype)
-    return numpy.argmax(data) / len(data) * sample_rate / 4
+    freq = numpy.argmax(data) / len(data) * sample_rate / 4
+    del data
+    gc.collect()
+    return freq
