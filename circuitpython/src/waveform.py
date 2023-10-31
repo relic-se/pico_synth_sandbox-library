@@ -116,9 +116,10 @@ class Waveform:
             sample_rate = wave.getframerate()
 
             # Read sample and convert to numpy
-            data = list(memoryview(wave.readframes(min(wave.getnframes(), max_samples))).cast('h'))
+            frames = min(wave.getnframes(), max_samples)
+            data = list(memoryview(wave.readframes(frames)).cast('h'))
             if wave.getnchannels() == 2: # Filter out right channel
-                data = [i for i in range(0, wave.getnframes(), 2)]
+                data = [i for i in range(0, frames, 2)]
             data = numpy.array(data, dtype=numpy.int16)
 
             # Normalize volume
