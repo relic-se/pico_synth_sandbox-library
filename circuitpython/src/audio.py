@@ -47,6 +47,18 @@ class Audio:
         if index >= 0 and index < len(self._mixer.voice):
             self._mixer.voice[index].play(source)
 
+    def mute(self):
+        self._output.pause()
+    def unmute(self):
+        self._output.resume()
+    def is_muted(self):
+        return self._output.paused
+    def toggle_mute(self):
+        if self.is_muted():
+            self.unmute()
+        else:
+            self.mute()
+
     @staticmethod
     def get_sample_rate():
         """Returns the sample rate of the audio mixer as defined by the settings.toml file.
