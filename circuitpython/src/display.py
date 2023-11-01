@@ -23,7 +23,7 @@ class Display:
         """
         self._lcd.clear()
         self.set_cursor_enabled(False)
-        self.set_cursor_position(0, 0)
+        self.set_cursor_position(0, 0, True)
 
     def write(self, value, position=(0,0), length=None, right_aligned=False, reset_cursor=True):
         """Display a string or number on the display at the designated position. Can be truncated to a specified length and right-aligned.
@@ -44,7 +44,7 @@ class Display:
             value = "{:.2f}".format(value)
 
         cursor_pos = self._cursor_position
-        self.set_cursor_position(position[0], position[1])
+        self.set_cursor_position(position[0], position[1], True)
         self._lcd.message = truncate_str(str(value), clamp(length,1,16-self._cursor_position[0]), right_aligned)
         if reset_cursor: self.set_cursor_position(cursor_pos[0], cursor_pos[1])
 
@@ -57,17 +57,19 @@ class Display:
         if self._cursor_enabled != value:
             self._cursor_enabled = value
             self._lcd.cursor = value
-    def set_cursor_position(self, column=0, row=0):
+    def set_cursor_position(self, column=0, row=0, force=False):
         """Set the position of the cursor.
 
         :param column: The x-position or column of the cursor which should be between 0 and 15.
         :type column: int
         :param row: The y-position or row of the cursor which should be between 0 and 1.
         :type row: int
+        :param force: Force the display to update the cursor position even if it hasn't changed.
+        :type force: bool
         """
         column = clamp(column, 0, 15)
         row = clamp(row, 0, 1)
-        if self._cursor_position[0] != column or self._cursor_position[1] != row:
+        if force or self._cursor_position[0] != column or self._cursor_position[1] != row:
             self._cursor_position = (column, row)
             self._lcd.cursor_position(column, row)
     def set_cursor_blink(self, value):
@@ -130,22 +132,14 @@ class Display:
             else:
                 char = 0x00 + int(math.floor((value - (segment*i+bar)) / bar))
             data.append(chr(char))
-        
+
         if vertical:
             for i in range(length):
-                self.write(
-                    data[i],
-                    (position[0], position[1]+(length-i-1)),
-                    length=1,
-                    reset_cursor=False
-                )
+                self.set_cursor_position(position[0], position[1]+(length-i-1), True)
+                self._lcd.message = data[i]
         else:
-            self.write(
-                "".join(data),
-                position,
-                length=length,
-                reset_cursor=False
-            )
+            self.set_cursor_position(position[0], position[1], True)
+            self._lcd.message = "".join(data)
 
         if reset_cursor: self.set_cursor_position(cursor_pos[0], cursor_pos[1])
 
