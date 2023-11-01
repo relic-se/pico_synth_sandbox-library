@@ -11,43 +11,70 @@ display.write("Loading...", (0,1))
 
 microphone = Microphone()
 max_level = 0.0
-def update(level):
-    global max_level
-    max_level = max(level, max_level)
-    display.write_horizontal_graph(level, 0.0, max_level, (0,1), 16)
-microphone.set_update(update)
-def trigger():
-    display.write("Recording", (0,0), 13)
-microphone.set_trigger(trigger)
 
-trigger_level = 10
-def update_trigger_level():
-    global trigger_level
-    microphone.set_trigger_level(trigger_level / 1000.0)
-    display.write(trigger_level, (13,0), 3, True)
-update_trigger_level()
+trigger_level = 25
+trigger_level_step = 0.0001
+
+def display_trigger():
+    global max_level, trigger_level, trigger_level_step
+    level_x = int(min(trigger_level*trigger_level_step/max_level, 1.0)*16) if max_level > 0.0 else 0
+    display.write(" " * level_x + chr(0xff), (0,0))
+
+def update_level():
+    global max_level
+    level = microphone.get_level()
+    prev_max_level = max_level
+    max_level = max(level, max_level)
+    if max_level != prev_max_level:
+        display_trigger()
+    if max_level > 0.0:
+        display.write_horizontal_graph(level, 0.0, max_level, (0,1), 16)
+    else:
+        display.write("", (0,1), 16)
+
+def record_trigger():
+    display.write("Recording", (0,0), 13)
+microphone.set_trigger(record_trigger)
+
 encoder = Encoder()
+
 def increment():
-    global trigger_level
+    global trigger_level, level_speed
     if trigger_level < 100:
         trigger_level += 1
-        update_trigger_level()
+        display_trigger()
 encoder.set_increment(increment)
+
 def decrement():
-    global trigger_level
+    global trigger_level, level_speed
     if trigger_level > 1:
         trigger_level -= 1
-        update_trigger_level()
+        display_trigger()
 encoder.set_decrement(decrement)
-def click():
-    display.write("Waiting", (0,0), 13)
-    microphone.record("test")
+
+def reset_max_level():
+    global max_level
+    max_level = 0.0
+encoder.set_click(reset_max_level)
+
+def start_record():
+    display.clear()
+    display.write("Waiting")
+    microphone.record(
+        name="test",
+        samples=4096,
+        trigger=trigger_level*trigger_level_step,
+        clip=trigger_level*trigger_level_step
+    )
     display.write("Complete!")
     time.sleep(1)
-    display.write("Press Button", (0,0), 13)
-encoder.set_click(click)
+    display.clear()
+    display_trigger()
+encoder.set_long_press(start_record)
 
-display.write("Press Button", (0,0), 13)
+display.clear()
+display_trigger()
+
 while True:
     encoder.update()
-    microphone.update()
+    update_level()

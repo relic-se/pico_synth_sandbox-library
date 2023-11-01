@@ -94,3 +94,11 @@ def fftfreq(data, sample_rate=None, dtype=numpy.int16):
     del data
     gc.collect()
     return freq
+
+def resample(data, in_sample_rate, out_sample_rate):
+    if in_sample_rate == out_sample_rate: return data
+    return numpy.interp(
+        numpy.arange(0.0, len(data), in_sample_rate / out_sample_rate, dtype=numpy.float),
+        numpy.arange(0, len(data), 1, dtype=numpy.uint16),
+        data
+    )

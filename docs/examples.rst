@@ -67,7 +67,7 @@ Utilizes the Sequencer class to create a simple drum sequencer using the display
 Microphone Example
 ------------------
 
-Display the current microphone level as a horizontal bar graph. Set the record trigger level using the encoder dial. Begin the record process by pressing the encoder. The microphone will continue recording until the input level is detected below the trigger level. The generated wave file will be saved to `/samples/test.wav`.
+Display the current microphone level as a horizontal bar graph. Set the record trigger and clip level using the encoder dial. Begin the record process by long pressing the encoder. The microphone will start recording when the input level is detected above the trigger level and will continue recording until the input level is detected below the clip level. The generated wave file will be saved to `/samples/test.wav`. Short click the encoder to reset the max level of the volume meter.
 
 .. literalinclude:: ../circuitpython/examples/microphone.py
     :caption: circuitpython/examples/microphone.py
