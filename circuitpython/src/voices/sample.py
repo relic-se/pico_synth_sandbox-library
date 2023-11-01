@@ -39,6 +39,8 @@ class Sample(Oscillator):
         self._update_root()
 
     def press(self, notenum, velocity):
+        if self._note.waveform is None:
+            return False
         if not Oscillator.press(self, notenum, velocity):
             return False
         if not self._loop:
