@@ -109,6 +109,15 @@ Browse through every wav sample available in the `/samples` directory. 12 `Sampl
     :caption: circuitpython/examples/sample-browser.py
     :linenos:
 
+Microphone Sample Example
+-------------------------
+
+Use the microphone to record a sample into memory when the encoder is long pressed. The sample is then loaded into a simple `Sample` voice to play it back with the touch keyboard. You can control the pitch and filter of the voice using the encoder. Use a short click of the encoder to switch between the two options.
+
+.. literalinclude:: ../circuitpython/examples/microphone-sample.py
+    :caption: circuitpython/examples/microphone-sample.py
+    :linenos:
+
 Horizontal Bar Graph
 --------------------
 
