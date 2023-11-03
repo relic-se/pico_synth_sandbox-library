@@ -67,7 +67,7 @@ osc2.set_level(0.5)
 synth.add_voice(osc2)
 
 keyboard = TouchKeyboard(
-    voices=1
+    max_notes=1
 )
 
 def press(notenum, velocity, keynum=None):
