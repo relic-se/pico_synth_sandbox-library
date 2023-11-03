@@ -39,14 +39,14 @@ microphone.set_trigger(record_trigger)
 encoder = Encoder()
 
 def increment():
-    global trigger_level, level_speed
+    global trigger_level
     if trigger_level < 100:
         trigger_level += 1
         display_trigger()
 encoder.set_increment(increment)
 
 def decrement():
-    global trigger_level, level_speed
+    global trigger_level
     if trigger_level > 1:
         trigger_level -= 1
         display_trigger()
