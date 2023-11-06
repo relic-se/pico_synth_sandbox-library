@@ -2,7 +2,14 @@
 # 2023 Cooper Dalrymple - me@dcdalrymple.com
 # GPL v3 License
 
-from pico_synth_sandbox import *
+from pico_synth_sandbox.display import Display
+from pico_synth_sandbox.encoder import Encoder
+from pico_synth_sandbox.audio import get_audio_driver
+from pico_synth_sandbox.synth import Synth
+from pico_synth_sandbox.voice.oscillator import Oscillator
+from pico_synth_sandbox.waveform import Waveform
+from pico_synth_sandbox.keyboard.touch import TouchKeyboard
+from pico_synth_sandbox.arpeggiator import Arpeggiator
 
 display = Display()
 display.write("PicoSynthSandbox", (0,0))
@@ -36,7 +43,7 @@ keyboard = TouchKeyboard()
 arpeggiator = Arpeggiator()
 arpeggiator.set_octaves(1)
 arpeggiator.set_bpm(80)
-arpeggiator.set_steps(Timer.STEP_EIGHTH)
+arpeggiator.set_steps(Arpeggiator.STEP_EIGHTH)
 arpeggiator.set_gate(0.5)
 keyboard.set_arpeggiator(arpeggiator)
 

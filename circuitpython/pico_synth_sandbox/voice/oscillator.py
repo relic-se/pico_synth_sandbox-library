@@ -1,3 +1,12 @@
+# pico_synth_sandbox/voice/oscillator.py
+# 2023 Cooper Dalrymple - me@dcdalrymple.com
+# GPL v3 License
+
+from pico_synth_sandbox import LOG_2
+from pico_synth_sandbox.voice import Voice, AREnvelope, LerpBlockInput
+import math
+import synthio
+
 class Oscillator(Voice):
     def __init__(self, root=440.0):
         Voice.__init__(self)
@@ -76,8 +85,7 @@ class Oscillator(Voice):
         return True
 
     def set_frequency(self, value):
-        global log2
-        self._freq_lerp.set(math.log(value/self._root)/log2)
+        self._freq_lerp.set(math.log(value/self._root)/LOG_2)
     def set_glide(self, value):
         self._freq_lerp.set_rate(value)
 

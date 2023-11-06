@@ -2,7 +2,15 @@
 # 2023 Cooper Dalrymple - me@dcdalrymple.com
 # GPL v3 License
 
-from pico_synth_sandbox import *
+import gc, os
+from pico_synth_sandbox import fftfreq
+from pico_synth_sandbox.display import Display
+from pico_synth_sandbox.encoder import Encoder
+from pico_synth_sandbox.keyboard.touch import TouchKeyboard
+from pico_synth_sandbox.audio import Audio, get_audio_driver
+from pico_synth_sandbox.synth import Synth
+from pico_synth_sandbox.voice.sample import Sample
+from pico_synth_sandbox.waveform import Waveform
 
 display = Display()
 display.enable_horizontal_graph()

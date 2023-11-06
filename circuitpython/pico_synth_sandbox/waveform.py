@@ -1,3 +1,12 @@
+# pico_synth_sandbox/waveform.py
+# 2023 Cooper Dalrymple - me@dcdalrymple.com
+# GPL v3 License
+
+from pico_synth_sandbox import clamp
+import os, random, gc
+import ulab.numpy as numpy
+import adafruit_wave
+
 class Waveform:
     """A static helper class to quickly generate waveforms. Stores generated waveform arrays locally to improve memory efficiency.
     """

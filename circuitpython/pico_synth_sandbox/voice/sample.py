@@ -1,3 +1,14 @@
+# pico_synth_sandbox/voice/sample.py
+# 2023 Cooper Dalrymple - me@dcdalrymple.com
+# GPL v3 License
+
+from pico_synth_sandbox import fftfreq, LOG_2
+from pico_synth_sandbox.voice import Voice
+from pico_synth_sandbox.voice.oscillator import Oscillator
+from pico_synth_sandbox.audio import Audio
+from pico_synth_sandbox.waveform import Waveform
+import math, time
+
 class Sample(Oscillator):
     def __init__(self, loop=True, filepath=""):
         Oscillator.__init__(self)
@@ -23,7 +34,7 @@ class Sample(Oscillator):
             )
         self._wave_duration = 1.0 / self._root
         self._sample_duration = len(self._note.waveform) / self._wave_rate
-        self._sample_tune = math.log(self._wave_duration / self._sample_duration) / log2
+        self._sample_tune = math.log(self._wave_duration / self._sample_duration) / LOG_2
         self._update_root()
     def load_from_file(self, filepath, max_samples=4096):
         data, sample_rate = Waveform.load_from_file(filepath, max_samples)

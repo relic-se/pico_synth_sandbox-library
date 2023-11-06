@@ -1,3 +1,12 @@
+# pico_synth_sandbox/audio.py
+# 2023 Cooper Dalrymple - me@dcdalrymple.com
+# GPL v3 License
+
+import os, board
+from audiomixer import Mixer
+from audiopwmio import PWMAudioOut
+from audiobusio import I2SOut
+
 class Audio:
     """This class helps manage audio output and mixing.
 
@@ -118,3 +127,8 @@ def get_audio_driver(count=1):
         return I2SAudio(count)
     else:
         return PWMAudio(count)
+
+MIN_FILTER_FREQUENCY = 60.0
+MAX_FILTER_FREQUENCY = min(20000.0, Audio.get_sample_rate() * 0.45)
+MIN_FILTER_RESONANCE = 0.7071067811865475
+MAX_FILTER_RESONANCE = 8.0

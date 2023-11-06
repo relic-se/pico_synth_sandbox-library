@@ -1,3 +1,10 @@
+# pico_synth_sandbox/timer.py
+# 2023 Cooper Dalrymple - me@dcdalrymple.com
+# GPL v3 License
+
+from pico_synth_sandbox import clamp
+import time
+
 class Timer:
     """An abstract class to help handle timing functionality of the :class:`pico_synth_sandbox.Arpeggiator` and :class:`pico_synth_sandbox.Sequencer` classes. Note press and release timing is managed by bpm (beats per minute), steps (divisions of a beat), and gate (note duration during step).
 

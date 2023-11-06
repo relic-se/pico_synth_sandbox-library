@@ -1,3 +1,9 @@
+# pico_synth_sandbox/keyboard.py
+# 2023 Cooper Dalrymple - me@dcdalrymple.com
+# GPL v3 License
+
+import os
+
 # TODO: Add Output Buffer Voices
 
 class Key:

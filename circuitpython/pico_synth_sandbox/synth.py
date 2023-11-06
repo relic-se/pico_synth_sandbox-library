@@ -1,7 +1,11 @@
-min_filter_frequency = 60.0
-max_filter_frequency = min(20000.0, Audio.get_sample_rate() * 0.45)
-min_filter_resonance = 0.7071067811865475
-max_filter_resonance = 8.0
+# pico_synth_sandbox/synth.py
+# 2023 Cooper Dalrymple - me@dcdalrymple.com
+# GPL v3 License
+
+from pico_synth_sandbox import unmap_value
+from pico_synth_sandbox.audio import Audio, MIN_FILTER_FREQUENCY, MAX_FILTER_FREQUENCY
+from pico_synth_sandbox.voice import Voice
+import synthio
 
 class Synth:
     NUM_FILTERS = 3
@@ -85,8 +89,7 @@ class Synth:
 
     @staticmethod
     def calculate_filter_frequency_value(frequency):
-        global min_filter_frequency, max_filter_frequency
-        return unmap_value(frequency, min_filter_frequency, max_filter_frequency)
+        return unmap_value(frequency, MIN_FILTER_FREQUENCY, MAX_FILTER_FREQUENCY)
 
     # Loop
     def update(self):

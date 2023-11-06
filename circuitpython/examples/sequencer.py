@@ -58,7 +58,6 @@ def key_press(notenum, velocity, keynum=None):
         display.write("^" if alt_key else "-", (12,0), 1)
     elif keynum < 8:
         position = (keynum + (8 if alt_key else 0)) % sequencer.get_length()
-        print(alt_key, position)
         if not sequencer.has_note(
             position=position,
             track=voice

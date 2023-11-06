@@ -1,3 +1,10 @@
+# pico_synth_sandbox/sequencer.py
+# 2023 Cooper Dalrymple - me@dcdalrymple.com
+# GPL v3 License
+
+from pico_synth_sandbox import clamp
+from pico_synth_sandbox.timer import Timer
+
 class Sequencer(Timer):
     """Sequence notes using the :class:`pico_synth_sandbox.Timer` class to create a multi-track sixteenth note sequencer. By default, the Sequencer is set up for a single 4/4 measure of 16 notes with one track. Each note of each track can be assigned any note value and velocity. The length and number of tracks can be reassigned during runtime.
 

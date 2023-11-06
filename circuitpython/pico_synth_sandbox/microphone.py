@@ -1,3 +1,14 @@
+# pico_synth_sandbox/microphone.py
+# 2023 Cooper Dalrymple - me@dcdalrymple.com
+# GPL v3 License
+
+from pico_synth_sandbox import resample
+import board, os
+from audiobusio import PDMIn
+import adafruit_wave
+import array
+import ulab.numpy as numpy
+
 class Microphone:
 
     def __init__(self, sample_rate=None):

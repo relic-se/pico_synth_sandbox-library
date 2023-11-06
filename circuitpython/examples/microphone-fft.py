@@ -2,7 +2,11 @@
 # 2023 Cooper Dalrymple - me@dcdalrymple.com
 # GPL v3 License
 
-from pico_synth_sandbox import *
+import math
+import ulab.numpy as numpy
+from pico_synth_sandbox import fft
+from pico_synth_sandbox.display import Display
+from pico_synth_sandbox.microphone import Microphone
 
 display = Display()
 display.enable_vertical_graph()

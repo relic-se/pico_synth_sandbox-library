@@ -1,3 +1,19 @@
+# pico_synth_sandbox/midi.py
+# 2023 Cooper Dalrymple - me@dcdalrymple.com
+# GPL v3 License
+
+from pico_synth_sandbox import clamp
+import board, os, time
+from digitalio import DigitalInOut, Direction
+from busio import UART
+import usb_midi
+import adafruit_midi
+from adafruit_midi.note_on import NoteOn
+from adafruit_midi.note_off import NoteOff
+from adafruit_midi.control_change import ControlChange
+from adafruit_midi.pitch_bend import PitchBend
+from adafruit_midi.program_change import ProgramChange
+
 class Midi:
     """Send and receive both hardware UART and USB MIDI messages using :class:`adafruit_midi.MIDI`. UART can be enabled with the `MIDI_UART` variable and USB can be enabled with the `MIDI_USB` variable in `settings.toml`. The midi channel is limited to a single value for both input and output and is determined by the `MIDI_CHANNEL` variable in `settings.toml` with a range of 0-15. However, the channel can be changed once a :class:`pico_synth_sandbox.Midi` object is created by calling the `set_channel` function. By default, the onboard led will be used to indicate incoming midi messages. At the moment, this feature cannot be disabled.
     """

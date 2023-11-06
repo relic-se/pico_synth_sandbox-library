@@ -2,7 +2,13 @@
 # 2023 Cooper Dalrymple - me@dcdalrymple.com
 # GPL v3 License
 
-from pico_synth_sandbox import *
+from pico_synth_sandbox.display import Display
+from pico_synth_sandbox.encoder import Encoder
+from pico_synth_sandbox.keyboard.touch import TouchKeyboard
+from pico_synth_sandbox.audio import get_audio_driver
+from pico_synth_sandbox.synth import Synth
+from pico_synth_sandbox.voice.oscillator import Oscillator
+from pico_synth_sandbox.waveform import Waveform
 
 display = Display()
 display.write("PicoSynthSandbox", (0,0))

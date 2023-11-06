@@ -1,3 +1,13 @@
+# pico_synth_sandbox/display.py
+# 2023 Cooper Dalrymple - me@dcdalrymple.com
+# GPL v3 License
+
+from pico_synth_sandbox import clamp, truncate_str, unmap_value
+import math
+import board
+from digitalio import DigitalInOut
+from adafruit_character_lcd.character_lcd import Character_LCD_Mono
+
 class Display:
     """Control the connected 16x2 character display (aka *1602*). Hardware connections are abstracted and text writing and cursor management is simplified.
     """

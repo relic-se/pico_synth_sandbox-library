@@ -2,7 +2,10 @@
 # 2023 Cooper Dalrymple - me@dcdalrymple.com
 # GPL v3 License
 
-from pico_synth_sandbox import *
+import time
+from pico_synth_sandbox.display import Display
+from pico_synth_sandbox.microphone import Microphone
+from pico_synth_sandbox.encoder import Encoder
 
 display = Display()
 display.enable_horizontal_graph()

@@ -2,7 +2,10 @@
 # 2023 Cooper Dalrymple - me@dcdalrymple.com
 # GPL v3 License
 
-from pico_synth_sandbox import *
+import time
+from pico_synth_sandbox.audio import get_audio_driver
+from pico_synth_sandbox.synth import Synth
+from pico_synth_sandbox.voice.oscillator import Oscillator
 
 audio = get_audio_driver()
 synth = Synth(audio)

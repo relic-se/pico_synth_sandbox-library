@@ -1,4 +1,14 @@
+# pico_synth_sandbox/voice/drum.py
+# 2023 Cooper Dalrymple - me@dcdalrymple.com
+# GPL v3 License
+
 # Inspired by https://gist.github.com/gamblor21/15a430929abf0e10eeaba8a45b01f5a8
+
+from pico_synth_sandbox import clamp, map_value
+from pico_synth_sandbox.voice import Voice
+from pico_synth_sandbox.synth import Synth
+from pico_synth_sandbox.waveform import Waveform
+import synthio
 
 class Drum(Voice):
     def __init__(self, count=3, filter_type=Synth.FILTER_LPF, filter_frequency=0, frequencies=[], times=[], waveforms=[]):

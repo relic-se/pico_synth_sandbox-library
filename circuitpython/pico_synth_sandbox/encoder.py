@@ -1,3 +1,12 @@
+# pico_synth_sandbox/encoder.py
+# 2023 Cooper Dalrymple - me@dcdalrymple.com
+# GPL v3 License
+
+import board
+from digitalio import DigitalInOut, Direction, Pull
+from rotaryio import IncrementalEncoder
+from adafruit_debouncer import Button
+
 class Encoder:
     """Use the on-board encoder to control your program with simple function callbacks. Supports increment, decrement, click, double click, and long press actions.
     """

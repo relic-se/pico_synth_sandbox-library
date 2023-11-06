@@ -1,6 +1,15 @@
+# pico_synth_sandbox/__init__.py
+# 2023 Cooper Dalrymple - me@dcdalrymple.com
+# GPL v3 License
+
+import gc, os, sys, board, math
+import ulab
+import ulab.numpy as numpy
+from pico_synth_sandbox.audio import Audio
+
 # Global Constants
 
-log2 = math.log(2) # for octave conversion
+LOG_2 = math.log(2) # for octave conversion
 
 # Global Functions
 
@@ -56,7 +65,7 @@ def unmap_value(value, minimum, maximum):
     return (clamp(value, minimum, maximum) - minimum) / (maximum - minimum)
 
 def is_pow2(value):
-    value = math.log(value)/log2
+    value = math.log(value)/LOG_2
     return math.ceil(value) == math.floor(value)
 
 def fft(data, log=True, dtype=numpy.int16, length=1024):

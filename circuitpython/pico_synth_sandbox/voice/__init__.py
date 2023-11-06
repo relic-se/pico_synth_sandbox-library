@@ -1,3 +1,12 @@
+# pico_synth_sandbox/voice/__init__.py
+# 2023 Cooper Dalrymple - me@dcdalrymple.com
+# GPL v3 License
+
+from pico_synth_sandbox import clamp, map_value
+from pico_synth_sandbox.audio import MIN_FILTER_FREQUENCY, MAX_FILTER_FREQUENCY, MIN_FILTER_RESONANCE, MAX_FILTER_RESONANCE
+import ulab.numpy as numpy
+import synthio
+
 class LerpBlockInput:
     def __init__(self, rate=0.05, value=0.0):
         self.position = synthio.LFO(
@@ -70,7 +79,7 @@ class Voice:
         self._notenum = -1
         self._velocity = 0.0
 
-        self._filter_type = Synth.FILTER_LPF
+        self._filter_type = 0
         self._filter_frequency = 1.0
         self._filter_resonance = 0.0
         self._filter_buffer = ("", 0.0, 0.0)
@@ -106,15 +115,13 @@ class Voice:
 
     # Filter
     def _get_filter_type(self):
-        return clamp(self._filter_type, 0, Synth.NUM_FILTERS - 1)
+        return self._filter_type
     def _get_filter_frequency_value(self):
         return self._filter_frequency
     def _get_filter_frequency(self):
-        global min_filter_frequency, max_filter_frequency
-        return map_value(self._get_filter_frequency_value(), min_filter_frequency, max_filter_frequency)
+        return map_value(self._get_filter_frequency_value(), MIN_FILTER_FREQUENCY, MAX_FILTER_FREQUENCY)
     def _get_filter_resonance(self):
-        global min_filter_resonance, max_filter_resonance
-        return map_value(self._filter_resonance, min_filter_resonance, max_filter_resonance)
+        return map_value(self._filter_resonance, MIN_FILTER_RESONANCE, MAX_FILTER_RESONANCE)
 
     def _update_filter(self, synth):
         type = self._get_filter_type()

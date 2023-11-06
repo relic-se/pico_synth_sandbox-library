@@ -5,52 +5,44 @@ endif
 
 MPYCROSS = ./bin/mpy-cross
 
-SRCDIR = ./src
-
-LIB = pico_synth_sandbox
+LIB_ROOT = pico_synth_sandbox
 LIB_SRCS := \
-	$(SRCDIR)/import.py \
-	$(SRCDIR)/global.py \
-	$(SRCDIR)/display.py \
-	$(SRCDIR)/encoder.py \
-	$(SRCDIR)/audio.py \
-	$(SRCDIR)/midi.py \
-	$(SRCDIR)/keyboard.py \
-	$(SRCDIR)/touch-keyboard.py \
-	$(SRCDIR)/timer.py \
-	$(SRCDIR)/arpeggiator.py \
-	$(SRCDIR)/sequencer.py \
-	$(SRCDIR)/waveform.py \
-	$(SRCDIR)/synth.py \
-	$(SRCDIR)/voice.py \
-	$(SRCDIR)/voices/oscillator.py \
-	$(SRCDIR)/voices/drum.py \
-	$(SRCDIR)/voices/sample.py \
-	$(SRCDIR)/microphone.py
-LIB_PY = ./$(LIB).py
-LIB_MPY = ./$(LIB).mpy
+	$(LIB_ROOT)/__init__ \
+	$(LIB_ROOT)/display \
+	$(LIB_ROOT)/encoder \
+	$(LIB_ROOT)/audio \
+	$(LIB_ROOT)/midi \
+	$(LIB_ROOT)/keyboard/__init__ \
+	$(LIB_ROOT)/keyboard/touch \
+	$(LIB_ROOT)/timer \
+	$(LIB_ROOT)/arpeggiator \
+	$(LIB_ROOT)/sequencer \
+	$(LIB_ROOT)/waveform \
+	$(LIB_ROOT)/synth \
+	$(LIB_ROOT)/voice/__init__ \
+	$(LIB_ROOT)/voice/oscillator \
+	$(LIB_ROOT)/voice/drum \
+	$(LIB_ROOT)/voice/sample \
+	$(LIB_ROOT)/microphone
+LIB_MPY = $(LIB_SRCS:%=%.mpy)
 
-SRCS := boot.py $(LIB_MPY)
+SRCS := boot.py
 SETTINGS = settings.toml
 SAMPLES_DIR = ./samples
 SAMPLES := $(shell find $(SAMPLES_DIR) -type f)
 
 all: upload
 
-upload: clean $(LIB_MPY) src lib settings samples
+upload: clean $(LIB_MPY:%=./%) src lib requirements settings samples
 
-update: clean $(LIB_MPY) src lib
+update: clean $(LIB_MPY:%=./%) src lib requirements
 
-compile: clean $(LIB_MPY)
+compile: clean $(LIB_MPY:%=./%)
 
 clean:
-	@rm $(LIB_PY) || true
 	@rm $(LIB_MPY) || true
 
-$(LIB_PY):
-	cat $(LIB_SRCS) >> $@
-
-$(LIB_MPY): $(LIB_PY)
+%.mpy: %.py
 	$(MPYCROSS) -o $@ $<
 
 src: $(SRCS)
@@ -59,7 +51,16 @@ src: $(SRCS)
 		cp $${file} $(DEVICE)$${file} ; \
 	done
 
-lib:
+lib: $(LIB_MPY)
+	@mkdir $(DEVICE)lib/$(LIB_ROOT) || true
+	@mkdir $(DEVICE)lib/$(LIB_ROOT)/keyboard || true
+	@mkdir $(DEVICE)lib/$(LIB_ROOT)/voice || true
+	@for file in $^ ; do \
+		echo ./$${file} "=>" $(DEVICE)lib/$${file} ; \
+		cp ./$${file} $(DEVICE)lib/$${file} ; \
+	done
+
+requirements:
 	circup install -r requirements.txt
 
 settings:

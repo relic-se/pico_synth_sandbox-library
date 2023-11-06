@@ -1,3 +1,10 @@
+# pico_synth_sandbox/arpeggiator.py
+# 2023 Cooper Dalrymple - me@dcdalrymple.com
+# GPL v3 License
+
+from pico_synth_sandbox.timer import Timer
+import os, random
+
 class Arpeggiator(Timer):
 
     NUM_MODES=6

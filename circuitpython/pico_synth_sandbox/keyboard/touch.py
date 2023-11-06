@@ -1,3 +1,12 @@
+# pico_synth_sandbox/touch-keyboard.py
+# 2023 Cooper Dalrymple - me@dcdalrymple.com
+# GPL v3 License
+
+import board
+from pico_synth_sandbox.keyboard import Key, Keyboard
+from touchio import TouchIn
+from adafruit_debouncer import Debouncer
+
 class TouchPad(Key):
     """This class is used by the :class:`pico_synth_sandbox.TouchKeyboard` class to handle logic related to the capacitive touch inputs of the hardware platform.
 
