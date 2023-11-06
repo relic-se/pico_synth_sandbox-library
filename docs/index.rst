@@ -15,6 +15,7 @@ Table of Contents
     examples
     api
     build
+    software
 
 Indices and tables
 ==================
