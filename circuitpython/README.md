@@ -13,3 +13,6 @@ _Alternatively, you can run the included makefile to automatically install and u
 
 * [asyncio](https://docs.circuitpython.org/projects/asyncio/)
 * [adafruit_debouncer](https://docs.circuitpython.org/projects/debouncer/)
+* [adafruit_midi](https://docs.circuitpython.org/projects/midi/)
+* [adafruit_character_lcd](https://docs.circuitpython.org/projects/charlcd/)
+* [adafruit_wave](https://docs.circuitpython.org/projects/wave/)
