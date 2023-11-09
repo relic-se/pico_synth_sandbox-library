@@ -11,7 +11,7 @@ class Oscillator(Voice):
     def __init__(self, root=440.0):
         Voice.__init__(self)
 
-        self._filter_envelope = AREnvelope()
+        self._filter_envelope = AREnvelope(amount=0.0)
         self._filter_lfo = synthio.LFO(
             waveform=None,
             rate=1.0,
