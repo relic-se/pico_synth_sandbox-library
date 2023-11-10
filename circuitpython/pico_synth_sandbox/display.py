@@ -70,13 +70,18 @@ class Display:
     def set_cursor_position(self, column=0, row=0, force=False):
         """Set the position of the cursor.
 
-        :param column: The x-position or column of the cursor which should be between 0 and 15.
-        :type column: int
+        :param column: The x-position or column of the cursor which should be between 0 and 15. Can use a tuple of (x,y) to set both column and row.
+        :type column: int|tuple
         :param row: The y-position or row of the cursor which should be between 0 and 1.
         :type row: int
         :param force: Force the display to update the cursor position even if it hasn't changed.
         :type force: bool
         """
+        if type(column) is tuple:
+            if len(column) != 2:
+                return
+            row = column[1]
+            column = column[0]
         column = clamp(column, 0, 15)
         row = clamp(row, 0, 1)
         if force or self._cursor_position[0] != column or self._cursor_position[1] != row:
