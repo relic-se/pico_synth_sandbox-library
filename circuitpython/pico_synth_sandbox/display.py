@@ -114,17 +114,24 @@ class Display:
         self.load_character_data(data)
     def enable_horizontal_graph(self):
         data = []
+        # Left to Right
         for i in range(1, 5):
             val = 0x00
             for j in range(i):
                 val |= (1<<(4-j))
+            data.append([val for j in range(8)])
+        # Right to Left
+        for i in range(1, 5):
+            val = 0x00
+            for j in range(i):
+                val |= (1<<j)
             data.append([val for j in range(8)])
         self.load_character_data(data)
     def load_character_data(self, data):
         for i in range(min(len(data), 8)):
             self._lcd.create_char(i, data[i])
 
-    def _write_graph(self, value=0.0, minimum=0.0, maximum=1.0, position=(0,0), length=1, vertical=False, reset_cursor=True):
+    def _write_graph(self, value=0.0, minimum=0.0, maximum=1.0, position=(0,0), length=1, vertical=False, centered=False, reset_cursor=True):
         if reset_cursor: cursor_pos = self._cursor_position
 
         length = clamp(length, 1, (2 if vertical else 16) - position[1 if vertical else 0])
@@ -134,7 +141,18 @@ class Display:
         bar = segment / (9.0 if vertical else 6.0)
 
         data = []
-        for i in range(length):
+        start = 0
+        if not vertical and centered:
+            start = length//2
+            for i in range(0, start):
+                if value <= segment*i+bar:
+                    char = 0xff
+                elif value >= segment*(i+1)-bar:
+                    char = 0xfe
+                else:
+                    char = 0x07 - int(math.floor((value - (segment*i+bar)) / bar))
+                data.append(chr(char))
+        for i in range(start, length):
             if value >= segment*(i+1)-bar:
                 char = 0xff
             elif value <= segment*i+bar:
@@ -154,7 +172,8 @@ class Display:
         if reset_cursor: self.set_cursor_position(cursor_pos[0], cursor_pos[1])
 
     def write_vertical_graph(self, value=0.0, minimum=0.0, maximum=1.0, position=(0,0), height=1, reset_cursor=True):
-        self._write_graph(value, minimum, maximum, position, height, True, reset_cursor)
+        self._write_graph(value, minimum, maximum, position, height, True, False, reset_cursor)
 
-    def write_horizontal_graph(self, value=0.0, minimum=0.0, maximum=1.0, position=(0,0), width=1, reset_cursor=True):
-        self._write_graph(value, minimum, maximum, position, width, False, reset_cursor)
+    def write_horizontal_graph(self, value=0.0, minimum=0.0, maximum=1.0, position=(0,0), width=1, centered=False, reset_cursor=True):
+        # NOTE: If horizontal centered, length must be divisible by 2.
+        self._write_graph(value, minimum, maximum, position, width, False, centered, reset_cursor)
