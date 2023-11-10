@@ -1,5 +1,5 @@
 # Keyboard
-KEYBOARD_ROOT=36 #C2
+KEYBOARD_ROOT=48 #C3
 KEYBOARD_MODE=0
 
 # Arpeggiator

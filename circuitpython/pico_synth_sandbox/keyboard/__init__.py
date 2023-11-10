@@ -43,7 +43,7 @@ class Keyboard:
 
     def __init__(self, keys=[], max_notes=1, root=None):
         if root is None:
-            self.root = os.getenv("KEYBOARD_ROOT", 36)
+            self.root = os.getenv("KEYBOARD_ROOT", 48)
         else:
             self.root = root
         self.keys = keys
