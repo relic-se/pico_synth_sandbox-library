@@ -7,7 +7,7 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 import sys, os, datetime
-sys.path.insert(0, os.path.abspath('../circuitpython/'))
+sys.path.insert(0, os.path.abspath('../../'))
 
 project = 'pico_synth_sandbox'
 creation_year = '2023'

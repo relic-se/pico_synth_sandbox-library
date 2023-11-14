@@ -9,100 +9,55 @@ pico_synth_sandbox
     :target: https://www.gnu.org/licenses/gpl-3.0
     :alt: GPL v3 License
 
-Raspberry Pi Pico digital synthesizer board with I2S or PWM audio, a PDM microphone, MIDI i/o, a capacitive keybed, 1602 display, a rotary encoder, and LiPo battery. Designed for use with CircuitPython and synthio.
-
-.. list-table::
-
-    * - .. image:: _static/front-side.jpg
-            :alt: Front view of 3d rendered board
-      - .. image:: _static/back-side.jpg
-            :alt: Back view of 3d rendered board
-      - .. image:: _static/bottom.jpg
-            :alt: Bottom view of 3d rendered board
+A CircuitPython library designed for the `pico_synth_sandbox device <https://github.com/dcooperdalrymple/pico_synth_sandbox-hardware>`_ to provide hardware abstraction and a number of additional audio synthesis features.
 
 Features
 --------
 
-* PCM5102 I2S DAC module compatibility or with populated components
-* Optional PWM audio output
-* LiPo Battery usb charging and power supply controlled by 3v3_enable
-* MIDI input and output via MIDI TRS-A 3.5mm jack (compatible with most adapters)
-* Dedicated volume pot with on-board speaker and line output
-* 12 capacitive sense touch buttons serving as a single-octave keybed
-* Software reset button
-* 1602 display and rotary encoder with switch
-* Optional PDM Microphone
+* Device-level settings using ``settings.toml`` file to generate audio driver, display, MIDI, and other hardware objects
+* Keyboard handling for key priority and voice allocation
+* Arpeggiator and sequencer classes based on ``Timer`` class with support for bpm, step, and gate
+* Waveform generator to quickly create numpy arrays
+* Voice based structure to simplify note and parameter management among multiple ``synthio.Note`` instances
+* Multiple voice types available:
 
-RP2040 Pin Assignment
----------------------
+  * Fully featured ``Oscillator`` with glide, pitch bend, frequency lfo (vibrato), amplitude envelope and lfo (tremolo), filter envelope and lfo, and panning lfo
+  * Analog-based ``Drum`` voices: ``Kick``, ``Snare``, ``ClosedHat`` and ``OpenHat``
+  * ``Sample`` voice with WAV audio file support, auto-tuning, and all aforemented ``Oscillator`` features
 
-Some pins require solder jumper configuration if you do not use the default pin assignment for MIDI & I2S.
+* Time-based synthio helpers for advanced block inputs (``LerpBlockInput`` and ``AREnvelope``)
+* PDM Microphone level monitoring and trigger-based recording
+* General audio helper functions such as FFT, resampling, and normalization
 
-.. list-table::
-    :header-rows: 1
+Examples
+--------
 
-    * - Pin Reference
-      - Function
+A number of examples of available in the ``./examples`` folder which demonstrate the use and capabilities of this library. Further information about each example can be found within the `documentation<https://pico-synth-sandbox.readthedocs.io/en/latest/examples.html>`_.
 
-    * - GP0
-      - Encoder A (included in UART0 header)
-    * - GP1
-      - Encoder B (included in UART0 header)
-    * - GP2
-      - Encoder Switch
-    * - GP3
-      - Touch Pad 2 (C#)
-    * - GP4
-      - MIDITX (UART1) or Microphone PDM Clock (JP2)
-    * - GP5
-      - MIDIRX (UART1) or Microphone PDM Data (JP1)
-    * - GP6
-      - Touch Pad 3 (D)
-    * - GP7
-      - Touch Pad 4 (D#)
-    * - GP8
-      - Touch Pad 5 (E)
-    * - GP9
-      - Touch Pad 6 (F)
-    * - GP10
-      - Touch Pad 7 (F#)
-    * - GP11
-      - Touch Pad 8 (G)
-    * - GP12
-      - Touch Pad 9 (G#)
-    * - GP13
-      - Touch Pad 10 (A)
-    * - GP14
-      - Touch Pad 11 (A#)
-    * - GP15
-      - Touch Pad 12 (B)
-    * - GP16
-      - I2S Clock or Left PWM (JP3/JP5)
-    * - GP17
-      - I2S Word (LR) Select or Right PWM (JP4/JP6)
-    * - GP18
-      - I2S Data
-    * - GP19
-      - Touch Pad 1 (C)
-    * - GP20
-      - 1602 Reset
-    * - GP21
-      - 1602 Enable
-    * - GP22
-      - 1602 D4
-    * - GP26
-      - 1602 D5
-    * - GP27
-      - 1602 D6
-    * - GP28
-      - 1602 D7
+Audio Samples
+~~~~~~~~~~~~~
 
-Schematic
----------
+A few of the provided examples use pre-recorded audio samples for playback. These samples have been provided royalty-free within the ``./samples`` directory and can be automatically uploaded to your device using ``make samples`` in the root directory.
 
-.. image:: _static/schematic.jpg
-   :alt: Hardware schematic of pico_synth_sandbox device
-   :target: _static/pico_synth_sandbox-schematic.pdf
+Installation
+------------
+
+1. Download and install CircuitPython bootloader: `instructions & UF2 file <https://circuitpython.org/board/raspberry_pi_pico/>`_.
+2. Ensure that your device is connected and mounted as `CIRCUITPYTHON`.
+3. Copy `requirements.txt` to the root folder of your device, make sure that the `circup` tool is installed in your environment with `pip3 install circup`, and run `circup update` to install all necessary libraries onto your device.
+4. Copy the desired code example to the root folder of your device as `code.py` and perform a software reset to run the code.
+
+.. note::
+    Alternatively, you can run the included makefile with `make` to automatically install and update your CircuitPython device (CircuitPython must first be configured).
+
+Dependencies
+~~~~~~~~~~~~
+
+* `asyncio <https://docs.circuitpython.org/projects/asyncio/>`_
+* `adafruit_debouncer <https://docs.circuitpython.org/projects/debouncer/>`_
+* `adafruit_midi <https://docs.circuitpython.org/projects/midi/>`_
+* `adafruit_character_lcd <https://docs.circuitpython.org/projects/charlcd/>`_
+* `adafruit_wave <https://docs.circuitpython.org/projects/wave/>`_
 
 Documentation
 -------------
