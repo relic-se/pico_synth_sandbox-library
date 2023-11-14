@@ -107,7 +107,7 @@ Schematic
 Documentation
 -------------
 
-API documentation for the included CircuitPython library can be found on `Read the Docs <https://pico-synth-sandbox.readthedocs.io/>`_.
+Documentation for the included CircuitPython library can be found on `Read the Docs <https://pico-synth-sandbox.readthedocs.io/>`_.
 
 Attribution
 -----------
