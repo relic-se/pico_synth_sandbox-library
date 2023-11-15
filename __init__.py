@@ -111,3 +111,10 @@ def resample(data, in_sample_rate, out_sample_rate):
         numpy.arange(0, len(data), 1, dtype=numpy.uint16),
         data
     )
+
+def normalize(data): # For numpy.int16
+    max_level = numpy.max(data)
+    if max_level < 32767.0:
+        for i in range(len(data)):
+            data[i] = int(clamp(float(data[i]) * 32767.0 / max_level, -32767.0, 32767.0))
+    return data

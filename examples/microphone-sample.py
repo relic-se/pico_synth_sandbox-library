@@ -3,7 +3,7 @@
 # GPL v3 License
 
 import gc, time
-from pico_synth_sandbox import fftfreq
+from pico_synth_sandbox import fftfreq, normalize
 from pico_synth_sandbox.display import Display
 from pico_synth_sandbox.encoder import Encoder
 from pico_synth_sandbox.audio import get_audio_driver
@@ -140,15 +140,22 @@ def start_record():
         clip=0.001
     )
 
-    display.clear()
-    display.write("Complete!")
+    display.write("Processing")
 
+    # Normalize Volume
+    sample_data = normalize(sample_data)
+
+    # Calculate root frequency
     sample_rate = Microphone.get_sample_rate()
     sample_root = fftfreq(
         data=sample_data,
         sample_rate=sample_rate
     )
     voice.load(sample_data, sample_rate, sample_root)
+
+    display.clear()
+    display.write("Complete!")
+    time.sleep(0.5)
 
     reset_display()
     audio.unmute()

@@ -2,7 +2,7 @@
 # 2023 Cooper Dalrymple - me@dcdalrymple.com
 # GPL v3 License
 
-from pico_synth_sandbox import clamp
+from pico_synth_sandbox import normalize
 import os, random, gc
 import ulab.numpy as numpy
 import adafruit_wave
@@ -132,10 +132,7 @@ class Waveform:
             data = numpy.array(data, dtype=numpy.int16)
 
             # Normalize volume
-            max_level = numpy.max(data)
-            if max_level < 32767.0:
-                for i in range(len(data)):
-                    data[i] = int(clamp(float(data[i]) * 32767.0 / max_level, -32767.0, 32767.0))
+            data = normalize(data)
 
         gc.collect()
         return data, sample_rate
