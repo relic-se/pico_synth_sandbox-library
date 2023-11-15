@@ -38,3 +38,6 @@ __pycache__
 
 # Sphinx Documentation
 docs/build
+
+# Packaging
+pico_synth_sandbox.zip

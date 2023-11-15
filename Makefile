@@ -39,6 +39,8 @@ update: clean $(LIB_MPY:%=./%) src lib requirements
 
 compile: clean $(LIB_MPY:%=./%)
 
+package: clean $(LIB_MPY:%=./%) zip
+
 clean:
 	@rm $(LIB_MPY) || true
 
@@ -73,3 +75,6 @@ samples:
 		echo $${file} "=>" $(DEVICE)$${file} ; \
 		cp $${file} $(DEVICE)$${file} ; \
 	done
+
+zip:
+	zip ./$(LIB).zip $(LIB_MPY:%=./%)
