@@ -32,7 +32,7 @@ Features
 Examples
 --------
 
-A number of examples of available in the ``./examples`` folder which demonstrate the use and capabilities of this library. Further information about each example can be found within the `documentation<https://pico-synth-sandbox.readthedocs.io/en/latest/examples.html>`_.
+A number of examples of available in the ``./examples`` folder which demonstrate the use and capabilities of this library. Further information about each example can be found within the `documentation <https://pico-synth-sandbox.readthedocs.io/en/latest/examples.html>`_.
 
 Audio Samples
 ~~~~~~~~~~~~~

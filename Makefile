@@ -24,7 +24,7 @@ LIB_SRCS := \
 	voice/drum \
 	voice/sample \
 	microphone
-LIB_MPY = $(LIB_SRCS:%=%.mpy)
+LIB_MPY = $(LIB_SRCS:%=$(LIB)/%.mpy)
 
 SRCS := boot.py
 SETTINGS = settings.toml

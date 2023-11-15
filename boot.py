@@ -3,6 +3,8 @@
 # GPL v3 License
 # Version 0.1
 
+# NOTE: This file is recommended to pre-configure your device, but not necessary for operation.
+
 import gc, os
 import storage, usb_hid, usb_cdc
 import usb_midi
