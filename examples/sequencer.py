@@ -4,7 +4,7 @@
 
 from pico_synth_sandbox.display import Display
 from pico_synth_sandbox.encoder import Encoder
-from pico_synth_sandbox.keyboard.touch import TouchKeyboard
+from pico_synth_sandbox.keyboard import get_keyboard_driver
 from pico_synth_sandbox.sequencer import Sequencer
 from pico_synth_sandbox.audio import get_audio_driver
 from pico_synth_sandbox.synth import Synth
@@ -49,38 +49,46 @@ sequencer.set_release(seq_release)
 def update_display():
     display.write(synth.voices[voice].__qualname__, (0, 0), 11)
     display.write(">" if alt_enc else "<", (11,0), 1)
-    display.write("^" if alt_key else "-", (12,0), 1)
+    display.write(("^" if alt_key else "-") if len(keyboard.keys) < 16 else " ", (12,0), 1)
     display.write(str(bpm), (13,0), 3, True)
     line = ""
     for i in range(sequencer.get_length()):
         line += "*" if sequencer.has_note(i, voice) else "_"
     display.write(line, (0,1))
 
-keyboard = TouchKeyboard()
+keyboard = get_keyboard_driver()
 def key_press(notenum, velocity, keynum=None):
-    global alt_key
-    if keynum == 11:
-        alt_key = not alt_key
-        display.write("^" if alt_key else "-", (12,0), 1)
-    elif keynum < 8:
-        position = (keynum + (8 if alt_key else 0)) % sequencer.get_length()
-        if not sequencer.has_note(
+    if keynum is None: return
+    
+    if len(keyboard.keys) < 16:
+        global alt_key
+        if keynum == 11:
+            alt_key = not alt_key
+            display.write("^" if alt_key else "-", (12,0), 1)
+            return
+        elif keynum < 8:
+            position = keynum + (8 if alt_key else 0)
+    else:
+        position = keynum
+
+    position = position % sequencer.get_length()
+    if not sequencer.has_note(
+        position=position,
+        track=voice
+    ):
+        sequencer.set_note(
+            position=position,
+            notenum=voice+1,
+            velocity=1.0,
+            track=voice
+        )
+        display.write("*", (position,1), 1)
+    else:
+        sequencer.remove_note(
             position=position,
             track=voice
-        ):
-            sequencer.set_note(
-                position=position,
-                notenum=voice+1,
-                velocity=1.0,
-                track=voice
-            )
-            display.write("*", (position,1), 1)
-        else:
-            sequencer.remove_note(
-                position=position,
-                track=voice
-            )
-            display.write("_", (position,1), 1)
+        )
+        display.write("_", (position,1), 1)
 keyboard.set_press(key_press)
 
 encoder = Encoder()

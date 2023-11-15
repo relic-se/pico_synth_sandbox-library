@@ -106,6 +106,9 @@ class Midi:
         else:
             value = clamp(value - 1, 0, 15)
         self._channel = value
+    def get_channel(self):
+        return 0 if self._channel is None else self._channel + 1
+    
     def set_thru(self, value):
         """Set whether you would like to forward incoming midi messages through the enabled outputs automatically.
 
@@ -113,6 +116,8 @@ class Midi:
         :type value: bool
         """
         self._thru = value
+    def get_thru(self):
+        return self._thru
 
     def _process_message(self, msg):
         if not msg:

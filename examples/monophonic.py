@@ -4,7 +4,7 @@
 
 from pico_synth_sandbox.display import Display
 from pico_synth_sandbox.encoder import Encoder
-from pico_synth_sandbox.keyboard.touch import TouchKeyboard
+from pico_synth_sandbox.keyboard import get_keyboard_driver
 from pico_synth_sandbox.audio import get_audio_driver
 from pico_synth_sandbox.synth import Synth
 from pico_synth_sandbox.voice.oscillator import Oscillator
@@ -72,15 +72,17 @@ osc2.set_coarse_tune(2.0)
 osc2.set_level(0.5)
 synth.add_voice(osc2)
 
-keyboard = TouchKeyboard(
-    max_notes=1
-)
+keyboard = get_keyboard_driver(max_notes=1)
 
 def press(notenum, velocity, keynum=None):
+    if keynum is None:
+        keynum = notenum - keyboard.root
     for voice in synth.voices:
         synth.press(voice, notenum, velocity)
     display.write("{:02d}".format(keynum) + " " + note_names[notenum % 12], (0,1), 6)
 def release(notenum, keynum=None):
+    if keynum is None:
+        keynum = notenum - keyboard.root
     if not keyboard.has_notes():
         synth.release()
         display.write("", (0, 1), 6)

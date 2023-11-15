@@ -6,7 +6,7 @@ import random
 from pico_synth_sandbox import fftfreq
 from pico_synth_sandbox.display import Display
 from pico_synth_sandbox.encoder import Encoder
-from pico_synth_sandbox.keyboard.touch import TouchKeyboard
+from pico_synth_sandbox.keyboard import get_keyboard_driver
 from pico_synth_sandbox.audio import get_audio_driver
 from pico_synth_sandbox.synth import Synth
 from pico_synth_sandbox.voice.sample import Sample
@@ -52,11 +52,15 @@ for voice in synth.voices:
     voice.set_pan_rate(random.randint(0,80)/100.0+0.1)
     voice.set_pan_depth(0.8)
 
-keyboard = TouchKeyboard()
+keyboard = get_keyboard_driver()
 def press(notenum, velocity, keynum=None):
+    if keynum is None:
+        keynum = notenum - keyboard.root
     synth.press(keynum, notenum=notenum)
 keyboard.set_press(press)
 def release(notenum, keynum=None):
+    if keynum is None:
+        keynum = notenum - keyboard.root
     synth.release(keynum)
 keyboard.set_release(release)
 

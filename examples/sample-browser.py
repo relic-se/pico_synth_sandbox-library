@@ -6,7 +6,7 @@ import gc, os
 from pico_synth_sandbox import fftfreq
 from pico_synth_sandbox.display import Display
 from pico_synth_sandbox.encoder import Encoder
-from pico_synth_sandbox.keyboard.touch import TouchKeyboard
+from pico_synth_sandbox.keyboard import get_keyboard_driver
 from pico_synth_sandbox.audio import Audio, get_audio_driver
 from pico_synth_sandbox.synth import Synth
 from pico_synth_sandbox.voice.sample import Sample
@@ -38,11 +38,15 @@ if not sample_files:
     print("No samples available. Try running \"make samples --always-make\" in the library root directory.")
     exit()
 
-keyboard = TouchKeyboard(root=60)
+keyboard = get_keyboard_driver(root=60)
 def press(notenum, velocity, keynum=None):
+    if keynum is None:
+        keynum = notenum - keyboard.root
     synth.press(keynum, notenum)
 keyboard.set_press(press)
 def release(notenum, keynum=None):
+    if keynum is None:
+        keynum = notenum - keyboard.root
     synth.release(keynum)
 keyboard.set_release(release)
 

@@ -4,7 +4,7 @@
 
 from pico_synth_sandbox.display import Display
 from pico_synth_sandbox.encoder import Encoder
-from pico_synth_sandbox.keyboard.touch import TouchKeyboard
+from pico_synth_sandbox.keyboard import get_keyboard_driver
 from pico_synth_sandbox.arpeggiator import Arpeggiator
 from pico_synth_sandbox.audio import get_audio_driver
 from pico_synth_sandbox.synth import Synth
@@ -18,7 +18,7 @@ audio = get_audio_driver()
 synth = Synth(audio)
 synth.add_voice(Sample(loop=False, filepath="/samples/hey.wav"))
 
-keyboard = TouchKeyboard(root=60)
+keyboard = get_keyboard_driver(root=60)
 arpeggiator = Arpeggiator()
 keyboard.set_arpeggiator(arpeggiator)
 
@@ -42,7 +42,7 @@ def click():
 encoder.set_click(click)
 encoder.set_long_press(click)
 
-display.write("_"*12, (0,1))
+display.write("_"*len(keyboard.keys), (0,1))
 while True:
     encoder.update()
     keyboard.update()

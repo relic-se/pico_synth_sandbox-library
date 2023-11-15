@@ -9,7 +9,7 @@ from pico_synth_sandbox.encoder import Encoder
 from pico_synth_sandbox.audio import get_audio_driver
 from pico_synth_sandbox.synth import Synth
 from pico_synth_sandbox.voice.sample import Sample
-from pico_synth_sandbox.keyboard.touch import TouchKeyboard
+from pico_synth_sandbox.keyboard import get_keyboard_driver
 from pico_synth_sandbox.microphone import Microphone
 
 display = Display()
@@ -35,7 +35,7 @@ voice.set_filter(
     synth=synth
 )
 
-keyboard = TouchKeyboard(root=60)
+keyboard = get_keyboard_driver(root=60)
 
 def press(notenum, velocity, keynum=None):
     if keynum is None:
