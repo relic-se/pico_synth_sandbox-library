@@ -14,6 +14,7 @@ LIB_SRCS := \
 	midi \
 	keyboard/__init__ \
 	keyboard/touch \
+	keyboard/ton_touch \
 	timer \
 	arpeggiator \
 	sequencer \
