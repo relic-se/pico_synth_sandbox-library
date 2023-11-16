@@ -3,6 +3,7 @@
 # GPL v3 License
 
 import random
+import pico_synth_sandbox.tasks
 from pico_synth_sandbox import fftfreq
 from pico_synth_sandbox.display import Display
 from pico_synth_sandbox.encoder import Encoder
@@ -55,12 +56,12 @@ for voice in synth.voices:
 keyboard = get_keyboard_driver()
 def press(notenum, velocity, keynum=None):
     if keynum is None:
-        keynum = notenum - keyboard.root
+        keynum = (notenum - keyboard.root) % len(keyboard.keys)
     synth.press(keynum, notenum=notenum)
 keyboard.set_press(press)
 def release(notenum, keynum=None):
     if keynum is None:
-        keynum = notenum - keyboard.root
+        keynum = (notenum - keyboard.root) % len(keyboard.keys)
     synth.release(keynum)
 keyboard.set_release(release)
 
@@ -115,7 +116,4 @@ def toggle():
 encoder.set_click(toggle)
 encoder.set_long_press(toggle)
 
-while True:
-    keyboard.update()
-    encoder.update()
-    synth.update()
+pico_synth_sandbox.tasks.run()

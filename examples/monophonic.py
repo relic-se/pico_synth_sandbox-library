@@ -2,6 +2,7 @@
 # 2023 Cooper Dalrymple - me@dcdalrymple.com
 # GPL v3 License
 
+import pico_synth_sandbox.tasks
 from pico_synth_sandbox.display import Display
 from pico_synth_sandbox.encoder import Encoder
 from pico_synth_sandbox.keyboard import get_keyboard_driver
@@ -76,13 +77,13 @@ keyboard = get_keyboard_driver(max_notes=1)
 
 def press(notenum, velocity, keynum=None):
     if keynum is None:
-        keynum = notenum - keyboard.root
+        keynum = (notenum - keyboard.root) % len(keyboard.keys)
     for voice in synth.voices:
         synth.press(voice, notenum, velocity)
     display.write("{:02d}".format(keynum) + " " + note_names[notenum % 12], (0,1), 6)
 def release(notenum, keynum=None):
     if keynum is None:
-        keynum = notenum - keyboard.root
+        keynum = (notenum - keyboard.root) % len(keyboard.keys)
     if not keyboard.has_notes():
         synth.release()
         display.write("", (0, 1), 6)
@@ -111,7 +112,5 @@ encoder.set_decrement(decrement)
 
 display.write("", (0,1), 6)
 update_tuning()
-while True:
-    encoder.update()
-    keyboard.update()
-    synth.update()
+
+pico_synth_sandbox.tasks.run()

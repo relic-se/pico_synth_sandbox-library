@@ -3,11 +3,12 @@
 # GPL v3 License
 
 from pico_synth_sandbox import unmap_value
+from pico_synth_sandbox.tasks import Task
 from pico_synth_sandbox.audio import Audio, MIN_FILTER_FREQUENCY, MAX_FILTER_FREQUENCY
 from pico_synth_sandbox.voice import Voice
 import synthio
 
-class Synth:
+class Synth(Task):
     NUM_FILTERS = 3
     FILTER_LPF = 0
     FILTER_HPF = 1
@@ -21,6 +22,8 @@ class Synth:
         if audio is not None: audio.play(self._synth)
 
         self.voices = []
+
+        Task.__init__(self, update_frequency=15)
 
     def add_voice(self, voice):
         self.voices.append(voice)
@@ -83,7 +86,7 @@ class Synth:
     def set_filter_resonance(self, value, update=True):
         for voice in self.voices:
             voice.set_filter_resonance(value, self, update)
-    def set_filter(self, type=0, frequency=1.0, resonance=0.0, update=True):
+    def set_filter(self, type=0, frequency=1, resonance=0.0, update=True):
         for voice in self.voices:
             voice.set_filter(type, frequency, resonance, self, update)
 

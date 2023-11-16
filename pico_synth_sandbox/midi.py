@@ -2,6 +2,7 @@
 # 2023 Cooper Dalrymple - me@dcdalrymple.com
 # GPL v3 License
 
+from pico_synth_sandbox.tasks import Task
 from pico_synth_sandbox import clamp
 import board, os, time
 from digitalio import DigitalInOut, Direction
@@ -15,7 +16,7 @@ from adafruit_midi.pitch_bend import PitchBend
 from adafruit_midi.program_change import ProgramChange
 from adafruit_midi.midi_message import MIDIUnknownEvent
 
-class Midi:
+class Midi(Task):
     """Send and receive both hardware UART and USB MIDI messages using :class:`adafruit_midi.MIDI`. UART can be enabled with the `MIDI_UART` variable and USB can be enabled with the `MIDI_USB` variable in `settings.toml`. The midi channel is limited to a single value for both input and output and is determined by the `MIDI_CHANNEL` variable in `settings.toml` with a range of 0-15. However, the channel can be changed once a :class:`pico_synth_sandbox.midi.Midi` object is created by calling the `set_channel` function. By default, the onboard led will be used to indicate incoming midi messages. At the moment, this feature cannot be disabled.
     """
 
@@ -58,6 +59,8 @@ class Midi:
         self._led.value = False
         self._led_duration = 0.01
         self._led_last = time.monotonic()
+
+        Task.__init__(self, update_frequency=100)
 
     def set_note_on(self, callback):
         """Set the callback method you would like to be called when a `adafruit_midi.note_on.NoteOn` message is received.

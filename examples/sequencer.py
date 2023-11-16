@@ -2,6 +2,7 @@
 # 2023 Cooper Dalrymple - me@dcdalrymple.com
 # GPL v3 License
 
+import pico_synth_sandbox.tasks
 from pico_synth_sandbox.display import Display
 from pico_synth_sandbox.encoder import Encoder
 from pico_synth_sandbox.keyboard import get_keyboard_driver
@@ -58,8 +59,11 @@ def update_display():
 
 keyboard = get_keyboard_driver()
 def key_press(notenum, velocity, keynum=None):
+    global sequencer
+    
     if keynum is None: return
     
+    position = keynum
     if len(keyboard.keys) < 16:
         global alt_key
         if keynum == 11:
@@ -68,8 +72,6 @@ def key_press(notenum, velocity, keynum=None):
             return
         elif keynum < 8:
             position = keynum + (8 if alt_key else 0)
-    else:
-        position = keynum
 
     position = position % sequencer.get_length()
     if not sequencer.has_note(
@@ -121,8 +123,5 @@ encoder.set_click(click)
 
 update_display()
 sequencer.enable()
-while True:
-    encoder.update()
-    keyboard.update()
-    sequencer.update()
-    synth.update()
+
+pico_synth_sandbox.tasks.run()

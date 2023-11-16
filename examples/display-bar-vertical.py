@@ -2,6 +2,7 @@
 # 2023 Cooper Dalrymple - me@dcdalrymple.com
 # GPL v3 License
 
+import pico_synth_sandbox.tasks
 from pico_synth_sandbox.display import Display
 from pico_synth_sandbox.encoder import Encoder
 
@@ -36,5 +37,4 @@ def decrement():
         update_value()
 encoder.set_decrement(decrement)
 
-while True:
-    encoder.update()
+pico_synth_sandbox.tasks.run()

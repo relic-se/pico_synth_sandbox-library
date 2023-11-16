@@ -2,12 +2,13 @@
 # 2023 Cooper Dalrymple - me@dcdalrymple.com
 # GPL v3 License
 
+from pico_synth_sandbox.tasks import Task
 import board
 from digitalio import DigitalInOut, Direction, Pull
 from rotaryio import IncrementalEncoder
 from adafruit_debouncer import Button
 
-class Encoder:
+class Encoder(Task):
     """Use the on-board encoder to control your program with simple function callbacks. Supports increment, decrement, click, double click, and long press actions.
     """
 
@@ -30,6 +31,8 @@ class Encoder:
         self._click = None
         self._double_click = None
         self._long_press = None
+
+        Task.__init__(self, update_frequency=150)
 
     def set_increment(self, callback):
         """Set the callback method you would like to be called when the encoder is incremented (turned right).

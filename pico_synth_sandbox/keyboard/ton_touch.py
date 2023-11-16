@@ -4,7 +4,7 @@
 
 # NOTE: If using module, close jumpers TP3 & TP4 for multi-key output, TP1 for serial interface (active-high), and TP2 for 16-key inputs (leave open for 8-key).
 
-import board, time
+import board
 from digitalio import DigitalInOut, Direction, Pull
 from pico_synth_sandbox.keyboard import Key, Keyboard
 
@@ -31,8 +31,6 @@ class TonTouchKeyboard(Keyboard):
     def __init__(self, max_notes=1, root=None, input_mode=MODE_16KEY):
         self._input_mode = input_mode
         self._input_bits = (input_mode + 1) * 8
-        self._input_delay = 1.0/64.0 # 64hz max refresh rate
-        self._input_last = time.monotonic()
 
         Keyboard.__init__(
             self,
@@ -40,6 +38,7 @@ class TonTouchKeyboard(Keyboard):
             max_notes=max_notes,
             root=root
         )
+        self.set_update_frequency(64.0) # 64hz max refresh rate
 
         self._sdo = DigitalInOut(board.GP6)
         self._sdo.direction = Direction.INPUT
@@ -53,15 +52,10 @@ class TonTouchKeyboard(Keyboard):
         tontouch_data_prev = 0
 
     def update(self):
-        if self.read_data():
-            Keyboard.update(self)
+        self.read_data()
+        Keyboard.update(self)
 
     def read_data(self):
-        now = time.monotonic()
-        if now - self._input_last < self._input_delay:
-            return False
-        self._input_last = now
-
         global tontouch_data, tontouch_data_prev
         tontouch_data_prev = tontouch_data
         tontouch_data = 0
@@ -74,5 +68,3 @@ class TonTouchKeyboard(Keyboard):
                 tontouch_data |= (1 << i)
             self._scl.value = True
         self._scl.value = False
-
-        return True

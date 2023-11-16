@@ -3,6 +3,7 @@
 # GPL v3 License
 
 import gc, os
+import pico_synth_sandbox.tasks
 from pico_synth_sandbox import fftfreq
 from pico_synth_sandbox.display import Display
 from pico_synth_sandbox.encoder import Encoder
@@ -41,12 +42,12 @@ if not sample_files:
 keyboard = get_keyboard_driver(root=60)
 def press(notenum, velocity, keynum=None):
     if keynum is None:
-        keynum = notenum - keyboard.root
+        keynum = (notenum - keyboard.root) % len(keyboard.keys)
     synth.press(keynum, notenum)
 keyboard.set_press(press)
 def release(notenum, keynum=None):
     if keynum is None:
-        keynum = notenum - keyboard.root
+        keynum = (notenum - keyboard.root) % len(keyboard.keys)
     synth.release(keynum)
 keyboard.set_release(release)
 
@@ -93,7 +94,8 @@ def load_sample(write=True):
     global semitone, sample_data, sample_rate, sample_root, sample_index, sample_index_loaded
     if sample_index == sample_index_loaded:
         return
-
+    
+    pico_synth_sandbox.tasks.pause()
     audio.mute()
     if write:
         display.write("Loading...", (5,1))
@@ -117,6 +119,7 @@ def load_sample(write=True):
     sample_index_loaded = sample_index
     if write: update_sample()
     audio.unmute()
+    pico_synth_sandbox.tasks.resume()
 encoder.set_long_press(load_sample)
 
 def toggle():
@@ -134,7 +137,4 @@ display.set_cursor_blink(True)
 update_tune()
 update_sample()
 
-while True:
-    encoder.update()
-    keyboard.update()
-    synth.update()
+pico_synth_sandbox.tasks.run()

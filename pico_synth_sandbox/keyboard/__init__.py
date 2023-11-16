@@ -3,6 +3,7 @@
 # GPL v3 License
 
 import os
+from pico_synth_sandbox.tasks import Task
 
 # TODO: Add Output Buffer Voices
 
@@ -25,7 +26,7 @@ class Key:
         """
         return self.NONE
 
-class Keyboard:
+class Keyboard(Task):
     """Manage note allocation, arpeggiator assignment, sustain, and note callbacks using this class. The root of the keyboard (lowest note) is designated by the `KEYBOARD_ROOT` variable in `settings.toml`. The default note allocation mode is defined by the `KEYBOARD_MODE` variable in `settings.toml`. This class is inherited by the :class:`pico_synth_sandbox.keyboard.TouchKeyboard` class.
 
     :param keys: An array of Key objects used to include physical key inputs as notes during the update routine.
@@ -34,6 +35,8 @@ class Keyboard:
     :type max_notes: int
     :param root: Set the base note number of the physical key inputs. If left as `None`, the `KEYBOARD_ROOT` settings.toml value will be used instead.
     :type root: int
+    :param update_frequency: The rate at which the keyboard keys will be polled.
+    :type update_frequency: float
     """
 
     NUM_MODES=3 #: The number of available keyboard note allocation modes.
@@ -57,6 +60,8 @@ class Keyboard:
         self._arpeggiator = None
 
         self.set_mode(os.getenv("KEYBOARD_MODE", self.MODE_HIGH))
+
+        Task.__init__(self, update_frequency=100)
 
     def set_press(self, callback):
         """Set the callback method you would like to be called when a new note is pressed.
@@ -275,9 +280,6 @@ class Keyboard:
                     self.append(self.root + i, 1.0, i) # Velocity is hard-coded
                 elif j == Key.RELEASE:
                     self.remove(self.root + i, i)
-
-        if self._arpeggiator:
-            self._arpeggiator.update()
 
     def _update(self):
         if not self._arpeggiator or not self._arpeggiator.is_enabled():

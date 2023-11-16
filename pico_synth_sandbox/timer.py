@@ -2,10 +2,11 @@
 # 2023 Cooper Dalrymple - me@dcdalrymple.com
 # GPL v3 License
 
+from pico_synth_sandbox.tasks import Task
 from pico_synth_sandbox import clamp
 import time
 
-class Timer:
+class Timer(Task):
     """An abstract class to help handle timing functionality of the :class:`pico_synth_sandbox.arpeggiator.Arpeggiator` and :class:`pico_synth_sandbox.sequencer.Sequencer` classes. Note press and release timing is managed by bpm (beats per minute), steps (divisions of a beat), and gate (note duration during step).
 
     :param bpm: The beats per minute of timer.
@@ -49,6 +50,8 @@ class Timer:
         self._press = None
         self._release = None
         self._last_press = []
+
+        Task.__init__(self, update_frequency=1000) # Run as fast as possible
 
     def _update_timing(self, bpm=None, steps=None):
         if bpm: self._bpm = bpm

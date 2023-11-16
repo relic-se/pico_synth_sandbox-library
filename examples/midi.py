@@ -2,6 +2,7 @@
 # 2023 Cooper Dalrymple - me@dcdalrymple.com
 # GPL v3 License
 
+import pico_synth_sandbox.tasks
 from pico_synth_sandbox.display import Display
 from pico_synth_sandbox.encoder import Encoder
 from pico_synth_sandbox.midi import Midi
@@ -24,14 +25,14 @@ keyboard.set_arpeggiator(arpeggiator)
 
 def press(notenum, velocity, keynum=None):
     if keynum is None:
-        keynum = notenum - keyboard.root
+        keynum = (notenum - keyboard.root) % len(keyboard.keys)
     midi.send_note_on(notenum, velocity)
     display.write("*", (keynum,1), 1)
 keyboard.set_press(press)
 
 def release(notenum, keynum=None):
     if keynum is None:
-        keynum = notenum - keyboard.root
+        keynum = (notenum - keyboard.root) % len(keyboard.keys)
     midi.send_note_off(notenum)
     display.write("_", (keynum,1), 1)
 keyboard.set_release(release)
@@ -63,7 +64,5 @@ midi.set_control_change(control_change)
 display.write("CH:"+str(midi.get_channel()))
 display.write(str(mod_value), (13,0), 3, True)
 display.write("_"*len(keyboard.keys), (0,1))
-while True:
-    encoder.update()
-    keyboard.update()
-    midi.update()
+
+pico_synth_sandbox.tasks.run()

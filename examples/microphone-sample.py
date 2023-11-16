@@ -3,6 +3,8 @@
 # GPL v3 License
 
 import gc, time
+import pico_synth_sandbox.tasks
+from pico_synth_sandbox.tasks import Task
 from pico_synth_sandbox import fftfreq, normalize
 from pico_synth_sandbox.display import Display
 from pico_synth_sandbox.encoder import Encoder
@@ -39,27 +41,35 @@ keyboard = get_keyboard_driver(root=60)
 
 def press(notenum, velocity, keynum=None):
     if keynum is None:
-        keynum = notenum - keyboard.root
+        keynum = (notenum - keyboard.root) % len(keyboard.keys)
     synth.press(0, notenum, velocity)
 keyboard.set_press(press)
 
 def release(notenum, keynum=None):
     if keynum is None:
-        keynum = notenum - keyboard.root
+        keynum = (notenum - keyboard.root) % len(keyboard.keys)
     synth.release(0)
 keyboard.set_release(release)
 
 microphone = Microphone()
-max_level = 0.0
 
-def update_level():
-    global max_level
-    level = microphone.get_level()
-    max_level = max(level, max_level)
+class MicrophoneLevel(Task):
+    def __init__(self, microphone, update=None):
+        self._microphone = microphone
+        self._max_level = 0.0
+        self._update = update
+        Task.__init__(self, update_frequency=5)
+    def update(self):
+        self._level = self._microphone.get_level()
+        self._max_level = max(self._level, self._max_level)
+        if self._update:
+            self._update(self._level, self._max_level)
+def update_level(level, max_level):
     if max_level > 0.0:
         display.write_horizontal_graph(level, 0.0, max_level, (12,1), 4)
     else:
         display.write("", (12,1), 4)
+mic_level = MicrophoneLevel(microphone, update_level)
 
 def trigger():
     display.write("Recording")
@@ -121,6 +131,7 @@ def reset_display():
 def start_record():
     global semitone
 
+    pico_synth_sandbox.tasks.pause()
     audio.mute()
     display.set_cursor_enabled(False)
     display.set_cursor_blink(False)
@@ -159,6 +170,7 @@ def start_record():
 
     reset_display()
     audio.unmute()
+    pico_synth_sandbox.tasks.resume()
 encoder.set_long_press(start_record)
 
 # Wait for microphone to initialize
@@ -166,8 +178,4 @@ time.sleep(1)
 
 reset_display()
 
-while True:
-    encoder.update()
-    keyboard.update()
-    synth.update()
-    update_level()
+pico_synth_sandbox.tasks.run()

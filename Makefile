@@ -8,6 +8,7 @@ MPYCROSS = ./bin/mpy-cross
 LIB = pico_synth_sandbox
 LIB_SRCS := \
 	__init__ \
+	tasks \
 	display \
 	encoder \
 	audio \

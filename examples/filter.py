@@ -2,6 +2,7 @@
 # 2023 Cooper Dalrymple - me@dcdalrymple.com
 # GPL v3 License
 
+import pico_synth_sandbox.tasks
 from pico_synth_sandbox.display import Display
 from pico_synth_sandbox.encoder import Encoder
 from pico_synth_sandbox.audio import get_audio_driver
@@ -49,14 +50,14 @@ keyboard.set_arpeggiator(arpeggiator)
 
 def press(notenum, velocity, keynum=None):
     if keynum is None:
-        keynum = notenum - keyboard.root
+        keynum = (notenum - keyboard.root) % len(keyboard.keys)
     synth.press(keynum % 12, notenum, velocity)
     display.write("*", (keynum,1), 1)
 keyboard.set_press(press)
 
 def release(notenum, keynum=None):
     if keynum is None:
-        keynum = notenum - keyboard.root
+        keynum = (notenum - keyboard.root) % len(keyboard.keys)
     synth.release(keynum % 12)
     display.write("_", (keynum,1), 1)
 keyboard.set_release(release)
@@ -83,7 +84,5 @@ encoder.set_click(click)
 encoder.set_long_press(click)
 
 display.write("_"*len(keyboard.keys), (0,1))
-while True:
-    encoder.update()
-    keyboard.update()
-    synth.update()
+
+pico_synth_sandbox.tasks.run()
