@@ -22,8 +22,8 @@ class TonTouchPad(DebouncerKey):
 
 class TonTouchKeyboard(Keyboard):
 
-    MODE_8KEY=const(0)
-    MODE_16KEY=const(1)
+    MODE_8KEY  = 0
+    MODE_16KEY = 1
 
     def __init__(self, max_notes=1, root=None, input_mode=MODE_16KEY):
         self._input_mode = input_mode

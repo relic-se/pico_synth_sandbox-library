@@ -7,13 +7,13 @@ import os, random
 
 class Arpeggiator(Timer):
 
-    NUM_MODES=const(6)
-    MODE_UP=const(0)
-    MODE_DOWN=const(1)
-    MODE_UPDOWN=const(2)
-    MODE_DOWNUP=const(3)
-    MODE_PLAYED=const(4)
-    MODE_RANDOM=const(5)
+    NUM_MODES   = 6
+    MODE_UP     = 0
+    MODE_DOWN   = 1
+    MODE_UPDOWN = 2
+    MODE_DOWNUP = 3
+    MODE_PLAYED = 4
+    MODE_RANDOM = 5
 
     def __init__(self, bpm=120, steps=2):
         Timer.__init__(self,
