@@ -87,7 +87,7 @@ class Display(Task):
         for i in range(2*16-1, -1, -1):
             x = i % 16
             y = i // 16
-            if not self._buffer[0][y][x] is '\0' and self._buffer[0][y][x] != self._buffer[1][y][x]:
+            if self._buffer[0][y][x] != '\0' and self._buffer[0][y][x] != self._buffer[1][y][x]:
                 end = i
                 break
         if end < 0:
@@ -100,13 +100,13 @@ class Display(Task):
             x = i % 16
             y = i // 16
             if start < 0:
-                if not self._buffer[0][y][x] is '\0' and self._buffer[0][y][x] != self._buffer[1][y][x]:
+                if self._buffer[0][y][x] != '\0' and self._buffer[0][y][x] != self._buffer[1][y][x]:
                     start = i
                     if start-end+1 == 2*16: # Needs full buffer refresh
                         break
                 else:
                     continue
-            if not self._buffer[0][y][x] is '\0':
+            if self._buffer[0][y][x] != '\0':
                 self._buffer[1][y][x] = self._buffer[0][y][x]
             data.append(self._buffer[1][y][x])
             if i == end: # We've reached the end of new buffer data
