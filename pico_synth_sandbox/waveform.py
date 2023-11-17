@@ -76,6 +76,20 @@ class Waveform:
         if not hasattr(Waveform, "_square"):
             Waveform._square = numpy.concatenate((numpy.ones(Waveform.get_samples()//2, dtype=numpy.int16)*Waveform.get_amplitude(),numpy.ones(Waveform.get_samples()//2, dtype=numpy.int16)*-Waveform.get_amplitude()))
         return Waveform._square
+    
+    @staticmethod
+    def get_triangle():
+        """Generate a triangle waveform.
+
+        :return: waveform
+        :rtype: numpy array
+        """
+        if not hasattr(Waveform, "_triangle"):
+            Waveform._triangle =  numpy.concatenate((
+                numpy.linspace(-Waveform.get_amplitude(), Waveform.get_amplitude(), num=Waveform.get_samples()//2, dtype=numpy.int16),
+                numpy.linspace(Waveform.get_amplitude(), -Waveform.get_amplitude(), num=Waveform.get_samples()//2, dtype=numpy.int16)
+            ))
+        return Waveform._triangle
 
     @staticmethod
     def get_noise():
