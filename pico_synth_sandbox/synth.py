@@ -9,10 +9,10 @@ from pico_synth_sandbox.voice import Voice
 import synthio
 
 class Synth(Task):
-    NUM_FILTERS = 3
-    FILTER_LPF = 0
-    FILTER_HPF = 1
-    FILTER_BPF = 2
+    NUM_FILTERS = const(3)
+    FILTER_LPF = const(0)
+    FILTER_HPF = const(1)
+    FILTER_BPF = const(2)
 
     def __init__(self, audio=None):
         self._synth = synthio.Synthesizer(

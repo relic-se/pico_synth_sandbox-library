@@ -12,9 +12,9 @@ class Key:
     """An abstract layer to use physical key objects with the :class:`pico_synth_sandbox.keyboard.Keyboard` class.
     """
 
-    NONE=0 #: Indicates that the key hasn't been activated in any way
-    PRESS=1 #: Indicates that the key has been pressed
-    RELEASE=2 #: Indicates that the key has been released
+    NONE=const(0) #: Indicates that the key hasn't been activated in any way
+    PRESS=const(1) #: Indicates that the key has been pressed
+    RELEASE=const(2) #: Indicates that the key has been released
 
     def __init__(self):
         pass
@@ -64,10 +64,10 @@ class Keyboard(Task):
     :type update_frequency: float
     """
 
-    NUM_MODES=3 #: The number of available keyboard note allocation modes.
-    MODE_HIGH=0 #: When the keyboard is set as this mode, it will prioritize the highest note value.
-    MODE_LOW=1 #: When the keyboard is set as this mode, it will prioritize the lowest note value.
-    MODE_LAST=2 #: When the keyboard is set as this mode, it will prioritize notes by the order in when they were played/appended.
+    NUM_MODES=const(3) #: The number of available keyboard note allocation modes.
+    MODE_HIGH=const(0) #: When the keyboard is set as this mode, it will prioritize the highest note value.
+    MODE_LOW=const(1) #: When the keyboard is set as this mode, it will prioritize the lowest note value.
+    MODE_LAST=const(2) #: When the keyboard is set as this mode, it will prioritize notes by the order in when they were played/appended.
 
     def __init__(self, keys=[], max_notes=1, root=None):
         if root is None:
