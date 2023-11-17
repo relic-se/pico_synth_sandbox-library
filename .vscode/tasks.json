@@ -1,0 +1,15 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Update",
+            "type": "shell",
+            "command": "make update",
+            "group": "build",
+            "presentation": {
+                "reveal": "silent",
+                "panel": "shared",
+            }
+        }
+    ]
+}
