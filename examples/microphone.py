@@ -13,6 +13,7 @@ display = Display()
 display.enable_horizontal_graph()
 display.write("PicoSynthSandbox", (0,0))
 display.write("Loading...", (0,1))
+display.refresh()
 
 microphone = Microphone()
 
@@ -38,22 +39,25 @@ class MicrophoneLevel(Task):
         return self._max_level
 mic_level = MicrophoneLevel(microphone)
 
-def display_trigger():
+def display_trigger(refresh=True):
     global trigger_level, trigger_level_step
     level_x = int(min(trigger_level*trigger_level_step/mic_level.get_max_level(), 1.0)*16) if mic_level.get_max_level() > 0.0 else 0
     display.write(" " * level_x + chr(0xff), (0,0))
+    if refresh: display.refresh()
 
 def update_level(level, max_level, prev_max_level):
     if max_level != prev_max_level:
-        display_trigger()
+        display_trigger(False)
     if max_level > 0.0:
         display.write_horizontal_graph(level, 0.0, max_level, (0,1), 16)
     else:
         display.write("", (0,1), 16)
+    display.refresh()
 mic_level.set_update(update_level)
 
 def record_trigger():
     display.write("Recording", (0,0), 13)
+    display.refresh()
 microphone.set_trigger(record_trigger)
 
 encoder = Encoder()
@@ -81,6 +85,7 @@ def start_record():
     pico_synth_sandbox.tasks.pause()
     display.clear()
     display.write("Waiting")
+    display.refresh()
     microphone.record(
         name="test",
         samples=4096,
@@ -88,6 +93,7 @@ def start_record():
         clip=trigger_level*trigger_level_step
     )
     display.write("Complete!")
+    display.refresh()
     time.sleep(1)
     display.clear()
     display_trigger()

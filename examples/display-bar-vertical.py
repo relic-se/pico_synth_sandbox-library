@@ -12,15 +12,15 @@ display.enable_vertical_graph()
 value = 0
 def update_value():
     global value
-    display.write(value, (13,0), 3, True, False)
+    display.write(value, (13,0), 3, True)
     display.write_vertical_graph(
         value=value,
         minimum=0,
         maximum=100,
         position=(0,0),
-        height=2,
-        reset_cursor=False
+        height=2
     )
+    display.refresh(reset_cursor=False)
 update_value()
 
 encoder = Encoder()

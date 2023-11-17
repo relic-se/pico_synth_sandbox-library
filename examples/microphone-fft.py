@@ -42,6 +42,6 @@ while True:
             minimum = min_val,
             maximum = max_val,
             position = (i,0),
-            height = 2,
-            reset_cursor = False
+            height = 2
         )
+    display.refresh(reset_cursor=False)

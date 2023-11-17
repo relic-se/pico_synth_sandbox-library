@@ -14,6 +14,7 @@ from pico_synth_sandbox.voice.sample import Sample
 display = Display()
 display.write("PicoSynthSandbox", (0,0))
 display.write("Loading...", (0,1))
+display.refresh()
 
 audio = get_audio_driver()
 synth = Synth(audio)
@@ -28,6 +29,7 @@ def press(notenum, velocity, keynum=None):
         keynum = (notenum - keyboard.root) % len(keyboard.keys)
     synth.press(0, notenum, velocity)
     display.write("*", (keynum,1), 1)
+    display.refresh()
 keyboard.set_press(press)
 
 def release(notenum, keynum=None):
@@ -35,6 +37,7 @@ def release(notenum, keynum=None):
         keynum = (notenum - keyboard.root) % len(keyboard.keys)
     synth.release(0)
     display.write("_", (keynum,1), 1)
+    display.refresh()
 keyboard.set_release(release)
 
 encoder = Encoder()
@@ -44,5 +47,6 @@ encoder.set_click(click)
 encoder.set_long_press(click)
 
 display.write("_"*len(keyboard.keys), (0,1))
+display.refresh()
 
 pico_synth_sandbox.tasks.run()

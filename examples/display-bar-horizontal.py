@@ -12,15 +12,15 @@ display.enable_horizontal_graph()
 value = 0
 def update_value():
     global value
-    display.write(value, (0,0), 3, False, False)
+    display.write(value, (0,0), 3, False)
     display.write_horizontal_graph(
         value=value,
         minimum=0,
         maximum=100,
         position=(0,1),
-        width=16,
-        reset_cursor=False
+        width=16
     )
+    display.refresh(reset_cursor=False)
 update_value()
 
 encoder = Encoder()

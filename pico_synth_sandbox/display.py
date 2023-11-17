@@ -2,6 +2,7 @@
 # 2023 Cooper Dalrymple - me@dcdalrymple.com
 # GPL v3 License
 
+from pico_synth_sandbox.tasks import Task
 from pico_synth_sandbox import clamp, truncate_str, unmap_value
 import math
 import board
@@ -28,14 +29,23 @@ class Display:
         self._cursor_blink = None
         self._cursor_position = (-1,-1)
 
+        self._buffer = [
+            [['\0' for x in range(16)] for y in range(2)], # Input Buffer
+            [[' ' for x in range(16)] for y in range(2)] # Output Buffer
+        ]
+
     def clear(self):
         """Remove all text from display and hide and reset cursor position
         """
         self._lcd.clear()
         self.set_cursor_enabled(False)
         self.set_cursor_position(0, 0, True)
+        for y in range(2):
+            for x in range(16):
+                self._buffer[0][y][x] = '\0'
+                self._buffer[1][y][x] = ' '
 
-    def write(self, value, position=(0,0), length=None, right_aligned=False, reset_cursor=True):
+    def write(self, value, position=(0,0), length=None, right_aligned=False):
         """Display a string or number on the display at the designated position. Can be truncated to a specified length and right-aligned.
 
         :param value: The message or number you would like to display. Any part of the string beyond the first 16 characters or the defined length will not be displayed.
@@ -46,17 +56,78 @@ class Display:
         :type length: int
         :param right_aligned: Whether or not you would like to align the data to the right padded by spaces as determined by the designated length.
         :type right_align: bool
+        """
+        position = self._sanitize_position(position)
+        if not length: length = 16
+        length = clamp(length,1,16-position[0])
+        if type(value) is float:
+            value = "{:.2f}".format(value)
+        value = truncate_str(str(value), length, right_aligned)
+        for x in range(length):
+            self._buffer[0][position[1]][position[0]+x] = value[x]
+
+    def refresh(self, reset_cursor=True):
+        """Write buffer to display. Must be called after any changes are made to the display for those changes to be visible.
+
         :param reset_cursor: It is required to manipulate the cursor position in order to make writes to the display. By default, the cursor is reset to the previous position if needed for other applications. If you would like to keep the cursor at it's newly written location, set this value as False.
         :type reset_cursor: bool
         """
-        if not length: length = 16
-        if type(value) is float:
-            value = "{:.2f}".format(value)
 
-        cursor_pos = self._cursor_position
-        self.set_cursor_position(position[0], position[1], True)
-        self._lcd.message = truncate_str(str(value), clamp(length,1,16-self._cursor_position[0]), right_aligned)
-        if reset_cursor: self.set_cursor_position(cursor_pos[0], cursor_pos[1])
+        # Locate the end of front buffer data
+        end = -1
+        for i in range(2*16-1, -1, -1):
+            x = i % 16
+            y = i // 16
+            if not self._buffer[0][y][x] is '\0' and self._buffer[0][y][x] != self._buffer[1][y][x]:
+                end = i
+                break
+        if end < 0:
+            return # No changes found
+        
+        # Locate the start of front buffer data and start building data
+        start = -1
+        data = []
+        for i in range(2*16):
+            x = i % 16
+            y = i // 16
+            if start < 0:
+                if not self._buffer[0][y][x] is '\0' and self._buffer[0][y][x] != self._buffer[1][y][x]:
+                    start = i
+                    if start-end+1 == 2*16: # Needs full buffer refresh
+                        break
+                else:
+                    continue
+            if not self._buffer[0][y][x] is '\0':
+                self._buffer[1][y][x] = self._buffer[0][y][x]
+            data.append(self._buffer[1][y][x])
+            if i == end: # We've reached the end of new buffer data
+                break
+            elif x == 15: # We're at the end of a line
+                data.append('\n')
+
+        if not data: # If no data appended, needs full buffer refresh
+            data = "\n".join(["".join(self._buffer[1][y]) for y in range(2)])
+        else:
+            data = "".join(data)
+        
+        # Write new data to display
+        self._lcd.cursor_position(start%16, start//16)
+        self._lcd.message = data
+        if reset_cursor:
+            self._lcd.cursor_position(self._cursor_position[0], self._cursor_position[1])
+        
+        # Reset input buffer
+        for y in range(2):
+            for x in range(16):
+                self._buffer[0][y][x] = '\0'
+
+    def _sanitize_position(self, column, row=0):
+        if type(column) is tuple:
+            if len(column) != 2:
+                return (0,0)
+            row = column[1]
+            column = column[0]
+        return (clamp(column, 0, 15), clamp(row, 0, 1))
 
     def set_cursor_enabled(self, value):
         """Set whether or not the cursor should be displayed.
@@ -77,13 +148,7 @@ class Display:
         :param force: Force the display to update the cursor position even if it hasn't changed.
         :type force: bool
         """
-        if type(column) is tuple:
-            if len(column) != 2:
-                return
-            row = column[1]
-            column = column[0]
-        column = clamp(column, 0, 15)
-        row = clamp(row, 0, 1)
+        column, row = self._sanitize_position(column, row)
         if force or self._cursor_position[0] != column or self._cursor_position[1] != row:
             self._cursor_position = (column, row)
             self._lcd.cursor_position(column, row)
@@ -136,9 +201,8 @@ class Display:
         for i in range(min(len(data), 8)):
             self._lcd.create_char(i, data[i])
 
-    def _write_graph(self, value=0.0, minimum=0.0, maximum=1.0, position=(0,0), length=1, vertical=False, centered=False, reset_cursor=True):
-        if reset_cursor: cursor_pos = self._cursor_position
-
+    def _write_graph(self, value=0.0, minimum=0.0, maximum=1.0, position=(0,0), length=1, vertical=False, centered=False):
+        position = self._sanitize_position(position)
         length = clamp(length, 1, (2 if vertical else 16) - position[1 if vertical else 0])
         value = unmap_value(value, minimum, maximum)
 
@@ -166,19 +230,15 @@ class Display:
                 char = 0x00 + int(math.floor((value - (segment*i+bar)) / bar))
             data.append(chr(char))
 
-        if vertical:
-            for i in range(length):
-                self.set_cursor_position(position[0], position[1]+(length-i-1), True)
-                self._lcd.message = data[i]
-        else:
-            self.set_cursor_position(position[0], position[1], True)
-            self._lcd.message = "".join(data)
+        for i in range(length):
+            if vertical:
+                self._buffer[0][position[1]+(length-i-1)][position[0]] = data[i]
+            else:
+                self._buffer[0][position[1]][position[0]+i] = data[i]
 
-        if reset_cursor: self.set_cursor_position(cursor_pos[0], cursor_pos[1])
+    def write_vertical_graph(self, value=0.0, minimum=0.0, maximum=1.0, position=(0,0), height=1):
+        self._write_graph(value, minimum, maximum, position, height, True, False)
 
-    def write_vertical_graph(self, value=0.0, minimum=0.0, maximum=1.0, position=(0,0), height=1, reset_cursor=True):
-        self._write_graph(value, minimum, maximum, position, height, True, False, reset_cursor)
-
-    def write_horizontal_graph(self, value=0.0, minimum=0.0, maximum=1.0, position=(0,0), width=1, centered=False, reset_cursor=True):
+    def write_horizontal_graph(self, value=0.0, minimum=0.0, maximum=1.0, position=(0,0), width=1, centered=False):
         # NOTE: If horizontal centered, length must be divisible by 2.
-        self._write_graph(value, minimum, maximum, position, width, False, centered, reset_cursor)
+        self._write_graph(value, minimum, maximum, position, width, False, centered)

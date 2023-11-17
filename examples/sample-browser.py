@@ -17,6 +17,7 @@ display = Display()
 display.enable_horizontal_graph()
 display.write("PicoSynthSandbox", (0,0))
 display.write("Loading...", (0,1))
+display.refresh()
 
 audio = get_audio_driver()
 synth = Synth(audio)
@@ -57,16 +58,20 @@ semitone = 0
 sample_index = 0
 sample_index_loaded = -1
 
-def update_tune(write=True):
+def update_tune(write=True, refresh=True):
     global semitone
     for voice in synth.voices:
         voice.set_coarse_tune(semitone / 12.0)
-    if write: display.write_horizontal_graph(semitone, -24, 24, (0,1), 4)
+    if write:
+        display.write_horizontal_graph(semitone, -24, 24, (0,1), 4)
+        if refresh:
+            display.refresh()
 
 def update_sample():
     global sample_index, sample_index_loaded
     display.write(sample_files[sample_index][:-4], (5,1))
     display.write("*" if sample_index == sample_index_loaded else " ", (15,0), 1)
+    display.refresh()
 
 def next():
     global type, semitone, sample_index, sample_files
@@ -99,6 +104,7 @@ def load_sample(write=True):
     audio.mute()
     if write:
         display.write("Loading...", (5,1))
+        display.refresh()
 
     for voice in synth.voices:
         voice.unload()
@@ -134,7 +140,7 @@ display.clear()
 display.write("Tune Sample", position=(0,0))
 display.set_cursor_enabled(True)
 display.set_cursor_blink(True)
-update_tune()
+update_tune(refresh=False)
 update_sample()
 
 pico_synth_sandbox.tasks.run()

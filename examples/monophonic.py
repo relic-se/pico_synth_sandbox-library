@@ -14,6 +14,7 @@ from pico_synth_sandbox.waveform import Waveform
 display = Display()
 display.write("PicoSynthSandbox", (0,0))
 display.write("Loading...", (0,1))
+display.refresh()
 
 note_names = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
 
@@ -81,12 +82,14 @@ def press(notenum, velocity, keynum=None):
     for voice in synth.voices:
         synth.press(voice, notenum, velocity)
     display.write("{:02d}".format(keynum) + " " + note_names[notenum % 12], (0,1), 6)
+    display.refresh()
 def release(notenum, keynum=None):
     if keynum is None:
         keynum = (notenum - keyboard.root) % len(keyboard.keys)
     if not keyboard.has_notes():
         synth.release()
         display.write("", (0, 1), 6)
+        display.refresh()
 keyboard.set_press(press)
 keyboard.set_release(release)
 
@@ -97,6 +100,7 @@ def update_tuning():
     osc1.set_coarse_tune(tune / 12.0)
     osc2.set_coarse_tune(tune / 12.0 + 2.0)
     display.write("{:02d}".format(tune), (6,1), 6, True)
+    display.refresh()
 def increment():
     global tune
     if tune < 48:

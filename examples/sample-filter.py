@@ -17,6 +17,7 @@ display = Display()
 display.enable_horizontal_graph()
 display.write("PicoSynthSandbox", (0,0))
 display.write("Loading...", (0,1))
+display.refresh()
 
 audio = get_audio_driver()
 
@@ -73,18 +74,21 @@ filter = 100
 display.write("Tune    Filter  ", position=(0,0))
 display.set_cursor_enabled(True)
 display.set_cursor_blink(True)
+display.refresh()
 
 def update_tune():
     global semitone
     for voice in synth.voices:
         voice.set_coarse_tune(semitone / 12.0)
     display.write_horizontal_graph(semitone, -48, 48, (0,1), 8)
+    display.refresh()
 update_tune()
 
 def update_filter():
     global filter
     synth.set_filter_frequency(filter / 100.0)
     display.write_horizontal_graph(filter, 0, 100, (8,1), 8)
+    display.refresh()
 update_filter()
 
 def increment():
