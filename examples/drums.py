@@ -14,7 +14,7 @@ from pico_synth_sandbox.arpeggiator import Arpeggiator
 display = Display()
 display.write("PicoSynthSandbox", (0,0))
 display.write("Loading...", (0,1))
-display.refresh()
+display.update()
 
 audio = get_audio_driver()
 synth = Synth(audio)
@@ -37,7 +37,6 @@ def press(notenum, velocity, keynum=None):
     if keynum % 12 == 2: # Closed Hat
         synth.release(open_hat, True) # Force release
     display.write("*", (keynum,1), 1)
-    display.refresh()
 keyboard.set_press(press)
 
 def release(notenum, keynum=None):
@@ -45,7 +44,6 @@ def release(notenum, keynum=None):
         keynum = (notenum - keyboard.root) % len(keyboard.keys)
     synth.release(keynum % 12)
     display.write("_", (keynum,1), 1)
-    display.refresh()
 keyboard.set_release(release)
 
 mod_value = 64
@@ -71,6 +69,5 @@ encoder.set_click(click)
 encoder.set_long_press(click)
 
 display.write("_"*len(keyboard.keys), (0,1))
-display.refresh()
 
 pico_synth_sandbox.tasks.run()

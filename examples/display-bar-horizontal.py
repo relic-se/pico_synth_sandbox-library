@@ -20,7 +20,6 @@ def update_value():
         position=(0,1),
         width=16
     )
-    display.refresh(reset_cursor=False)
 update_value()
 
 encoder = Encoder()

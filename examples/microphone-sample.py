@@ -18,7 +18,7 @@ display = Display()
 display.enable_horizontal_graph()
 display.write("PicoSynthSandbox", (0,0))
 display.write("Loading...", (0,1))
-display.refresh()
+display.update()
 
 audio = get_audio_driver()
 synth = Synth(audio)
@@ -70,12 +70,11 @@ def update_level(level, max_level):
         display.write_horizontal_graph(level, 0.0, max_level, (12,1), 4)
     else:
         display.write("", (12,1), 4)
-    display.refresh()
 mic_level = MicrophoneLevel(microphone, update_level)
 
 def trigger():
     display.write("Recording")
-    display.refresh()
+    display.update()
 microphone.set_trigger(trigger)
 
 encoder = Encoder()
@@ -83,21 +82,17 @@ type = 0
 semitone = 0
 filter = 100
 
-def update_tune(write=True, refresh=True):
+def update_tune(write=True):
     global semitone
     voice.set_coarse_tune(semitone / 12.0)
     if write:
         display.write_horizontal_graph(semitone, -24, 24, (0,1), 4)
-        if refresh:
-            display.refresh()
 
-def update_filter(write=True, refresh=True):
+def update_filter(write=True):
     global filter
     voice.set_filter_frequency(filter / 100.0, synth)
     if write:
         display.write_horizontal_graph(filter, 0, 100, (5,1), 6)
-        if refresh:
-            display.refresh()
 
 def increment():
     global type, semitone, filter
@@ -131,12 +126,11 @@ def reset_display():
     global type
     display.clear()
     display.write("Tune Filter Mic", (0,0))
-    update_tune(refresh=False)
-    update_filter(refresh=False)
+    update_tune()
+    update_filter()
     display.set_cursor_position(5 if type else 0, 0)
     display.set_cursor_enabled(True)
     display.set_cursor_blink(True)
-    display.refresh()
 
 def start_record():
     global semitone
@@ -154,7 +148,7 @@ def start_record():
     gc.collect()
 
     display.write("Waiting")
-    display.refresh()
+    display.update()
 
     sample_data = microphone.read(
         samples=4096,
@@ -163,7 +157,7 @@ def start_record():
     )
 
     display.write("Processing")
-    display.refresh()
+    display.update()
 
     # Normalize Volume
     sample_data = normalize(sample_data)
@@ -178,7 +172,7 @@ def start_record():
 
     display.clear()
     display.write("Complete!")
-    display.refresh()
+    display.update()
     time.sleep(0.5)
 
     reset_display()

@@ -14,7 +14,7 @@ from pico_synth_sandbox.voice.drum import Kick, Snare, ClosedHat, OpenHat
 display = Display()
 display.write("PicoSynthSandbox", (0,0))
 display.write("Loading...", (0,1))
-display.refresh()
+display.update()
 display.set_cursor_enabled(True)
 display.set_cursor_blink(False)
 
@@ -58,7 +58,6 @@ def update_display():
     for i in range(sequencer.get_length()):
         line += "*" if sequencer.has_note(i, voice) else "_"
     display.write(line, (0,1))
-    display.refresh()
 
 keyboard = get_keyboard_driver()
 def key_press(notenum, velocity, keynum=None):
@@ -72,7 +71,6 @@ def key_press(notenum, velocity, keynum=None):
         if keynum == 11:
             alt_key = not alt_key
             display.write("^" if alt_key else "-", (12,0), 1)
-            display.refresh()
             return
         elif keynum < 8:
             position = keynum + (8 if alt_key else 0)
@@ -95,14 +93,12 @@ def key_press(notenum, velocity, keynum=None):
             track=voice
         )
         display.write("_", (position,1), 1)
-    display.refresh()
 keyboard.set_press(key_press)
 
 encoder = Encoder()
 def update_bpm():
     sequencer.set_bpm(bpm)
     display.write(str(bpm), (13,0), 3, True)
-    display.refresh()
 def increment():
     global voice, bpm
     if not alt_enc:
@@ -123,7 +119,6 @@ def click():
     global alt_enc
     alt_enc = not alt_enc
     display.write(">" if alt_enc else "<", (11,0), 1)
-    display.refresh()
 encoder.set_increment(increment)
 encoder.set_decrement(decrement)
 encoder.set_click(click)

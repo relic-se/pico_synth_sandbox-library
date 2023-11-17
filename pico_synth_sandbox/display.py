@@ -9,7 +9,7 @@ import board
 from digitalio import DigitalInOut
 from adafruit_character_lcd.character_lcd import Character_LCD_Mono
 
-class Display:
+class Display(Task):
     """Control the connected 16x2 character display (aka *1602*). Hardware connections are abstracted and text writing and cursor management is simplified.
     """
 
@@ -33,6 +33,8 @@ class Display:
             [['\0' for x in range(16)] for y in range(2)], # Input Buffer
             [[' ' for x in range(16)] for y in range(2)] # Output Buffer
         ]
+
+        Task.__init__(self, update_frequency=4)
 
     def clear(self):
         """Remove all text from display and hide and reset cursor position
@@ -66,7 +68,7 @@ class Display:
         for x in range(length):
             self._buffer[0][position[1]][position[0]+x] = value[x]
 
-    def refresh(self, reset_cursor=True):
+    def update(self, reset_cursor=True):
         """Write buffer to display. Must be called after any changes are made to the display for those changes to be visible.
 
         :param reset_cursor: It is required to manipulate the cursor position in order to make writes to the display. By default, the cursor is reset to the previous position if needed for other applications. If you would like to keep the cursor at it's newly written location, set this value as False.
