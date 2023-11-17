@@ -1,7 +1,6 @@
 # pico_synth_sandbox - boot.py
 # 2023 Cooper Dalrymple - me@dcdalrymple.com
 # GPL v3 License
-# Version 0.1
 
 # NOTE: This file is recommended to pre-configure your device, but not necessary for operation.
 

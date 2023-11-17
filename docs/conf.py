@@ -21,7 +21,7 @@ copyright = year_duration + ' Cooper Dalrymple'
 author = 'Cooper Dalrymple'
 
 version = '0.1'
-release = '0.1'
+release = '0.1.1'
 
 language = 'en'
 
