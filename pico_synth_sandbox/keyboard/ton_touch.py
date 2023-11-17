@@ -5,23 +5,20 @@
 # NOTE: If using module, close jumpers TP3 & TP4 for multi-key output, TP1 for serial interface (active-high), and TP2 for 16-key inputs (leave open for 8-key).
 
 import board
+from pico_synth_sandbox.keyboard import DebouncerKey, Keyboard
 from digitalio import DigitalInOut, Direction, Pull
-from pico_synth_sandbox.keyboard import Key, Keyboard
 
-class TonTouchPad(Key):
+tontouch_data = 0
+
+class TonTouchPad(DebouncerKey):
     def __init__(self, index):
         self._index = index
         self._bit = 1 << self._index
+        DebouncerKey.__init__(self, self.read)
 
-    def check(self):
-        # TODO: Some form of debouncing
-        global tontouch_data, tontouch_data_prev
-        if tontouch_data & self._bit and not tontouch_data_prev & self._bit:
-            return self.PRESS
-        elif not tontouch_data & self._bit and tontouch_data_prev & self._bit:
-            return self.RELEASE
-        else:
-            return self.NONE
+    def read(self):
+        global tontouch_data
+        return bool(tontouch_data & self._bit)
 
 class TonTouchKeyboard(Keyboard):
 
@@ -47,17 +44,12 @@ class TonTouchKeyboard(Keyboard):
         self._scl = DigitalInOut(board.GP7)
         self._scl.direction = Direction.OUTPUT
 
-        global tontouch_data, tontouch_data_prev
-        tontouch_data = 0
-        tontouch_data_prev = 0
-
     def update(self):
         self.read_data()
         Keyboard.update(self)
 
     def read_data(self):
-        global tontouch_data, tontouch_data_prev
-        tontouch_data_prev = tontouch_data
+        global tontouch_data
         tontouch_data = 0
 
         # Clock is around 2.8khz

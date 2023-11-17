@@ -4,6 +4,7 @@
 
 import os
 from pico_synth_sandbox.tasks import Task
+from adafruit_debouncer import Debouncer
 
 # TODO: Add Output Buffer Voices
 
@@ -25,6 +26,30 @@ class Key:
         :rtype: int
         """
         return self.NONE
+
+class DebouncerKey(Key):
+    """An abstract layer to debouncer sensor input to use physical key objects with the :class:`pico_synth_sandbox.keyboard.Keyboard` class.
+
+    :param io_or_predicate: The input pin or arbitrary predicate to debounce
+    :type io_or_predicate: ROValueIO | Callable[[], bool]
+    """
+    def __init__(self, io_or_predicate, invert=False):
+        self._debouncer = Debouncer(io_or_predicate)
+        self._inverted = invert
+
+    def check(self):
+        """Updates the input pin or arbitraary predicate with basic debouncing and returns the current key state.
+
+        :return: Key state constant
+        :rtype: int
+        """
+        self._debouncer.update()
+        if self._debouncer.rose:
+            return self.PRESS if not self._inverted else self.RELEASE
+        elif self._debouncer.fell:
+            return self.RELEASE if not self._inverted else self.PRESS
+        else:
+            return self.NONE
 
 class Keyboard(Task):
     """Manage note allocation, arpeggiator assignment, sustain, and note callbacks using this class. The root of the keyboard (lowest note) is designated by the `KEYBOARD_ROOT` variable in `settings.toml`. The default note allocation mode is defined by the `KEYBOARD_MODE` variable in `settings.toml`. This class is inherited by the :class:`pico_synth_sandbox.keyboard.TouchKeyboard` class.

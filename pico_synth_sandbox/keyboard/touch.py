@@ -3,32 +3,17 @@
 # GPL v3 License
 
 import board
-from pico_synth_sandbox.keyboard import Key, Keyboard
+from pico_synth_sandbox.keyboard import DebouncerKey, Keyboard
 from touchio import TouchIn
-from adafruit_debouncer import Debouncer
 
-class TouchPad(Key):
+class TouchPad(DebouncerKey):
     """This class is used by the :class:`pico_synth_sandbox.keyboard.touch.TouchKeyboard` class to handle logic related to the capacitive touch inputs of the hardware platform.
 
     :param pin: The GPIO pin of the capacitive touch input. Must use a pull-down resistor of around 1M ohms.
     :type pin: :class:`microcontroller.Pin`
     """
     def __init__(self, pin):
-        self.switch = Debouncer(TouchIn(pin))
-
-    def check(self):
-        """Updates the capacitive touch input with basic debouncing and returns the current key state.
-
-        :return: Key state constant
-        :rtype: int
-        """
-        self.switch.update()
-        if self.switch.rose:
-            return self.PRESS
-        elif self.switch.fell:
-            return self.RELEASE
-        else:
-            return self.NONE
+        DebouncerKey.__init__(self, TouchIn(pin))
 
 class TouchKeyboard(Keyboard):
     """Use the built-in 12 capacitive touch inputs as a :class:`pico_synth_sandbox.keyboard.Keyboard` object.
