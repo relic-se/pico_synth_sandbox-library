@@ -131,8 +131,6 @@ def toggle():
     display.set_cursor_position(5 if type else 0, 0)
 encoder.set_click(toggle)
 
-load_sample(False)
-
 display.clear()
 display.write("Tune Sample", position=(0,0))
 display.set_cursor_enabled(True)

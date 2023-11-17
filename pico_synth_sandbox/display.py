@@ -33,6 +33,7 @@ class Display(Task):
             [['\0' for x in range(16)] for y in range(2)], # Input Buffer
             [[' ' for x in range(16)] for y in range(2)] # Output Buffer
         ]
+        self._needs_update = False
 
         Task.__init__(self, update_frequency=4)
 
@@ -46,6 +47,7 @@ class Display(Task):
             for x in range(16):
                 self._buffer[0][y][x] = '\0'
                 self._buffer[1][y][x] = ' '
+        self._needs_update = False
 
     def write(self, value, position=(0,0), length=None, right_aligned=False):
         """Display a string or number on the display at the designated position. Can be truncated to a specified length and right-aligned.
@@ -67,6 +69,7 @@ class Display(Task):
         value = truncate_str(str(value), length, right_aligned)
         for x in range(length):
             self._buffer[0][position[1]][position[0]+x] = value[x]
+        self._needs_update = True
 
     def update(self, reset_cursor=True):
         """Write buffer to display. Must be called after any changes are made to the display for those changes to be visible.
@@ -74,6 +77,10 @@ class Display(Task):
         :param reset_cursor: It is required to manipulate the cursor position in order to make writes to the display. By default, the cursor is reset to the previous position if needed for other applications. If you would like to keep the cursor at it's newly written location, set this value as False.
         :type reset_cursor: bool
         """
+
+        # Exit early if no buffer updates recorded
+        if not self._needs_update:
+            return
 
         # Locate the end of front buffer data
         end = -1
@@ -237,6 +244,7 @@ class Display(Task):
                 self._buffer[0][position[1]+(length-i-1)][position[0]] = data[i]
             else:
                 self._buffer[0][position[1]][position[0]+i] = data[i]
+        self._needs_update = True
 
     def write_vertical_graph(self, value=0.0, minimum=0.0, maximum=1.0, position=(0,0), height=1):
         self._write_graph(value, minimum, maximum, position, height, True, False)
