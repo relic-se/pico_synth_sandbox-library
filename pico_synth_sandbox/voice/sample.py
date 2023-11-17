@@ -63,7 +63,6 @@ class Sample(Oscillator):
 
     def _update_root(self):
         Oscillator._update_root(self)
-        self._desired_frequency = self._note.frequency
         self._note.frequency = self._desired_frequency * pow(2,self._sample_tune)
 
     def update(self, synth):
