@@ -1,5 +1,5 @@
-API Reference
-=============
+Library Reference
+=================
 
 .. automodule:: pico_synth_sandbox
     :members:

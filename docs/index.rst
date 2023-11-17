@@ -52,7 +52,7 @@ Table of Contents
     Home<self>
     software
     examples
-    api
+    library
     build
 
 Indices and tables
