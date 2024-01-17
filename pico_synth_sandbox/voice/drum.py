@@ -4,7 +4,7 @@
 
 # Inspired by https://gist.github.com/gamblor21/15a430929abf0e10eeaba8a45b01f5a8
 
-from pico_synth_sandbox import clamp, map_value
+from pico_synth_sandbox import clamp, map_value, calculate_filter_frequency_value
 from pico_synth_sandbox.voice import Voice
 from pico_synth_sandbox.synth import Synth
 from pico_synth_sandbox.waveform import Waveform
@@ -42,7 +42,7 @@ class Drum(Voice):
 
         self.set_filter(
             type=filter_type,
-            frequency=Synth.calculate_filter_frequency_value(filter_frequency),
+            frequency=calculate_filter_frequency_value(filter_frequency),
             resonance=0.0
         )
 

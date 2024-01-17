@@ -32,7 +32,7 @@ for voice in synth.voices:
     )
 
 sample_data = None
-sample_rate = Audio.get_sample_rate()
+sample_rate = audio.get_sample_rate()
 sample_root = 440.0
 
 sample_files = list(filter(lambda x: x[-4:] == ".wav", os.listdir("/samples")))

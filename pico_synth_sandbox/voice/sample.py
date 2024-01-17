@@ -2,7 +2,8 @@
 # 2023 Cooper Dalrymple - me@dcdalrymple.com
 # GPL v3 License
 
-from pico_synth_sandbox import fftfreq, LOG_2
+import os
+from pico_synth_sandbox import fftfreq, LOG_2, clamp
 from pico_synth_sandbox.voice import Voice
 from pico_synth_sandbox.voice.oscillator import Oscillator
 from pico_synth_sandbox.audio import Audio
@@ -15,7 +16,7 @@ class Sample(Oscillator):
 
         self._loop = loop
 
-        self._sample_rate = Audio.get_sample_rate()
+        self._sample_rate = os.getenv("AUDIO_RATE", 22050)
         self._wave_rate = self._sample_rate
         self._sample_tune = 0.0
         self._start = None

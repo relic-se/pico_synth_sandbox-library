@@ -2,8 +2,7 @@
 # 2023 Cooper Dalrymple - me@dcdalrymple.com
 # GPL v3 License
 
-from pico_synth_sandbox import clamp, map_value
-from pico_synth_sandbox.audio import MIN_FILTER_FREQUENCY, MAX_FILTER_FREQUENCY, MIN_FILTER_RESONANCE, MAX_FILTER_RESONANCE
+from pico_synth_sandbox import clamp, map_value, get_filter_frequency_range, get_filter_resonance_range
 import ulab.numpy as numpy
 import synthio
 
@@ -118,14 +117,16 @@ class Voice:
         return self._filter_type
     def _get_filter_frequency_value(self):
         return self._filter_frequency
-    def _get_filter_frequency(self):
-        return map_value(self._get_filter_frequency_value(), MIN_FILTER_FREQUENCY, MAX_FILTER_FREQUENCY)
+    def _get_filter_frequency(self, sample_rate=None):
+        range = get_filter_frequency_range(sample_rate)
+        return map_value(self._get_filter_frequency_value(), range[0], range[1])
     def _get_filter_resonance(self):
-        return map_value(self._filter_resonance, MIN_FILTER_RESONANCE, MAX_FILTER_RESONANCE)
+        range = get_filter_resonance_range()
+        return map_value(self._filter_resonance, range[0], range[1])
 
     def _update_filter(self, synth):
         type = self._get_filter_type()
-        frequency = self._get_filter_frequency()
+        frequency = self._get_filter_frequency(synth.get_sample_rate())
         resonance = self._get_filter_resonance()
 
         if self._filter_buffer[0] == type and self._filter_buffer[1] == frequency and self._filter_buffer[2] == resonance:
@@ -134,7 +135,7 @@ class Voice:
 
         filter = synth.build_filter(type, frequency, resonance)
         for note in self.get_notes():
-            note.filter = filter;
+            note.filter = filter
 
     def set_filter_type(self, value, synth=None, update=True):
         self._filter_type = value
