@@ -8,10 +8,10 @@ from pico_synth_sandbox import fftfreq
 from pico_synth_sandbox.display import Display
 from pico_synth_sandbox.encoder import Encoder
 from pico_synth_sandbox.keyboard import get_keyboard_driver
-from pico_synth_sandbox.audio import Audio, get_audio_driver
+from pico_synth_sandbox.audio import get_audio_driver
 from pico_synth_sandbox.synth import Synth
 from pico_synth_sandbox.voice.sample import Sample
-from pico_synth_sandbox.waveform import Waveform
+import pico_synth_sandbox.waveform as waveform
 
 display = Display()
 display.enable_horizontal_graph()
@@ -111,7 +111,7 @@ def load_sample(write=True):
     semitone = 0
     update_tune(write)
 
-    sample_data, sample_rate = Waveform.load_from_file("/samples/" + sample_files[sample_index], max_samples=8192)
+    sample_data, sample_rate = waveform.load_from_file("/samples/" + sample_files[sample_index], max_samples=8192)
     sample_root = fftfreq(
         data=sample_data,
         sample_rate=sample_rate

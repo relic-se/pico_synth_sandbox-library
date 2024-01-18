@@ -11,7 +11,7 @@ from pico_synth_sandbox.keyboard import get_keyboard_driver
 from pico_synth_sandbox.audio import get_audio_driver
 from pico_synth_sandbox.synth import Synth
 from pico_synth_sandbox.voice.sample import Sample
-from pico_synth_sandbox.waveform import Waveform
+import pico_synth_sandbox.waveform as waveform
 
 display = Display()
 display.enable_horizontal_graph()
@@ -21,7 +21,7 @@ display.update()
 
 audio = get_audio_driver()
 
-sample_data, sample_rate = Waveform.load_from_file("/samples/hey.wav")
+sample_data, sample_rate = waveform.load_from_file("/samples/hey.wav")
 root = fftfreq(
     data=sample_data,
     sample_rate=sample_rate

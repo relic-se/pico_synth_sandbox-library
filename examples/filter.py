@@ -8,7 +8,7 @@ from pico_synth_sandbox.encoder import Encoder
 from pico_synth_sandbox.audio import get_audio_driver
 from pico_synth_sandbox.synth import Synth
 from pico_synth_sandbox.voice.oscillator import Oscillator
-from pico_synth_sandbox.waveform import Waveform
+import pico_synth_sandbox.waveform as waveform
 from pico_synth_sandbox.keyboard import get_keyboard_driver
 from pico_synth_sandbox.arpeggiator import Arpeggiator
 
@@ -20,7 +20,7 @@ display.update()
 audio = get_audio_driver()
 synth = Synth(audio)
 synth.add_voices(Oscillator() for i in range(12))
-synth.set_waveform(Waveform.get_saw())
+synth.set_waveform(waveform.get_saw())
 for voice in synth.voices:
     voice.set_envelope(
         attack_time=0.1,

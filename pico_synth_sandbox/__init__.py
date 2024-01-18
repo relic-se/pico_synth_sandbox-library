@@ -5,7 +5,6 @@
 import gc, os, sys, board, math
 import ulab
 import ulab.numpy as numpy
-from pico_synth_sandbox.audio import Audio
 
 # Global Constants
 

@@ -31,7 +31,7 @@ Features
 * Device-level settings using ``settings.toml`` file to generate audio driver, display, MIDI, and other hardware objects
 * Keyboard handling for key priority and voice allocation
 * :class:`pico_synth_sandbox.arpeggiator.Arpeggiator` and :class:`pico_synth_sandbox.sequencer.Sequencer` classes based on :class:`pico_synth_sandbox.timer.Timer` class with support for bpm, step, and gate
-* :class:`pico_synth_sandbox.waveform.Waveform` generator to quickly create numpy arrays
+* `pico_synth_sandbox.waveform` generators to quickly create numpy arrays
 * Voice based structure to simplify note and parameter management among multiple :class:`synthio.Note` instances
 * Multiple :class:`pico_synth_sandbox.voice.Voice` types available:
 

@@ -7,7 +7,7 @@
 from pico_synth_sandbox import clamp, map_value, calculate_filter_frequency_value
 from pico_synth_sandbox.voice import Voice
 from pico_synth_sandbox.synth import Synth
-from pico_synth_sandbox.waveform import Waveform
+import pico_synth_sandbox.waveform as waveform
 import synthio
 
 class Drum(Voice):
@@ -23,7 +23,7 @@ class Drum(Voice):
         self._attack_level = 1.0
 
         self._lfo = synthio.LFO(
-            waveform=Waveform.get_saw(),
+            waveform=waveform.get_saw(),
             rate=20,
             scale=0.3,
             offset=0.33,
@@ -103,7 +103,7 @@ class Kick(Drum):
             filter_frequency=2000,
             frequencies=[53, 72, 41],
             times=[0.075, 0.055, 0.095],
-            waveforms=[Waveform.get_offset_sine(), Waveform.get_sine(), Waveform.get_offset_sine()]
+            waveforms=[waveform.get_offset_sine(), waveform.get_sine(), waveform.get_offset_sine()]
         )
 
 class Snare(Drum):
@@ -113,7 +113,7 @@ class Snare(Drum):
             filter_frequency=9500,
             frequencies=[90, 135, 165],
             times=[0.115, 0.095, 0.115],
-            waveforms=[Waveform.get_sine_noise(), Waveform.get_offset_sine_noise(), Waveform.get_offset_sine_noise()]
+            waveforms=[waveform.get_sine_noise(), waveform.get_offset_sine_noise(), waveform.get_offset_sine_noise()]
         )
 
 class Hat(Drum):
@@ -123,7 +123,7 @@ class Hat(Drum):
             filter_type=Synth.FILTER_HPF,
             filter_frequency=9500,
             frequencies=[90, 135, 165],
-            waveforms=[Waveform.get_noise()]
+            waveforms=[waveform.get_noise()]
         )
         self._min_time = max(min_time, 0.0)
         self._max_time = max(max_time, self._min_time)

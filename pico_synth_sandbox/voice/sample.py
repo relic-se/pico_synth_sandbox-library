@@ -6,8 +6,7 @@ import os
 from pico_synth_sandbox import fftfreq, LOG_2, clamp
 from pico_synth_sandbox.voice import Voice
 from pico_synth_sandbox.voice.oscillator import Oscillator
-from pico_synth_sandbox.audio import Audio
-from pico_synth_sandbox.waveform import Waveform
+import pico_synth_sandbox.waveform as waveform
 import math, time
 
 class Sample(Oscillator):
@@ -39,7 +38,7 @@ class Sample(Oscillator):
         self._sample_tune = math.log(self._wave_duration / self._sample_duration) / LOG_2
         self.set_loop() # calls self._update_root
     def load_from_file(self, filepath, max_samples=4096):
-        data, sample_rate = Waveform.load_from_file(filepath, max_samples)
+        data, sample_rate = waveform.load_from_file(filepath, max_samples)
         self.load(data, sample_rate)
 
     def unload(self):
