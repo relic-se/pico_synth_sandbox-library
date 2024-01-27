@@ -123,6 +123,9 @@ class Audio:
         elif index < len(self._mixer.voice):
             self._mixer.voice[index].level = value
 
+    def get_level(self, index=0):
+        return self._mixer.voice[index].level
+
     def play(self, source, index=0):
         """Play an audio source through a selected mixer voice.
 
