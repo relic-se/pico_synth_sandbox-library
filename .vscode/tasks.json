@@ -10,6 +10,26 @@
                 "reveal": "silent",
                 "panel": "shared",
             }
+        },
+        {
+            "label": "Upload",
+            "type": "shell",
+            "command": "make upload",
+            "group": "build",
+            "presentation": {
+                "reveal": "silent",
+                "panel": "shared",
+            }
+        },
+        {
+            "label": "Package",
+            "type": "shell",
+            "command": "make package",
+            "group": "build",
+            "presentation": {
+                "reveal": "silent",
+                "panel": "shared",
+            }
         }
     ]
 }
