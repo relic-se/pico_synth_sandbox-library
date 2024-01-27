@@ -5,7 +5,6 @@
 import gc, os, sys, board, math
 import ulab
 import ulab.numpy as numpy
-from pico_synth_sandbox.audio import Audio
 
 # Global Constants
 
@@ -96,8 +95,7 @@ def fft(data, log=True, dtype=numpy.int16, length=1024):
     return data
 
 def fftfreq(data, sample_rate=None, dtype=numpy.int16):
-    if sample_rate is None:
-        sample_rate = Audio.get_sample_rate()
+    if sample_rate is None: sample_rate = os.getenv("AUDIO_RATE", 22050)
     data = fft(data, log=False, dtype=dtype)
     freq = numpy.argmax(data) / len(data) * sample_rate / 4
     del data
@@ -118,3 +116,16 @@ def normalize(data): # For numpy.int16
         for i in range(len(data)):
             data[i] = int(clamp(float(data[i]) * 32767.0 / max_level, -32767.0, 32767.0))
     return data
+
+# Filter Range
+
+def get_filter_frequency_range(sample_rate=None):
+    if sample_rate is None: sample_rate = os.getenv("AUDIO_RATE", 22050)
+    return (60.0, min(20000.0, sample_rate * 0.45))
+
+def get_filter_resonance_range():
+    return (0.7071067811865475, 8.0)
+
+def calculate_filter_frequency_value(frequency, sample_rate=None):
+    range = get_filter_frequency_range(sample_rate)
+    return unmap_value(frequency, range[0], range[1])

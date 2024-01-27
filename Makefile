@@ -9,6 +9,7 @@ LIB = pico_synth_sandbox
 LIB_SRCS := \
 	__init__ \
 	tasks \
+	board \
 	display \
 	encoder \
 	audio \

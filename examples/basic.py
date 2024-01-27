@@ -3,11 +3,13 @@
 # GPL v3 License
 
 import time
+from pico_synth_sandbox.board import get_board
 from pico_synth_sandbox.audio import get_audio_driver
 from pico_synth_sandbox.synth import Synth
 from pico_synth_sandbox.voice.oscillator import Oscillator
 
-audio = get_audio_driver()
+board = get_board()
+audio = get_audio_driver(board)
 synth = Synth(audio)
 synth.add_voice(Oscillator())
 

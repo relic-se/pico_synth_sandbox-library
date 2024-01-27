@@ -3,27 +3,30 @@
 # GPL v3 License
 
 import pico_synth_sandbox.tasks
+from pico_synth_sandbox.board import get_board
 from pico_synth_sandbox.display import Display
 from pico_synth_sandbox.encoder import Encoder
 from pico_synth_sandbox.keyboard import get_keyboard_driver
 from pico_synth_sandbox.audio import get_audio_driver
 from pico_synth_sandbox.synth import Synth
 from pico_synth_sandbox.voice.oscillator import Oscillator
-from pico_synth_sandbox.waveform import Waveform
+import pico_synth_sandbox.waveform as waveform
 
-display = Display()
+board = get_board()
+
+display = Display(board)
 display.write("PicoSynthSandbox", (0,0))
 display.write("Loading...", (0,1))
 display.update()
 
 note_names = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
 
-audio = get_audio_driver()
+audio = get_audio_driver(board)
 synth = Synth(audio)
 
 osc1 = Oscillator()
 osc1.set_glide(1.0)
-osc1.set_waveform(Waveform.get_sine())
+osc1.set_waveform(waveform.get_sine())
 osc1.set_pan_rate(0.5)
 osc1.set_pan_depth(0.1)
 osc1.set_vibrato_rate(4.0)
@@ -50,7 +53,7 @@ synth.add_voice(osc1)
 
 osc2 = Oscillator()
 osc2.set_glide(0.25)
-osc2.set_waveform(Waveform.get_sine())
+osc2.set_waveform(waveform.get_sine())
 osc2.set_pan_rate(2.0)
 osc2.set_pan_depth(0.5)
 osc2.set_vibrato_rate(1.0)
@@ -74,7 +77,7 @@ osc2.set_coarse_tune(2.0)
 osc2.set_level(0.5)
 synth.add_voice(osc2)
 
-keyboard = get_keyboard_driver(max_notes=1)
+keyboard = get_keyboard_driver(board, max_notes=1)
 
 def press(notenum, velocity, keynum=None):
     if keynum is None:
@@ -92,7 +95,7 @@ keyboard.set_press(press)
 keyboard.set_release(release)
 
 tune = 0
-encoder = Encoder()
+encoder = Encoder(board)
 def update_tuning():
     global tune
     osc1.set_coarse_tune(tune / 12.0)

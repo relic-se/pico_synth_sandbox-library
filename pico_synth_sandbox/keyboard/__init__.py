@@ -316,7 +316,7 @@ class Keyboard(Task):
         else:
             self._arpeggiator.update_notes()
 
-def get_keyboard_driver(max_notes=1, root=None):
+def get_keyboard_driver(board, max_notes=1, root=None):
     """Automatically generate the proper :class:`pico_synth_sandbox.keyboard.Keyboard` object based on the device's settings.toml configuration.
 
     :param max_notes: The maximum number of notes to be played at once. Currently, this feature is not implemented. When using the `get` method, the result is monophonic (1 note).
@@ -324,19 +324,20 @@ def get_keyboard_driver(max_notes=1, root=None):
     :param root: Set the base note number of the physical key inputs. If left as `None`, the `KEYBOARD_ROOT` settings.toml value will be used instead.
     :type root: int
     """
-    driver = os.getenv("KEYBOARD_DRIVER", "TTP")
-    if driver == "TOUCH":
+    if board.has_touch_keys():
         from pico_synth_sandbox.keyboard.touch import TouchKeyboard
         return TouchKeyboard(
+            board,
             max_notes=max_notes,
             root=root
         )
-    elif driver.startswith("TTP"):
+    elif board.has_ttp():
         from pico_synth_sandbox.keyboard.ton_touch import TonTouchKeyboard
         return TonTouchKeyboard(
+            board,
             max_notes=max_notes,
             root=root,
-            input_mode=TonTouchKeyboard.MODE_8KEY if driver == "TTP8" else TonTouchKeyboard.MODE_16KEY
+            input_mode=TonTouchKeyboard.MODE_8KEY if board.get_ttp_mode() == "TTP8" else TonTouchKeyboard.MODE_16KEY
         )
     else:
         return Keyboard(

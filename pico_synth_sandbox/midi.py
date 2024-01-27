@@ -4,9 +4,7 @@
 
 from pico_synth_sandbox.tasks import Task
 from pico_synth_sandbox import clamp
-import board, os, time
-from digitalio import DigitalInOut, Direction
-from busio import UART
+import os, time
 import usb_midi
 import adafruit_midi
 from adafruit_midi.note_on import NoteOn
@@ -20,7 +18,7 @@ class Midi(Task):
     """Send and receive both hardware UART and USB MIDI messages using :class:`adafruit_midi.MIDI`. UART can be enabled with the `MIDI_UART` variable and USB can be enabled with the `MIDI_USB` variable in `settings.toml`. The midi channel is limited to a single value for both input and output and is determined by the `MIDI_CHANNEL` variable in `settings.toml` with a range of 0-15. However, the channel can be changed once a :class:`pico_synth_sandbox.midi.Midi` object is created by calling the `set_channel` function. By default, the onboard led will be used to indicate incoming midi messages. At the moment, this feature cannot be disabled.
     """
 
-    def __init__(self):
+    def __init__(self, board):
         self._channel = None
         self._thru = False
 
@@ -31,12 +29,7 @@ class Midi(Task):
         self._program_change = None
 
         if os.getenv("MIDI_UART", 0) > 0:
-            self._uart = UART(
-                tx=board.GP4,
-                rx=board.GP5,
-                baudrate=31250,
-                timeout=0.001
-            )
+            self._uart = board.get_uart()
             self._uart_midi = adafruit_midi.MIDI(
                 midi_in=self._uart,
                 midi_out=self._uart,
@@ -54,8 +47,7 @@ class Midi(Task):
         else:
             self._usb_midi = None
 
-        self._led = DigitalInOut(board.LED)
-        self._led.direction = Direction.OUTPUT
+        self._led = board.get_led()
         self._led.value = False
         self._led_duration = 0.01
         self._led_last = time.monotonic()
@@ -177,45 +169,68 @@ class Midi(Task):
         self._led.value = True
         self._led_last = time.monotonic()
 
-    def send_note_on(self, notenum, velocity=1.0):
+    def send_message(self, msg):
+        """Send an :class:`adafruit_midi.midi_message.MIDIMessage` message through the enabled midi outputs.
+
+        :param msg: The message you would like to trasmit
+        :type msg: adafruit_midi.midi_message.MIDIMessage
+        """
+        if self._uart_midi:
+            self._uart_midi.send(msg)
+        if self._usb_midi:
+            self._usb_midi.send(msg)
+        self._trigger_led()
+    def send_note_on(self, notenum, velocity=1.0, channel=None):
         """Send an :class:`adafruit_midi.note_on.NoteOn` message through the enabled midi outputs.
 
         :param notenum: The value of the midi note to send.
         :type notenum: int
         :param velocity: The velocity of the note from 0.0 through 1.0.
         :type velocity: float
+        :param channel: The midi channel to transmit the message on.
+        :type channel: int
         """
-        velocity = int(clamp(velocity) * 127.0)
-        msg = NoteOn(notenum, velocity, channel=self._channel)
-        if self._uart_midi:
-            self._uart_midi.send(msg)
-        if self._usb_midi:
-            self._usb_midi.send(msg)
-        self._trigger_led()
-    def send_note_off(self, notenum):
+        self.send_message(NoteOn(
+            notenum,
+            int(clamp(velocity) * 127.0) if type(velocity) is float else velocity,
+            channel=channel if not channel is None else self._channel
+        ))
+    def send_note_off(self, notenum, channel=None):
         """Send an :class:`adafruit_midi.note_off.NoteOff` message through the enabled midi outputs.
 
         :param notenum: The value of the midi note to send.
         :type notenum: int
+        :param channel: The midi channel to transmit the message on.
+        :type channel: int
         """
-        msg = NoteOff(notenum, channel=self._channel)
-        if self._uart_midi:
-            self._uart_midi.send(msg)
-        if self._usb_midi:
-            self._usb_midi.send(msg)
-        self._trigger_led()
-    def send_control_change(self, control, value):
+        self.send_message(NoteOff(
+            notenum,
+            channel=channel if not channel is None else self._channel
+        ))
+    def send_control_change(self, control, value, channel=None):
         """Send an :class:`adafruit_midi.control_change.ControlChange` message through the enabled midi outputs.
 
         :param control: The number of the midi control to send.
         :type control: int
         :param value: The value to set of the desired control from 0.0 through 1.0.
         :type value: float
+        :param channel: The midi channel to transmit the message on.
+        :type channel: int
         """
-        value = int(clamp(value) * 127.0)
-        msg = ControlChange(control, value, channel=self._channel)
-        if self._uart_midi:
-            self._uart_midi.send(msg)
-        if self._usb_midi:
-            self._usb_midi.send(msg)
-        self._trigger_led()
+        self.send_message(ControlChange(
+            control,
+            int(clamp(value) * 127.0) if type(value) is float else value,
+            channel=channel if not channel is None else self._channel
+        ))
+    def send_program_change(self, patch, channel=None):
+        """Send an :class:`adafruit_midi.program_change.ProgramChange` message through the enabled midi outputs.
+
+        :param patch: The program/patch you would like to change to from 0 through 127.
+        :type patch: int
+        :param channel: The midi channel to transmit the message on.
+        :type channel: int
+        """
+        self.send_message(ProgramChange(
+            clamp(patch, 0, 127),
+            channel=channel if not channel is None else self._channel
+        ))

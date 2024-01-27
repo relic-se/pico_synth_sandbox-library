@@ -3,24 +3,27 @@
 # GPL v3 License
 
 import pico_synth_sandbox.tasks
+from pico_synth_sandbox.board import get_board
 from pico_synth_sandbox.display import Display
 from pico_synth_sandbox.encoder import Encoder
 from pico_synth_sandbox.midi import Midi
 from pico_synth_sandbox.keyboard import get_keyboard_driver
 from pico_synth_sandbox.arpeggiator import Arpeggiator
 
-display = Display()
+board = get_board()
+
+display = Display(board)
 display.write("PicoSynthSandbox", (0,0))
 display.write("Loading...", (0,1))
 display.update()
 
 mod_value = 0
 
-midi = Midi()
+midi = Midi(board)
 midi.set_channel(1)
 midi.set_thru(True)
 
-keyboard = get_keyboard_driver()
+keyboard = get_keyboard_driver(board)
 arpeggiator = Arpeggiator()
 keyboard.set_arpeggiator(arpeggiator)
 
@@ -38,7 +41,7 @@ def release(notenum, keynum=None):
     display.write("_", (keynum,1), 1)
 keyboard.set_release(release)
 
-encoder = Encoder()
+encoder = Encoder(board)
 def increment():
     global mod_value
     if mod_value < 127:

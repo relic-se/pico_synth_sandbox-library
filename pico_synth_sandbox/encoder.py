@@ -3,7 +3,6 @@
 # GPL v3 License
 
 from pico_synth_sandbox.tasks import Task
-import board
 from digitalio import DigitalInOut, Direction, Pull
 from rotaryio import IncrementalEncoder
 from adafruit_debouncer import Button
@@ -12,13 +11,9 @@ class Encoder(Task):
     """Use the on-board encoder to control your program with simple function callbacks. Supports increment, decrement, click, double click, and long press actions.
     """
 
-    def __init__(self):
-        self._encoder = IncrementalEncoder(board.GP1, board.GP0)
+    def __init__(self, board, index=0):
+        self._encoder, self._button_pin = board.get_encoder(index)
         self._position = None
-
-        self._button_pin = DigitalInOut(board.GP2)
-        self._button_pin.direction = Direction.INPUT
-        self._button_pin.pull = Pull.UP
         self._button = Button(
             self._button_pin,
             short_duration_ms=200,

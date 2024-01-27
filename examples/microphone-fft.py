@@ -5,13 +5,16 @@
 import math
 import ulab.numpy as numpy
 from pico_synth_sandbox import fft
+from pico_synth_sandbox.board import get_board
 from pico_synth_sandbox.display import Display
 from pico_synth_sandbox.microphone import Microphone
 
-display = Display()
+board = get_board()
+
+display = Display(board)
 display.enable_vertical_graph()
 
-microphone = Microphone()
+microphone = Microphone(board)
 
 segments = 16
 spectro_range = 0.33

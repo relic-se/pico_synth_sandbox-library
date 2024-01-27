@@ -2,9 +2,8 @@
 # 2023 Cooper Dalrymple - me@dcdalrymple.com
 # GPL v3 License
 
-from pico_synth_sandbox import unmap_value
+import os
 from pico_synth_sandbox.tasks import Task
-from pico_synth_sandbox.audio import Audio, MIN_FILTER_FREQUENCY, MAX_FILTER_FREQUENCY
 from pico_synth_sandbox.voice import Voice
 import synthio
 
@@ -15,8 +14,10 @@ class Synth(Task):
     FILTER_BPF  = 2
 
     def __init__(self, audio=None):
+        sample_rate = os.getenv("AUDIO_RATE", 22050)
+        if audio is not None: sample_rate = audio.get_sample_rate()
         self._synth = synthio.Synthesizer(
-            sample_rate=Audio.get_sample_rate(),
+            sample_rate=sample_rate,
             channel_count=2
         )
         if audio is not None: audio.play(self._synth)
@@ -90,9 +91,8 @@ class Synth(Task):
         for voice in self.voices:
             voice.set_filter(type, frequency, resonance, self, update)
 
-    @staticmethod
-    def calculate_filter_frequency_value(frequency):
-        return unmap_value(frequency, MIN_FILTER_FREQUENCY, MAX_FILTER_FREQUENCY)
+    def get_sample_rate(self):
+        return self._synth.sample_rate
 
     # Loop
     def update(self):

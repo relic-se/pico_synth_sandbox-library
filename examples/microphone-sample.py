@@ -6,6 +6,7 @@ import gc, time
 import pico_synth_sandbox.tasks
 from pico_synth_sandbox.tasks import Task
 from pico_synth_sandbox import fftfreq, normalize
+from pico_synth_sandbox.board import get_board
 from pico_synth_sandbox.display import Display
 from pico_synth_sandbox.encoder import Encoder
 from pico_synth_sandbox.audio import get_audio_driver
@@ -14,13 +15,15 @@ from pico_synth_sandbox.voice.sample import Sample
 from pico_synth_sandbox.keyboard import get_keyboard_driver
 from pico_synth_sandbox.microphone import Microphone
 
-display = Display()
+board = get_board()
+
+display = Display(board)
 display.enable_horizontal_graph()
 display.write("PicoSynthSandbox", (0,0))
 display.write("Loading...", (0,1))
 display.update()
 
-audio = get_audio_driver()
+audio = get_audio_driver(board)
 synth = Synth(audio)
 voice = Sample(loop=False)
 synth.add_voice(voice)
@@ -38,7 +41,7 @@ voice.set_filter(
     synth=synth
 )
 
-keyboard = get_keyboard_driver(root=60)
+keyboard = get_keyboard_driver(board, root=60)
 
 def press(notenum, velocity, keynum=None):
     if keynum is None:
@@ -52,7 +55,7 @@ def release(notenum, keynum=None):
     synth.release(0)
 keyboard.set_release(release)
 
-microphone = Microphone()
+microphone = Microphone(board)
 
 class MicrophoneLevel(Task):
     def __init__(self, microphone, update=None):
@@ -77,7 +80,6 @@ def trigger():
     display.update()
 microphone.set_trigger(trigger)
 
-encoder = Encoder()
 type = 0
 semitone = 0
 filter = 100
@@ -94,41 +96,16 @@ def update_filter(write=True):
     if write:
         display.write_horizontal_graph(filter, 0, 100, (5,1), 6)
 
-def increment():
-    global type, semitone, filter
-    if type == 0:
-        if semitone < 24:
-            semitone += 1
-            update_tune()
-    elif filter < 100:
-        filter += 1
-        update_filter()
-encoder.set_increment(increment)
-
-def decrement():
-    global type, semitone, filter
-    if type == 0:
-        if semitone > -24:
-            semitone -= 1
-            update_tune()
-    elif filter > 0:
-        filter -= 1
-        update_filter()
-encoder.set_decrement(decrement)
-
-def toggle():
+def update_cursor():
     global type
-    type = 0 if type else 1
     display.set_cursor_position(5 if type else 0, 0)
-encoder.set_click(toggle)
 
 def reset_display():
-    global type
     display.clear()
     display.write("Tune Filter Mic", (0,0))
     update_tune()
     update_filter()
-    display.set_cursor_position(5 if type else 0, 0)
+    update_cursor()
     display.set_cursor_enabled(True)
     display.set_cursor_blink(True)
 
@@ -178,7 +155,80 @@ def start_record():
     reset_display()
     audio.unmute()
     pico_synth_sandbox.tasks.resume()
-encoder.set_long_press(start_record)
+
+def increment_semitone():
+    global type, semitone
+    if type != 0:
+        type = 0
+        update_cursor()
+    if semitone < 24:
+        semitone += 1
+        update_tune()
+def decrement_semitone():
+    global type, semitone
+    if type != 0:
+        type = 0
+        update_cursor()
+    if semitone > -24:
+        semitone -= 1
+        update_tune()
+
+def increment_filter():
+    global type, filter
+    if type != 1:
+        type = 1
+        update_cursor()
+    if filter < 100:
+        filter += 1
+        update_filter()
+def decrement_filter():
+    global type, filter
+    if type != 1:
+        type = 1
+        update_cursor()
+    if filter > 0:
+        filter -= 1
+        update_filter()
+
+if board.num_encoders() == 1:
+
+    encoder = Encoder(board)
+
+    def increment_encoder():
+        global type
+        if type == 0:
+            increment_semitone()
+        else:
+            increment_filter()
+    encoder.set_increment(increment_encoder)
+
+    def decrement_encoder():
+        global type
+        if type == 0:
+            increment_semitone()
+        else:
+            increment_filter()
+    encoder.set_decrement(decrement_encoder)
+
+    def toggle_encoder():
+        global type
+        type = 0 if type else 1
+        update_cursor()
+    encoder.set_click(toggle_encoder)
+
+    encoder.set_long_press(start_record)
+
+elif board.num_encoders() > 1:
+
+    encoder1 = Encoder(board, 0)
+    encoder1.set_increment(increment_semitone)
+    encoder1.set_decrement(decrement_semitone)
+    encoder1.set_long_press(start_record)
+
+    encoder2 = Encoder(board, 1)
+    encoder2.set_increment(increment_filter)
+    encoder2.set_decrement(decrement_filter)
+    encoder2.set_long_press(start_record)
 
 # Wait for microphone to initialize
 time.sleep(1)

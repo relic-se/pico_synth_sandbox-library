@@ -2,7 +2,7 @@
 # 2023 Cooper Dalrymple - me@dcdalrymple.com
 # GPL v3 License
 
-from pico_synth_sandbox import LOG_2
+from pico_synth_sandbox import LOG_2, clamp
 from pico_synth_sandbox.voice import Voice, AREnvelope, LerpBlockInput
 import math
 import synthio
@@ -109,6 +109,19 @@ class Oscillator(Voice):
 
     def set_waveform(self, waveform):
         self._note.waveform = waveform
+    def set_loop(self, start=0.0, end=1.0):
+        if self._note.waveform is None or len(self._note.waveform) < 2:
+            return
+        
+        start = clamp(start, 0.0, 1.0)
+        end = clamp(end, start, 1.0)
+
+        waveform_length = len(self._note.waveform)
+        start = round(start * (waveform_length-2))
+        end = clamp(round(end * (waveform_length-1) + 1), start+2, waveform_length)
+        
+        self._note.waveform_loop_start = start
+        self._note.waveform_loop_end = end
 
     def set_level(self, value):
         self._note.amplitude.offset = value

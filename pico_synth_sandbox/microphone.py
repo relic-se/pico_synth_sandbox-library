@@ -3,15 +3,14 @@
 # GPL v3 License
 
 from pico_synth_sandbox import resample
-import board, os
-from audiobusio import PDMIn
+import os
 import adafruit_wave
 import array
 import ulab.numpy as numpy
 
 class Microphone:
 
-    def __init__(self, sample_rate=None):
+    def __init__(self, board, sample_rate=None):
 
         # Settings
         self.desired_sample_rate = sample_rate if not sample_rate is None else Microphone.get_sample_rate()
@@ -21,12 +20,7 @@ class Microphone:
         self.level_samples = 32
 
         # Input & Buffer
-        self.input = PDMIn(
-            clock_pin=board.GP4,
-            data_pin=board.GP5,
-            sample_rate=self.input_sample_rate,
-            bit_depth=16
-        )
+        self.input = board.get_pdm(self.input_sample_rate)
         self._buffer_raw = None
         self._buffer_data = None
         self._data = None
