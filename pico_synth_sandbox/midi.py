@@ -192,7 +192,7 @@ class Midi(Task):
         """
         self.send_message(NoteOn(
             notenum,
-            int(clamp(velocity) * 127.0) if type(velocity) is type(float) else velocity,
+            int(clamp(velocity) * 127.0) if type(velocity) is float else velocity,
             channel=channel if not channel is None else self._channel
         ))
     def send_note_off(self, notenum, channel=None):
@@ -219,7 +219,7 @@ class Midi(Task):
         """
         self.send_message(ControlChange(
             control,
-            int(clamp(value) * 127.0) if type(value) is type(float) else value,
+            int(clamp(value) * 127.0) if type(value) is float else value,
             channel=channel if not channel is None else self._channel
         ))
     def send_program_change(self, patch, channel=None):
