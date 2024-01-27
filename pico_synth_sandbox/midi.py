@@ -4,9 +4,7 @@
 
 from pico_synth_sandbox.tasks import Task
 from pico_synth_sandbox import clamp
-import board, os, time
-from digitalio import DigitalInOut, Direction
-from busio import UART
+import os, time
 import usb_midi
 import adafruit_midi
 from adafruit_midi.note_on import NoteOn
@@ -20,7 +18,7 @@ class Midi(Task):
     """Send and receive both hardware UART and USB MIDI messages using :class:`adafruit_midi.MIDI`. UART can be enabled with the `MIDI_UART` variable and USB can be enabled with the `MIDI_USB` variable in `settings.toml`. The midi channel is limited to a single value for both input and output and is determined by the `MIDI_CHANNEL` variable in `settings.toml` with a range of 0-15. However, the channel can be changed once a :class:`pico_synth_sandbox.midi.Midi` object is created by calling the `set_channel` function. By default, the onboard led will be used to indicate incoming midi messages. At the moment, this feature cannot be disabled.
     """
 
-    def __init__(self):
+    def __init__(self, board):
         self._channel = None
         self._thru = False
 
@@ -31,12 +29,7 @@ class Midi(Task):
         self._program_change = None
 
         if os.getenv("MIDI_UART", 0) > 0:
-            self._uart = UART(
-                tx=board.GP4,
-                rx=board.GP5,
-                baudrate=31250,
-                timeout=0.001
-            )
+            self._uart = board.get_uart()
             self._uart_midi = adafruit_midi.MIDI(
                 midi_in=self._uart,
                 midi_out=self._uart,
@@ -54,8 +47,7 @@ class Midi(Task):
         else:
             self._usb_midi = None
 
-        self._led = DigitalInOut(board.LED)
-        self._led.direction = Direction.OUTPUT
+        self._led = board.get_led()
         self._led.value = False
         self._led_duration = 0.01
         self._led_last = time.monotonic()

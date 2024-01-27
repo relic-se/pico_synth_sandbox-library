@@ -2,7 +2,6 @@
 # 2023 Cooper Dalrymple - me@dcdalrymple.com
 # GPL v3 License
 
-import board
 from pico_synth_sandbox.keyboard import DebouncerKey, Keyboard
 from touchio import TouchIn
 
@@ -23,18 +22,8 @@ class TouchKeyboard(Keyboard):
     :param root: Set the base note number of the physical key inputs. If left as `None`, the `KEYBOARD_ROOT` settings.toml value will be used instead.
     :type root: int
     """
-    def __init__(self, max_notes=1, root=None):
-        Keyboard.__init__(self, [
-            TouchPad(board.GP19),
-            TouchPad(board.GP3),
-            TouchPad(board.GP6),
-            TouchPad(board.GP7),
-            TouchPad(board.GP8),
-            TouchPad(board.GP9),
-            TouchPad(board.GP10),
-            TouchPad(board.GP11),
-            TouchPad(board.GP12),
-            TouchPad(board.GP13),
-            TouchPad(board.GP14),
-            TouchPad(board.GP15)
-        ], max_notes, root)
+    def __init__(self, board, max_notes=1, root=None):
+        keys = []
+        for pin in board.get_touch_keys():
+            keys.append(TouchPad(pin))
+        Keyboard.__init__(self, keys, max_notes, root)

@@ -5,7 +5,6 @@
 from pico_synth_sandbox.tasks import Task
 from pico_synth_sandbox import clamp, truncate_str, unmap_value
 import math
-import board
 from digitalio import DigitalInOut
 from adafruit_character_lcd.character_lcd import Character_LCD_Mono
 
@@ -13,15 +12,8 @@ class Display(Task):
     """Control the connected 16x2 character display (aka *1602*). Hardware connections are abstracted and text writing and cursor management is simplified.
     """
 
-    def __init__(self):
-        self._rs = DigitalInOut(board.GP20)
-        self._en = DigitalInOut(board.GP21)
-        self._d4 = DigitalInOut(board.GP22)
-        self._d5 = DigitalInOut(board.GP26)
-        self._d6 = DigitalInOut(board.GP27)
-        self._d7 = DigitalInOut(board.GP28)
-
-        self._lcd = Character_LCD_Mono(self._rs, self._en, self._d4, self._d5, self._d6, self._d7, 16, 2)
+    def __init__(self, board):
+        self._lcd = board.get_lcd()
         self._lcd.cursor = False
         self._lcd.text_direction = self._lcd.LEFT_TO_RIGHT
 

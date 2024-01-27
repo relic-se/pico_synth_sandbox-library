@@ -3,6 +3,7 @@
 # GPL v3 License
 
 import pico_synth_sandbox.tasks
+from pico_synth_sandbox.board import get_board
 from pico_synth_sandbox.display import Display
 from pico_synth_sandbox.encoder import Encoder
 from pico_synth_sandbox.audio import get_audio_driver
@@ -11,12 +12,14 @@ from pico_synth_sandbox.voice.drum import Kick, Snare, ClosedHat, OpenHat
 from pico_synth_sandbox.keyboard import get_keyboard_driver
 from pico_synth_sandbox.arpeggiator import Arpeggiator
 
-display = Display()
+board = get_board()
+
+display = Display(board)
 display.write("PicoSynthSandbox", (0,0))
 display.write("Loading...", (0,1))
 display.update()
 
-audio = get_audio_driver()
+audio = get_audio_driver(board)
 synth = Synth(audio)
 synth.add_voice(Kick())
 synth.add_voice(Snare())
@@ -26,7 +29,7 @@ open_hat = OpenHat()
 synth.add_voice(closed_hat)
 synth.add_voice(open_hat)
 
-keyboard = get_keyboard_driver()
+keyboard = get_keyboard_driver(board)
 arpeggiator = Arpeggiator()
 keyboard.set_arpeggiator(arpeggiator)
 
@@ -47,7 +50,7 @@ def release(notenum, keynum=None):
 keyboard.set_release(release)
 
 mod_value = 64
-encoder = Encoder()
+encoder = Encoder(board)
 def update_envelope():
     closed_hat.set_time(float(mod_value) / 127.0)
     open_hat.set_time(float(mod_value) / 127.0)

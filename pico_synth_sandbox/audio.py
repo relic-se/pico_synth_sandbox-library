@@ -2,10 +2,8 @@
 # 2023 Cooper Dalrymple - me@dcdalrymple.com
 # GPL v3 License
 
-import os, board
+import os
 from audiomixer import Mixer
-from audiopwmio import PWMAudioOut
-from audiobusio import I2SOut
 
 class Audio:
     """This class helps manage audio output and mixing.
@@ -173,14 +171,10 @@ class I2SAudio(Audio):
     :type count: int
     """
 
-    def __init__(self, count=1):
+    def __init__(self, board, voice_count=1):
         """Constructor method
         """
-        Audio.__init__(self, I2SOut(
-            bit_clock=board.GP16,
-            word_select=board.GP17,
-            data=board.GP18
-        ), count)
+        Audio.__init__(self, board.get_i2s_out(), voice_count)
 
 class PWMAudio(Audio):
     """This class helps manage audio output and mixing using an :class:`audioio.AudioOut` object of type :class:`audiopwmio.PWMAudioOut`.
@@ -189,21 +183,20 @@ class PWMAudio(Audio):
     :type count: int
     """
 
-    def __init__(self, count=1):
+    def __init__(self, board, voice_count=1):
         """Constructor method
         """
-        Audio.__init__(self, PWMAudioOut(
-            left_channel=board.GP16,
-            right_channel=board.GP17
-        ), count)
+        Audio.__init__(self, board.get_pwm_out(), voice_count)
 
-def get_audio_driver(count=1):
+def get_audio_driver(board, voice_count=1):
     """Automatically generate the proper :class:`audioio.AudioOut` object based on the device's settings.toml configuration.
 
     :param count: The number of voices to create for the audio mixer, defaults to 1
     :type count: int
     """
-    if os.getenv("AUDIO_DRIVER", "PWM") == "I2S":
-        return I2SAudio(count)
+    if board.has_i2s_out():
+        return I2SAudio(board, voice_count)
+    elif board.has_pwm_out():
+        return PWMAudio(board, voice_count)
     else:
-        return PWMAudio(count)
+        return None

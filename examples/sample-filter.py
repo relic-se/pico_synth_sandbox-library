@@ -5,6 +5,7 @@
 import random
 import pico_synth_sandbox.tasks
 from pico_synth_sandbox import fftfreq
+from pico_synth_sandbox.board import get_board
 from pico_synth_sandbox.display import Display
 from pico_synth_sandbox.encoder import Encoder
 from pico_synth_sandbox.keyboard import get_keyboard_driver
@@ -13,13 +14,16 @@ from pico_synth_sandbox.synth import Synth
 from pico_synth_sandbox.voice.sample import Sample
 import pico_synth_sandbox.waveform as waveform
 
-display = Display()
+board = get_board()
+
+display = Display(board)
 display.enable_horizontal_graph()
 display.write("PicoSynthSandbox", (0,0))
 display.write("Loading...", (0,1))
 display.update()
 
-audio = get_audio_driver()
+audio = get_audio_driver(board)
+audio.mute()
 
 sample_data, sample_rate = waveform.load_from_file("/samples/hey.wav")
 root = fftfreq(
@@ -54,7 +58,7 @@ for voice in synth.voices:
     voice.set_pan_rate(random.randint(0,80)/100.0+0.1)
     voice.set_pan_depth(0.8)
 
-keyboard = get_keyboard_driver()
+keyboard = get_keyboard_driver(board)
 def press(notenum, velocity, keynum=None):
     if keynum is None:
         keynum = (notenum - keyboard.root) % len(keyboard.keys)
@@ -66,15 +70,14 @@ def release(notenum, keynum=None):
     synth.release(keynum)
 keyboard.set_release(release)
 
-encoder = Encoder()
 type = 0
 semitone = 0
 filter = 100
 
-display.write("Tune    Filter  ", position=(0,0))
-display.set_cursor_enabled(True)
-display.set_cursor_blink(True)
-display.update()
+def update_cursor():
+    global type
+    display.set_cursor_position(8 if type else 0, 0)
+update_cursor()
 
 def update_tune():
     global semitone
@@ -89,33 +92,83 @@ def update_filter():
     display.write_horizontal_graph(filter, 0, 100, (8,1), 8)
 update_filter()
 
-def increment():
-    global type, semitone, filter
-    if type == 0:
-        if semitone < 48:
-            semitone += 1
-            update_tune()
-    elif filter < 100:
+def increment_semitone():
+    global type, semitone
+    if type != 0:
+        type = 0
+        update_cursor()
+    if semitone < 24:
+        semitone += 1
+        update_tune()
+def decrement_semitone():
+    global type, semitone
+    if type != 0:
+        type = 0
+        update_cursor()
+    if semitone > -24:
+        semitone -= 1
+        update_tune()
+
+def increment_filter():
+    global type, filter
+    if type != 1:
+        type = 1
+        update_cursor()
+    if filter < 100:
         filter += 1
         update_filter()
-encoder.set_increment(increment)
-
-def decrement():
-    global type, semitone, filter
-    if type == 0:
-        if semitone > -48:
-            semitone -= 1
-            update_tune()
-    elif filter > 0:
+def decrement_filter():
+    global type, filter
+    if type != 1:
+        type = 1
+        update_cursor()
+    if filter > 0:
         filter -= 1
         update_filter()
-encoder.set_decrement(decrement)
 
-def toggle():
-    global type
-    type = 0 if type else 1
-    display.set_cursor_position(8 if type else 0, 0)
-encoder.set_click(toggle)
-encoder.set_long_press(toggle)
+if board.num_encoders() == 1:
+
+    encoder = Encoder(board)
+
+    def increment_encoder():
+        global type
+        if type == 0:
+            increment_semitone()
+        else:
+            increment_filter()
+    encoder.set_increment(increment_encoder)
+
+    def decrement_encoder():
+        global type
+        if type == 0:
+            increment_semitone()
+        else:
+            increment_filter()
+    encoder.set_decrement(decrement_encoder)
+
+    def toggle_encoder():
+        global type
+        type = 0 if type else 1
+        display.set_cursor_position(5 if type else 0, 0)
+    encoder.set_click(toggle_encoder)
+    encoder.set_long_press(toggle_encoder)
+
+elif board.num_encoders() > 1:
+
+    encoder1 = Encoder(board, 0)
+    encoder1.set_increment(increment_semitone)
+    encoder1.set_decrement(decrement_semitone)
+
+    encoder2 = Encoder(board, 1)
+    encoder2.set_increment(increment_filter)
+    encoder2.set_decrement(decrement_filter)
+
+
+display.write("Tune    Filter  ", position=(0,0))
+display.set_cursor_enabled(True)
+display.set_cursor_blink(True)
+display.update()
+
+audio.unmute()
 
 pico_synth_sandbox.tasks.run()

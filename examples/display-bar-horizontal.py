@@ -3,10 +3,13 @@
 # GPL v3 License
 
 import pico_synth_sandbox.tasks
+from pico_synth_sandbox.board import get_board
 from pico_synth_sandbox.display import Display
 from pico_synth_sandbox.encoder import Encoder
 
-display = Display()
+board = get_board()
+
+display = Display(board)
 display.enable_horizontal_graph()
 
 value = 0
@@ -22,7 +25,7 @@ def update_value():
     )
 update_value()
 
-encoder = Encoder()
+encoder = Encoder(board)
 def increment():
     global value
     if value < 100:

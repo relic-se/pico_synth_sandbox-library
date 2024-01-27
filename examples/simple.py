@@ -3,6 +3,7 @@
 # GPL v3 License
 
 import pico_synth_sandbox.tasks
+from pico_synth_sandbox.board import get_board
 from pico_synth_sandbox.display import Display
 from pico_synth_sandbox.encoder import Encoder
 from pico_synth_sandbox.keyboard import get_keyboard_driver
@@ -11,16 +12,18 @@ from pico_synth_sandbox.audio import get_audio_driver
 from pico_synth_sandbox.synth import Synth
 from pico_synth_sandbox.voice.oscillator import Oscillator
 
-display = Display()
+board = get_board()
+
+display = Display(board)
 display.write("PicoSynthSandbox", (0,0))
 display.write("Loading...", (0,1))
 display.update()
 
-audio = get_audio_driver()
+audio = get_audio_driver(board)
 synth = Synth(audio)
 synth.add_voices(Oscillator() for i in range(12))
 
-keyboard = get_keyboard_driver()
+keyboard = get_keyboard_driver(board)
 arpeggiator = Arpeggiator()
 keyboard.set_arpeggiator(arpeggiator)
 
@@ -38,7 +41,7 @@ def release(notenum, keynum=None):
     display.write("_", (keynum,1), 1)
 keyboard.set_release(release)
 
-encoder = Encoder()
+encoder = Encoder(board)
 def click():
     arpeggiator.toggle()
 encoder.set_click(click)

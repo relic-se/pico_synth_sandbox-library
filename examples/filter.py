@@ -3,6 +3,7 @@
 # GPL v3 License
 
 import pico_synth_sandbox.tasks
+from pico_synth_sandbox.board import get_board
 from pico_synth_sandbox.display import Display
 from pico_synth_sandbox.encoder import Encoder
 from pico_synth_sandbox.audio import get_audio_driver
@@ -12,12 +13,14 @@ import pico_synth_sandbox.waveform as waveform
 from pico_synth_sandbox.keyboard import get_keyboard_driver
 from pico_synth_sandbox.arpeggiator import Arpeggiator
 
-display = Display()
+board = get_board()
+
+display = Display(board)
 display.write("PicoSynthSandbox", (0,0))
 display.write("Loading...", (0,1))
 display.update()
 
-audio = get_audio_driver()
+audio = get_audio_driver(board)
 synth = Synth(audio)
 synth.add_voices(Oscillator() for i in range(12))
 synth.set_waveform(waveform.get_saw())
@@ -41,7 +44,7 @@ for voice in synth.voices:
         synth=synth
     )
 
-keyboard = get_keyboard_driver()
+keyboard = get_keyboard_driver(board)
 arpeggiator = Arpeggiator()
 arpeggiator.set_octaves(1)
 arpeggiator.set_bpm(80)
@@ -64,7 +67,7 @@ def release(notenum, keynum=None):
 keyboard.set_release(release)
 
 mod_value = 127
-encoder = Encoder()
+encoder = Encoder(board)
 def update_filter():
     synth.set_filter_frequency(float(mod_value) / 127.0)
 def increment():

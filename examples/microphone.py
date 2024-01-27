@@ -5,17 +5,20 @@
 import time
 import pico_synth_sandbox.tasks
 from pico_synth_sandbox.tasks import Task
+from pico_synth_sandbox.board import get_board
 from pico_synth_sandbox.display import Display
 from pico_synth_sandbox.microphone import Microphone
 from pico_synth_sandbox.encoder import Encoder
 
-display = Display()
+board = get_board()
+
+display = Display(board)
 display.enable_horizontal_graph()
 display.write("PicoSynthSandbox", (0,0))
 display.write("Loading...", (0,1))
 display.update()
 
-microphone = Microphone()
+microphone = Microphone(board)
 
 trigger_level = 25
 trigger_level_step = 0.0001
@@ -57,7 +60,7 @@ def record_trigger():
     display.write("Recording", (0,0), 13)
 microphone.set_trigger(record_trigger)
 
-encoder = Encoder()
+encoder = Encoder(board)
 
 def increment():
     global trigger_level
