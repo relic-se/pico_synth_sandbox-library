@@ -23,7 +23,7 @@ class TonTouchKeyboard(Keyboard):
     MODE_8KEY  = 0
     MODE_16KEY = 1
 
-    def __init__(self, board, max_notes=1, root=None, input_mode=MODE_16KEY, invert_clk=True):
+    def __init__(self, board, max_voices=1, root=None, input_mode=MODE_16KEY, invert_clk=True):
         self._input_mode = input_mode
         self._input_bits = (input_mode + 1) * 8
         self._invert_clk = invert_clk
@@ -31,7 +31,7 @@ class TonTouchKeyboard(Keyboard):
         Keyboard.__init__(
             self,
             keys=[TonTouchPad(i) for i in range(self._input_bits)],
-            max_notes=max_notes,
+            max_voices=max_voices,
             root=root
         )
         self.set_update_frequency(64.0) # 64hz max refresh rate

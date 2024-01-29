@@ -2,8 +2,9 @@
 # 2023 Cooper Dalrymple - me@dcdalrymple.com
 # GPL v3 License
 
-from pico_synth_sandbox.timer import Timer
 import os, random
+from pico_synth_sandbox.timer import Timer
+from pico_synth_sandbox.keyboard import Note
 
 class Arpeggiator(Timer):
 
@@ -63,20 +64,20 @@ class Arpeggiator(Timer):
                 if self._octaves < 0:
                     octave = octave * -1
                 for i in range(0,l):
-                    notes.append((notes[i][0] + octave*12, notes[i][1]))
+                    notes.append(Note(notes[i].notenum + octave*12, notes[i].velocity))
 
         if self._mode == self.MODE_UP:
-            notes.sort(key=lambda x: x[0])
+            notes.sort()
         elif self._mode == self.MODE_DOWN:
-            notes.sort(key=lambda x: x[0], reverse=True)
+            notes.sort(reverse=True)
         elif self._mode == self.MODE_UPDOWN:
-            notes.sort(key=lambda x: x[0])
+            notes.sort()
             if len(notes) > 2:
                 _notes = notes[1:-1].copy()
                 _notes.reverse()
                 notes = notes + _notes
         elif self._mode == self.MODE_DOWNUP:
-            notes.sort(key=lambda x: x[0], reverse=True)
+            notes.sort(reverse=True)
             if len(notes) > 2:
                 _notes = notes[1:-1].copy()
                 _notes.reverse()
@@ -96,4 +97,4 @@ class Arpeggiator(Timer):
                 self._pos = random.randrange(0,len(self._notes),1)
             else:
                 self._pos = (self._pos+1) % len(self._notes)
-            self._do_press(self._notes[self._pos][0], self._notes[self._pos][1])
+            self._do_press(self._notes[self._pos].notenum, self._notes[self._pos].velocity)

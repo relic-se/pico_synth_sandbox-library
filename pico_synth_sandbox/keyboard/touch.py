@@ -22,8 +22,8 @@ class TouchKeyboard(Keyboard):
     :param root: Set the base note number of the physical key inputs. If left as `None`, the `KEYBOARD_ROOT` settings.toml value will be used instead.
     :type root: int
     """
-    def __init__(self, board, max_notes=1, root=None):
+    def __init__(self, board, max_voices=1, root=None):
         keys = []
         for pin in board.get_touch_keys():
             keys.append(TouchPad(pin))
-        Keyboard.__init__(self, keys, max_notes, root)
+        Keyboard.__init__(self, keys, max_voices, root)
