@@ -2,11 +2,9 @@
 # 2023 Cooper Dalrymple - me@dcdalrymple.com
 # GPL v3 License
 
-import os
+import os, time
 from pico_synth_sandbox.tasks import Task
 from adafruit_debouncer import Debouncer
-
-# TODO: Add Output Buffer Voices
 
 class Key:
     """An abstract layer to use physical key objects with the :class:`pico_synth_sandbox.keyboard.Keyboard` class.
@@ -26,6 +24,14 @@ class Key:
         :rtype: int
         """
         return self.NONE
+
+    def get_velocity(self):
+        """Get the current velocity (0.0-1.0). Typically hard-coded at `1.0`.
+
+        :return: Key velocity
+        :rtype: float
+        """
+        return 1.0
 
 class DebouncerKey(Key):
     """An abstract layer to debouncer sensor input to use physical key objects with the :class:`pico_synth_sandbox.keyboard.Keyboard` class.
@@ -51,13 +57,64 @@ class DebouncerKey(Key):
         else:
             return self.NONE
 
+class Note:
+    def __init__(self, notenum, velocity=1.0, keynum=None):
+        self.notenum = notenum
+        self.velocity = velocity
+        self.keynum = keynum
+        self.timestamp = time.monotonic()
+    def get_data(self):
+        return (self.notenum, self.velocity, self.keynum)
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return self.notenum == other.notenum
+        elif type(other) == int:
+            return self.notenum == other
+        else:
+            return False
+    def __ne__(self, other):
+        if isinstance(other, self.__class__):
+            return self.notenum != other.notenum
+        elif type(other) == int:
+            return self.notenum != other
+        else:
+            return False
+    def __lt__(self, other):
+        if isinstance(other, self.__class__):
+            return self.notenum < other.notenum
+        elif type(other) == int:
+            return self.notenum < other
+        else:
+            return False
+    def __gt__(self, other):
+        if isinstance(other, self.__class__):
+            return self.notenum > other.notenum
+        elif type(other) == int:
+            return self.notenum > other
+        else:
+            return False
+    def __le__(self, other):
+        if isinstance(other, self.__class__):
+            return self.notenum <= other.notenum
+        elif type(other) == int:
+            return self.notenum <= other
+        else:
+            return False
+    def __ge__(self, other):
+        if isinstance(other, self.__class__):
+            return self.notenum >= other.notenum
+        elif type(other) == int:
+            return self.notenum >= other
+        else:
+            return False
+
 class Keyboard(Task):
     """Manage note allocation, arpeggiator assignment, sustain, and note callbacks using this class. The root of the keyboard (lowest note) is designated by the `KEYBOARD_ROOT` variable in `settings.toml`. The default note allocation mode is defined by the `KEYBOARD_MODE` variable in `settings.toml`. This class is inherited by the :class:`pico_synth_sandbox.keyboard.TouchKeyboard` class.
 
     :param keys: An array of Key objects used to include physical key inputs as notes during the update routine.
     :type keys: array
-    :param max_notes: The maximum number of notes to be played at once. Currently, this feature is not implemented. When using the `get` method, the result is monophonic (1 note).
-    :type max_notes: int
+    :param max_voices: The maximum number of voices/notes to be played at once.
+    :type max_voices: int
     :param root: Set the base note number of the physical key inputs. If left as `None`, the `KEYBOARD_ROOT` settings.toml value will be used instead.
     :type root: int
     :param update_frequency: The rate at which the keyboard keys will be polled.
@@ -69,13 +126,13 @@ class Keyboard(Task):
     MODE_LOW  = 1 #: When the keyboard is set as this mode, it will prioritize the lowest note value.
     MODE_LAST = 2 #: When the keyboard is set as this mode, it will prioritize notes by the order in when they were played/appended.
 
-    def __init__(self, keys=[], max_notes=1, root=None):
+    def __init__(self, keys=[], max_voices=1, root=None):
         if root is None:
             self.root = os.getenv("KEYBOARD_ROOT", 48)
         else:
             self.root = root
         self.keys = keys
-        self.max_notes = max(max_notes, 1) # Not implemented
+        self.max_voices = max(max_voices, 1) # Not implemented
 
         self._notes = []
         self._sustain = False
@@ -158,8 +215,8 @@ class Keyboard(Task):
             if not self._sustain and self._sustained:
                 for note in self._sustained:
                     found = False
-                    if not self.has_note(note[0], False) and self._release:
-                        self._release(note[0], note[2])
+                    if not self.has_note(note, False) and self._release:
+                        self._release(note)
 
             self._sustained = []
             if self._sustain:
@@ -205,54 +262,31 @@ class Keyboard(Task):
         :rtype: bool
         """
         for note in self.get_notes(include_sustained):
-            if note[0] == notenum:
+            if note == notenum:
                 return True
-        return False
+        return 
 
-    def _get_low(self):
-        if not self.has_notes():
-            return None
-        selected = (127, 0)
-        if self._notes:
-            for note in self._notes:
-                if note[0] < selected[0]:
-                    selected = note
-        if self._sustain and self._sustained:
-            for note in self._sustained:
-                if note[0] < selected[0]:
-                    selected = note
-        return selected
-    def _get_high(self):
-        if not self.has_notes():
-            return None
-        selected = (0, 0)
-        if self._notes:
-            for note in self._notes:
-                if note[0] > selected[0]:
-                    selected = note
-        if self._sustain and self._sustained:
-            for note in self._sustained:
-                if note[0] > selected[0]:
-                    selected = note
-        return selected
-    def _get_last(self):
-        if self._sustain and self._sustained:
-            return self._sustained[-1]
-        if self._notes:
-            return self._notes[-1]
-        return None
-    def get(self):
-        """Retrieve the current note allocated according to the keyboard mode. Only a single monophonic note is currently supported, but polyphony up to the initial `max_notes` value will be added in the future.
+    def _get_low(self, count=None):
+        if count is None: count = self.max_voices
+        return self.get_notes().sort()[:count]
+    def _get_high(self, count=None):
+        if count is None: count = self.max_voices
+        return self.get_notes().sort(reverse=True)[:count]
+    def _get_last(self, count=None):
+        if count is None: count = self.max_voices
+        return self.get_notes().sort(key=lambda note: note.timestamp)[:count]
+    def get(self, count=None):
+        """Retrieve the current note allocated according to the keyboard mode. Only a single monophonic note is currently supported, but polyphony up to the initial `max_voices` value will be added in the future.
 
-        :returns: note as (notenum, velocity, keynum)
-        :rtype: tuple
+        :returns: list of `pico_synth_sandbox.keyboard.Note`
+        :rtype: list
         """
         if self._mode == self.MODE_HIGH:
-            return self._get_high()
+            return self._get_high(count)
         elif self._mode == self.MODE_LOW:
-            return self._get_low()
+            return self._get_low(count)
         else: # self.MODE_LAST
-            return self._get_last()
+            return self._get_last(count)
 
     def append(self, notenum, velocity=1.0, keynum=None, update=True):
         """Add a note to the keyboard buffer. Useful when working with MIDI input or another note source. Any previous notes with the same notenum value will be removed automatically.
@@ -267,7 +301,7 @@ class Keyboard(Task):
         :type update: bool
         """
         self.remove(notenum, None, False, True)
-        note = (notenum, velocity, keynum)
+        note = notenum if isinstance(notenum, Note) else Note(notenum, velocity, keynum)
         self._notes.append(note)
         if self._sustain:
             self._sustained.append(note)
@@ -287,9 +321,9 @@ class Keyboard(Task):
         """
         if not self.has_note(notenum):
             return
-        self._notes = [note for note in self._notes if note[0] != notenum]
+        self._notes = [note for note in self._notes if note != notenum]
         if remove_sustained and self._sustain and self._sustained:
-            self._sustained = [note for note in self._sustained if note[0] != notenum]
+            self._sustained = [note for note in self._sustained if note != notenum]
         if self._release and (remove_sustained or not self.has_note(notenum)):
             self._release(notenum, keynum)
         if update:
@@ -302,25 +336,28 @@ class Keyboard(Task):
             for i in range(len(self.keys)):
                 j = self.keys[i].check()
                 if j == Key.PRESS:
-                    self.append(self.root + i, 1.0, i) # Velocity is hard-coded
+                    self.append(self.root + i, self.keys[i].get_velocity(), i)
                 elif j == Key.RELEASE:
                     self.remove(self.root + i, i)
 
     def _update(self):
+
+        # TODO: Voice allocation
+
         if not self._arpeggiator or not self._arpeggiator.is_enabled():
             note = self.get()
             if note and self._press:
-                self._press(note[0], note[1], note[2])
+                self._press(note)
         elif self.has_notes():
             self._arpeggiator.update_notes(self.get_notes())
         else:
             self._arpeggiator.update_notes()
 
-def get_keyboard_driver(board, max_notes=1, root=None):
+def get_keyboard_driver(board, max_voices=1, root=None):
     """Automatically generate the proper :class:`pico_synth_sandbox.keyboard.Keyboard` object based on the device's settings.toml configuration.
 
-    :param max_notes: The maximum number of notes to be played at once. Currently, this feature is not implemented. When using the `get` method, the result is monophonic (1 note).
-    :type max_notes: int
+    :param max_voices: The maximum number of voices/notes to be played at once. Currently, this feature is not implemented. When using the `get` method, the result is monophonic (1 note).
+    :type max_voices: int
     :param root: Set the base note number of the physical key inputs. If left as `None`, the `KEYBOARD_ROOT` settings.toml value will be used instead.
     :type root: int
     """
@@ -328,19 +365,19 @@ def get_keyboard_driver(board, max_notes=1, root=None):
         from pico_synth_sandbox.keyboard.touch import TouchKeyboard
         return TouchKeyboard(
             board,
-            max_notes=max_notes,
+            max_voices=max_voices,
             root=root
         )
     elif board.has_ttp():
         from pico_synth_sandbox.keyboard.ton_touch import TonTouchKeyboard
         return TonTouchKeyboard(
             board,
-            max_notes=max_notes,
+            max_voices=max_voices,
             root=root,
             input_mode=TonTouchKeyboard.MODE_8KEY if board.get_ttp_mode() == "TTP8" else TonTouchKeyboard.MODE_16KEY
         )
     else:
         return Keyboard(
-            max_notes=max_notes,
+            max_voices=max_voices,
             root=root
         )
