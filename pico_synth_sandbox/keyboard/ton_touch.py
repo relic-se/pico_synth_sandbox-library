@@ -39,7 +39,7 @@ class TonTouchKeyboard(Keyboard):
         self._sdo, self._scl = board.get_ttp()
         self._scl.value = self._invert_clk
 
-    def update(self):
+    async def update(self):
         self.read_data()
         Keyboard.update(self)
 

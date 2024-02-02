@@ -95,6 +95,6 @@ class Synth(Task):
         return self._synth.sample_rate
 
     # Loop
-    def update(self):
+    async def update(self):
         for voice in self.voices:
             voice.update(self)

@@ -167,7 +167,7 @@ class Timer(Task):
     def _is_active(self):
         return self._enabled
 
-    def update(self):
+    async def update(self):
         """Update the timer object and call any relevant callbacks if a new beat step or the end of the gate of a step is reached. The actual functionality of this method will depend on the child class that utilizes the :class:`pico_synth_sandbox.timer.Timer` parent class.
         """
         if not self._is_active(): return

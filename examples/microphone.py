@@ -32,7 +32,7 @@ class MicrophoneLevel(Task):
         Task.__init__(self, update_frequency=5)
     def set_update(self, callback):
         self._update = callback
-    def update(self):
+    async def update(self):
         self._level = self._microphone.get_level()
         self._prev_max_level = self._max_level
         self._max_level = max(self._level, self._max_level)

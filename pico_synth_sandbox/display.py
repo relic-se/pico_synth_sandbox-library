@@ -63,7 +63,7 @@ class Display(Task):
             self._buffer[0][position[1]][position[0]+x] = value[x]
         self._needs_update = True
 
-    def update(self, reset_cursor=True):
+    async def update(self, reset_cursor=True):
         """Write buffer to display. Must be called after any changes are made to the display for those changes to be visible.
 
         :param reset_cursor: It is required to manipulate the cursor position in order to make writes to the display. By default, the cursor is reset to the previous position if needed for other applications. If you would like to keep the cursor at it's newly written location, set this value as False.

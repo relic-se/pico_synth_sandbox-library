@@ -372,7 +372,7 @@ class Keyboard(Task):
         if update:
             self._update()
 
-    def update(self):
+    async def update(self):
         """Update the keyboard logic and call any pre-defined callbacks if triggered. If any :class:`pico_synth_sandbox.keyboard.Key` objects (during initialization) or an :class:`pico_synth_sandbox.arpeggiator.Arpeggiator` object (using the `set_arpeggiator` method) were associated with this object, it will also be updated in this process.
         """
         if self.keys:

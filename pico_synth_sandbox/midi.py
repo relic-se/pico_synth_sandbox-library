@@ -154,7 +154,7 @@ class Midi(Task):
             self._process_message(msg)
             limit = limit - 1
 
-    def update(self):
+    async def update(self):
         """Process any incoming midi messages from the enabled midi devices. Will trigger any pre-defined callbacks if the appropriate messages are received.
         """
         if self._uart_midi:

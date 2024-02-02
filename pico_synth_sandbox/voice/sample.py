@@ -77,7 +77,7 @@ class Sample(Oscillator):
         Oscillator._update_root(self)
         self._note.frequency = self._note.frequency * pow(2,self._sample_tune) * pow(2,self._loop_tune)
 
-    def update(self, synth):
+    async def update(self, synth):
         Voice.update(self, synth)
         if not self._loop and not self._start is None and time.monotonic() - self._start >= self.get_duration():
             synth.release(self)

@@ -63,7 +63,7 @@ class MicrophoneLevel(Task):
         self._max_level = 0.0
         self._update = update
         Task.__init__(self, update_frequency=5)
-    def update(self):
+    async def update(self):
         self._level = self._microphone.get_level()
         self._max_level = max(self._level, self._max_level)
         if self._update:
