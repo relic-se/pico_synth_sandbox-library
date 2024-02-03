@@ -231,6 +231,11 @@ class Display(Task):
                 char = 0x00 + int(math.floor((value - (segment*i+bar)) / bar))
             data.append(chr(char))
 
+        # Convert \0 to spaces
+        for i in range(len(data)):
+            if data[i] == '\0':
+                data[i] = " "
+
         for i in range(length):
             if vertical:
                 self._buffer[0][position[1]+(length-i-1)][position[0]] = data[i]
@@ -242,5 +247,5 @@ class Display(Task):
         self._write_graph(value, minimum, maximum, position, height, True, False)
 
     def write_horizontal_graph(self, value=0.0, minimum=0.0, maximum=1.0, position=(0,0), width=1, centered=False):
-        # NOTE: If horizontal centered, length must be divisible by 2.
+        # NOTE: If horizontally centered, length must be divisible by 2.
         self._write_graph(value, minimum, maximum, position, width, False, centered)
