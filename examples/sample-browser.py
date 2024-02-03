@@ -24,7 +24,7 @@ display.update()
 
 audio = get_audio_driver(board)
 synth = Synth(audio)
-synth.add_voices(Sample(loop=False) for i in range(12))
+synth.add_voices(Sample(loop=False) for i in range(4))
 for voice in synth.voices:
     voice.set_envelope(
         attack_time=0.05,
@@ -43,17 +43,13 @@ if not sample_files:
     print("No samples available. Try running \"make samples --always-make\" in the library root directory.")
     exit()
 
-keyboard = get_keyboard_driver(board, root=60)
-def press(notenum, velocity, keynum=None):
-    if keynum is None:
-        keynum = (notenum - keyboard.root) % len(keyboard.keys)
-    synth.press(keynum, notenum)
-keyboard.set_press(press)
-def release(notenum, keynum=None):
-    if keynum is None:
-        keynum = (notenum - keyboard.root) % len(keyboard.keys)
-    synth.release(keynum)
-keyboard.set_release(release)
+keyboard = get_keyboard_driver(board, root=60, max_voices=len(synth.voices))
+def press(voice, notenum, velocity, keynum=None):
+    synth.press(voice, notenum, velocity)
+keyboard.set_voice_press(press)
+def release(voice, notenum, keynum=None):
+    synth.release(voice)
+keyboard.set_voice_release(release)
 
 type = 0
 semitone = 0

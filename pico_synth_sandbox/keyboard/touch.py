@@ -17,8 +17,8 @@ class TouchPad(DebouncerKey):
 class TouchKeyboard(Keyboard):
     """Use the built-in 12 capacitive touch inputs as a :class:`pico_synth_sandbox.keyboard.Keyboard` object.
 
-    :param max_notes: The maximum number of notes to be played at once. Currently, this feature is not implemented. When using the `get` method, the result is monophonic (1 note).
-    :type max_notes: int
+    :param max_voices: The maximum number of voices to be played at once.
+    :type max_voices: int
     :param root: Set the base note number of the physical key inputs. If left as `None`, the `KEYBOARD_ROOT` settings.toml value will be used instead.
     :type root: int
     """

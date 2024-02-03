@@ -77,22 +77,19 @@ osc2.set_coarse_tune(2.0)
 osc2.set_level(0.5)
 synth.add_voice(osc2)
 
-keyboard = get_keyboard_driver(board, max_notes=1)
+keyboard = get_keyboard_driver(board, max_voices=1)
 
-def press(notenum, velocity, keynum=None):
-    if keynum is None:
-        keynum = (notenum - keyboard.root) % len(keyboard.keys)
+def press(voicenum, notenum, velocity, keynum=None):
     for voice in synth.voices:
         synth.press(voice, notenum, velocity)
-    display.write("{:02d}".format(keynum) + " " + note_names[notenum % 12], (0,1), 6)
-def release(notenum, keynum=None):
-    if keynum is None:
-        keynum = (notenum - keyboard.root) % len(keyboard.keys)
+    display.write("{:02d} {}".format(notenum, note_names[notenum % 12]), (0,1), 6)
+keyboard.set_voice_press(press)
+
+def release(voicenum, notenum, keynum=None):
     if not keyboard.has_notes():
         synth.release()
         display.write("", (0, 1), 6)
-keyboard.set_press(press)
-keyboard.set_release(release)
+keyboard.set_voice_release(release)
 
 tune = 0
 encoder = Encoder(board)

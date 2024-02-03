@@ -35,21 +35,18 @@ voice.set_envelope(
 voice.set_coarse_tune(-2.0)
 synth.add_voice(voice)
 
-keyboard = get_keyboard_driver(board, root=60)
+keyboard = get_keyboard_driver(board, root=60, max_voices=len(synth.voices))
 arpeggiator = Arpeggiator()
 keyboard.set_arpeggiator(arpeggiator)
 
-def press(notenum, velocity, keynum=None):
-    if keynum is None:
-        keynum = (notenum - keyboard.root) % len(keyboard.keys)
+def press(index, notenum, velocity, keynum=None):
     synth.press(0, notenum, velocity)
-keyboard.set_press(press)
+keyboard.set_voice_press(press)
 
-def release(notenum, keynum=None):
-    if keynum is None:
-        keynum = (notenum - keyboard.root) % len(keyboard.keys)
-    synth.release(0)
-keyboard.set_release(release)
+def release(index, notenum, keynum=None):
+    if not synth.has_notes():
+        synth.release(0)
+keyboard.set_voice_release(release)
 
 index = 0
 loop = [0.0, 1.0]

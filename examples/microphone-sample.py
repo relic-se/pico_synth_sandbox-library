@@ -41,19 +41,15 @@ voice.set_filter(
     synth=synth
 )
 
-keyboard = get_keyboard_driver(board, root=60)
+keyboard = get_keyboard_driver(board, root=60, max_voices=1)
 
-def press(notenum, velocity, keynum=None):
-    if keynum is None:
-        keynum = (notenum - keyboard.root) % len(keyboard.keys)
+def voice_press(index, notenum, velocity, keynum=None):
     synth.press(0, notenum, velocity)
-keyboard.set_press(press)
+keyboard.set_voice_press(voice_press)
 
-def release(notenum, keynum=None):
-    if keynum is None:
-        keynum = (notenum - keyboard.root) % len(keyboard.keys)
+def voice_release(index, notenum, keynum=None):
     synth.release(0)
-keyboard.set_release(release)
+keyboard.set_voice_release(voice_release)
 
 microphone = Microphone(board)
 

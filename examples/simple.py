@@ -21,25 +21,27 @@ display.update()
 
 audio = get_audio_driver(board)
 synth = Synth(audio)
-synth.add_voices(Oscillator() for i in range(12))
+synth.add_voices(Oscillator() for i in range(4))
 
-keyboard = get_keyboard_driver(board)
+keyboard = get_keyboard_driver(board, max_voices = len(synth.voices))
 arpeggiator = Arpeggiator()
 keyboard.set_arpeggiator(arpeggiator)
 
-def press(notenum, velocity, keynum=None):
-    if keynum is None:
-        keynum = (notenum - keyboard.root) % len(keyboard.keys)
-    synth.press(keynum, notenum, velocity)
-    display.write("*", (keynum,1), 1)
-keyboard.set_press(press)
+def voice_press(voice, notenum, velocity, keynum=None):
+    synth.press(voice, notenum, velocity)
+keyboard.set_voice_press(voice_press)
 
-def release(notenum, keynum=None):
-    if keynum is None:
-        keynum = (notenum - keyboard.root) % len(keyboard.keys)
-    synth.release(keynum)
+def voice_release(voice, notenum, keynum=None):
+    synth.release(voice)
+keyboard.set_voice_release(voice_release)
+
+def key_press(keynum, notenum, velocity):
+    display.write("*", (keynum,1), 1)
+keyboard.set_key_press(key_press)
+
+def key_release(keynum, notenum):
     display.write("_", (keynum,1), 1)
-keyboard.set_release(release)
+keyboard.set_key_release(key_release)
 
 encoder = Encoder(board)
 def click():
