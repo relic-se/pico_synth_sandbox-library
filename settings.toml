@@ -3,7 +3,7 @@ BOARD="Rev2"
 
 # Midi
 MIDI_UART=1 #bool
-MIDI_USB=1 #bool
+MIDI_USB=0 #bool
 
 # Audio
 AUDIO_RATE=22050
