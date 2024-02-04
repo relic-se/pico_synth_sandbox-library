@@ -97,4 +97,4 @@ class Synth(Task):
     # Loop
     async def update(self):
         for voice in self.voices:
-            voice.update(self)
+            await voice.update(self)

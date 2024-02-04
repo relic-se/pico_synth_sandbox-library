@@ -41,7 +41,7 @@ class TonTouchKeyboard(Keyboard):
 
     async def update(self):
         self.read_data()
-        Keyboard.update(self)
+        await Keyboard.update(self)
 
     def read_data(self):
         global tontouch_data
