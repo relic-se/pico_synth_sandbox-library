@@ -118,6 +118,16 @@ class Timer(Task):
         :rtype: bool
         """
         return self._enabled
+    def set_enabled(self, value:bool):
+        """Directly set whether or not the timer object is enabled (running).
+
+        :param value: The state of the timer.
+        :type value: bool
+        """
+        if value and not self._enabled:
+            self.enable()
+        elif not value and self._enabled:
+            self.disable()
     def enable(self):
         """Enable the timer object to start timing beat steps and triggering note press and release callbacks. The first step will immediately trigger.
         """
