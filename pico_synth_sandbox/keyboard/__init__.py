@@ -183,10 +183,10 @@ class Keyboard(Task):
         else:
             self.root = root
         self.keys = keys
-        self.max_voices = max(max_voices, 1) # Not implemented
+        self._max_voices = max(max_voices, 1)
 
         self._notes = []
-        self._voices = [Voice(i) for i in range(max_voices)]
+        self._voices = [Voice(i) for i in range(self._max_voices)]
         self._sustain = False
         self._sustained = []
         self._voice_press = None
@@ -327,7 +327,7 @@ class Keyboard(Task):
         :returns: list of `pico_synth_sandbox.keyboard.Note`
         :rtype: list
         """
-        if count is None: count = self.max_voices
+        if count is None: count = self._max_voices
         notes = self.get_notes()
         if self._mode == self.MODE_HIGH or self._mode == self.MODE_LOW:
             notes.sort(reverse=(self._mode == self.MODE_HIGH))
@@ -403,6 +403,19 @@ class Keyboard(Task):
 
     def get_voices(self):
         return self._voices
+    
+    def get_max_voices(self) -> int:
+        return self._max_voices
+    def set_max_voices(self, value:int):
+        self._max_voices = max(value, 1)
+        if len(self._voices) > self._max_voices:
+            for i in range(len(self._voices) - 1, self._max_voices - 1, -1):
+                self._release_voice(self._voices[i])
+                del self._voices[i]
+        elif len(self._voices) < self._max_voices:
+            for i in range(len(self._voices), self._max_voices):
+                self._voices.append(Voice(i))
+        self._update_voices()
 
     def get_active_voices(self): # Oldest => Newest
         voices = [voice for voice in self._voices if voice.is_active()]
@@ -464,11 +477,11 @@ class Keyboard(Task):
         voice.set_note(note)
         if self._voice_press:
             self._voice_press(voice.index, voice.note.notenum, voice.note.velocity, voice.note.keynum)
-    def _release_voice(self, voice):
+    def _release_voice(self, voice:Voice):
         if type(voice) is list:
             for i in voice:
                 self._release_voice(i)
-        else:
+        elif voice.is_active():
             if self._voice_release:
                 self._voice_release(voice.index, voice.note.notenum, voice.note.keynum)
             voice.clear()
@@ -476,7 +489,7 @@ class Keyboard(Task):
 def get_keyboard_driver(board, max_voices=1, root=None):
     """Automatically generate the proper :class:`pico_synth_sandbox.keyboard.Keyboard` object based on the device's settings.toml configuration.
 
-    :param max_voices: The maximum number of voices/notes to be played at once. Currently, this feature is not implemented. When using the `get` method, the result is monophonic (1 note).
+    :param max_voices: The maximum number of voices/notes to be played at once.
     :type max_voices: int
     :param root: Set the base note number of the physical key inputs. If left as `None`, the `KEYBOARD_ROOT` settings.toml value will be used instead.
     :type root: int
