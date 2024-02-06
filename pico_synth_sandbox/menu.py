@@ -517,7 +517,7 @@ class LFOMenuGroup(MenuGroup):
         self._depth.draw_bar(display, (0,1), 10)
         display.write("{:.1f}hz".format(self._rate.get()), position=(10,1), length=6, right_aligned=True)
     def get_cursor_position(self) -> tuple:
-        if self._rate.is_enabled():
+        if self.get_current_item() is self._rate:
             return (10,1)
         else:
             return (self._depth.get_bar_position(10,6),1)
@@ -564,9 +564,9 @@ class FilterMenuGroup(MenuGroup):
         )
         self._resonance.draw_bar(display, (10,1), 6)
     def get_cursor_position(self) -> tuple:
-        if self._frequency.is_enabled():
+        if self.get_current_item() is self._frequency:
             return (2,1)
-        elif self._resonance.is_enabled():
+        elif self.get_current_item() is self._resonance:
             return (self._resonance.get_bar_position(10,6),1)
         else:
             return (0,1)
@@ -603,7 +603,7 @@ class MixMenuGroup(MenuGroup):
         )
         self._pan.draw_bar(display, (9,1), 6, True)
     def get_cursor_position(self) -> tuple:
-        if self._pan.is_enabled():
+        if self.get_current_item() is self._pan:
             return (self._pan.get_bar_position(9,6),1)
         else:
             return (0,1)
@@ -665,11 +665,11 @@ class TuneMenuGroup(MenuGroup):
         )
         self._bend.draw_bar(display, (13,1), 2, True)
     def get_cursor_position(self) -> tuple:
-        if self._fine.is_enabled():
+        if self.get_current_item() is self._fine:
             return (self._fine.get_bar_position(5,2),1)
-        elif self._glide.is_enabled():
+        elif self.get_current_item() is self._glide:
             return (8,1)
-        elif self._bend.is_enabled():
+        elif self.get_current_item() is self._bend:
             return (self._bend.get_bar_position(13,2),1)
         else:
             return (0,1)
