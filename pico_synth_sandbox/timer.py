@@ -185,9 +185,15 @@ class Timer(Task):
                 break
             self._update()
             self._do_step()
-            await asyncio.sleep(self._gate_duration)
-            self._do_release()
-            await asyncio.sleep(self._step_time - self._gate_duration)
+            if self._last_press:
+                await self.sleep(self._gate_duration)
+                self._do_release()
+                await self.sleep(self._step_time - self._gate_duration)
+            else:
+                await self.sleep(self._step_time)
+    async def sleep(self, delay:float):
+        self._now += delay
+        await asyncio.sleep(self._now - time.monotonic())
 
     def _update(self):
         pass
