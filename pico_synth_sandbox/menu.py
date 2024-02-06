@@ -524,7 +524,7 @@ class LFOMenuGroup(MenuGroup):
         if self.get_current_item() is self._rate:
             return (10,1)
         else:
-            return (self._depth.get_bar_position(10,6),1)
+            return (self._depth.get_bar_position(0,10),1)
 
 class FilterMenuGroup(MenuGroup):
     def __init__(self, voices:Voice|tuple[Voice], group:str=""):
