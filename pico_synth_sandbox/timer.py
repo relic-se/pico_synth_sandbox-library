@@ -4,7 +4,7 @@
 
 from pico_synth_sandbox.tasks import Task
 from pico_synth_sandbox import clamp
-import time
+import time, asyncio
 
 class Timer(Task):
     """An abstract class to help handle timing functionality of the :class:`pico_synth_sandbox.arpeggiator.Arpeggiator` and :class:`pico_synth_sandbox.sequencer.Sequencer` classes. Note press and release timing is managed by bpm (beats per minute), steps (divisions of a beat), and gate (note duration during step).
@@ -51,7 +51,7 @@ class Timer(Task):
         self._release = None
         self._last_press = []
 
-        Task.__init__(self, update_frequency=1000) # Run as fast as possible
+        Task.__init__(self)
 
     def _update_timing(self, bpm=None, steps=None):
         if bpm: self._bpm = bpm
@@ -180,15 +180,15 @@ class Timer(Task):
     async def update(self):
         """Update the timer object and call any relevant callbacks if a new beat step or the end of the gate of a step is reached. The actual functionality of this method will depend on the child class that utilizes the :class:`pico_synth_sandbox.timer.Timer` parent class.
         """
-        if not self._is_active(): return
-
-        now = time.monotonic()
-        if now >= self._now + self._step_time:
-            self._now = self._now + self._step_time
+        while True:
+            if not self._is_active():
+                break
             self._update()
             self._do_step()
-        if now - self._now > self._gate_duration:
+            await asyncio.sleep(self._gate_duration)
             self._do_release()
+            await asyncio.sleep(self._step_time - self._gate_duration)
+
     def _update(self):
         pass
 
