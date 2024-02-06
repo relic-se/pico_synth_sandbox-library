@@ -67,7 +67,7 @@ class MenuItem:
         return (0,1)
     
 class IntMenuItem(MenuItem):
-    def __init__(self, title:str="", group:str="", step:int=1, initial:int=0, minimum:int=0, maximum:int=1, loop:bool=False, update:function=None):
+    def __init__(self, title:str="", group:str="", step:int=1, initial:int=0, minimum:int=0, maximum:int=1, loop:bool=False, sign:bool=False, update:function=None):
         MenuItem.__init__(self, title, group)
         self._step = step
         self._initial = initial
@@ -75,6 +75,7 @@ class IntMenuItem(MenuItem):
         self._minimum = minimum
         self._maximum = maximum
         self._loop = loop
+        self._sign = sign
         self._update = update
     def get(self) -> int:
         return self._value
@@ -83,7 +84,10 @@ class IntMenuItem(MenuItem):
     def get_data(self) -> int:
         return self._value
     def get_label(self) -> str:
-        return "{:+d}".format(self.get()).replace("+0", "0")
+        if self._sign:
+            return "{:+d}".format(self.get()).replace("+0", "0")
+        else:
+            return "{:d}".format(self.get())
     def set(self, value:int):
         if not type(value) is int:
             return
@@ -614,6 +618,7 @@ class TuneMenuGroup(MenuGroup):
             "Coarse",
             minimum=-36,
             maximum=36,
+            sign=True,
             update=lambda value : update_coarse(value/12.0)
         )
         self._fine = BarMenuItem(
