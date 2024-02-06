@@ -2,7 +2,8 @@
 # 2023 Cooper Dalrymple - me@dcdalrymple.com
 # GPL v3 License
 
-import os, random
+import random
+from pico_synth_sandbox import clamp
 from pico_synth_sandbox.timer import Timer
 from pico_synth_sandbox.keyboard import Note
 
@@ -16,7 +17,7 @@ class Arpeggiator(Timer):
     MODE_PLAYED = 4
     MODE_RANDOM = 5
 
-    def __init__(self, bpm=120, steps=2):
+    def __init__(self, bpm=120, steps=2.0, mode=0, octaves=0, probability=1.0):
         Timer.__init__(self,
             bpm=bpm,
             steps=steps,
@@ -26,8 +27,9 @@ class Arpeggiator(Timer):
         self._raw_notes = []
         self._notes = []
 
-        self.set_mode(os.getenv("ARPEGGIATOR_MODE", 0))
-        self._octaves = 0
+        self.set_mode(mode)
+        self.set_octaves(octaves)
+        self._probability = probability
 
         self._keyboard = None
 
@@ -35,10 +37,17 @@ class Arpeggiator(Timer):
         Timer._reset(self, immediate)
         self._pos = 0
 
+    def get_octaves(self):
+        return self._octaves
     def set_octaves(self, value):
         self._octaves = int(value)
         if self._notes:
             self.update_notes(self._raw_notes)
+
+    def get_probability(self):
+        return self._probability
+    def set_probability(self, value):
+        self._probability = clamp(value, 0.0, 1.0)
 
     def set_keyboard(self, keyboard):
         self._keyboard = keyboard
@@ -93,6 +102,8 @@ class Arpeggiator(Timer):
 
     def _update(self):
         if self._notes:
+            if self._probability < 1.0 and (self._probability == 0.0 or random.random() > self._probability):
+                return
             if self.get_mode() == self.MODE_RANDOM:
                 self._pos = random.randrange(0,len(self._notes),1)
             else:
