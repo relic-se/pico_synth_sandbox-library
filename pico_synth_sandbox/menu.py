@@ -31,6 +31,8 @@ class MenuItem:
         return None
     def get_data(self):
         return None
+    def get_label(self) -> str:
+        return ""
     def set(self, value):
         pass
     def navigate(self, step:int) -> bool:
@@ -60,12 +62,12 @@ class MenuItem:
     def disable(self):
         self._enabled = False
     def draw(self, display:Display):
-        pass
+        display.write(self.get_label(), (0,1))
     def get_cursor_position(self) -> tuple:
         return (0,1)
-
-class NumberMenuItem(MenuItem):
-    def __init__(self, title:str="", group:str="", step:float=0.1, initial:float=0.0, minimum:float=0.0, maximum:float=1.0, loop:bool=False, update:function=None):
+    
+class IntMenuItem(MenuItem):
+    def __init__(self, title:str="", group:str="", step:int=1, initial:int=0, minimum:int=0, maximum:int=1, loop:bool=False, update:function=None):
         MenuItem.__init__(self, title, group)
         self._step = step
         self._initial = initial
@@ -74,14 +76,16 @@ class NumberMenuItem(MenuItem):
         self._maximum = maximum
         self._loop = loop
         self._update = update
-    def get(self) -> float:
+    def get(self) -> int:
         return self._value
     def get_relative(self) -> float:
         return unmap_value(self._value, self._minimum, self._maximum)
-    def get_data(self) -> float:
+    def get_data(self) -> int:
         return self._value
-    def set(self, value:float):
-        if not type(value) is float and not type(value) is int:
+    def get_label(self) -> str:
+        return "{:+d}".format(self.get()).replace("+0", "0")
+    def set(self, value:int):
+        if not type(value) is int:
             return
         value = clamp(value, self._minimum, self._maximum)
         if self._value != value:
@@ -112,32 +116,91 @@ class NumberMenuItem(MenuItem):
             return False
         self._value = self._initial
         return True
-    def draw(self, display:Display):
-        display.write(self._value, (0,1))
     def set_update(self, callback:function):
         self._update = callback
     def _do_update(self):
         if self._update: self._update(self.get())
 
-class IntMenuItem(NumberMenuItem):
-    def __init__(self, title:str="", group:str="", step:int=1, initial:int=0, minimum:int=0, maximum:int=1, loop:bool=False, update:function=None):
-        NumberMenuItem.__init__(self, title, group, step, initial, minimum, maximum, loop, update)
-    def get(self) -> int:
-        return int(self._value)
-    def draw(self, display:Display):
-        display.write(self.get(), (0,1))
+class NumberMenuItem(MenuItem):
+    def __init__(self, title:str="", group:str="", step:float=0.1, initial:float=0.0, minimum:float=0.0, maximum:float=1.0, smoothing:float=1.0, loop:bool=False, update:function=None):
+        MenuItem.__init__(self, title, group)
+        self._step = step
+        self._initial = initial
+        self._value = initial
+        self._minimum = minimum
+        self._maximum = maximum
+        self._smoothing = smoothing
+        self._loop = loop
+        self._update = update
+    def has_smoothing(self) -> bool:
+        return self._smoothing != 1.0
+    def get(self) -> float:
+        if self.has_smoothing():
+            return map_value(math.pow(self._value, self._smoothing), self._minimum, self._maximum)
+        else:
+            return self._value
+    def get_relative(self) -> float:
+        if self.has_smoothing():
+            return self._value
+        else:
+            return unmap_value(self._value, self._minimum, self._maximum)
+    def get_data(self) -> float:
+        return self._value
+    def get_label(self) -> str:
+        return self._value
+    def set(self, value:float):
+        if not type(value) is float:
+            return
+        if self.has_smoothing():
+            value = clamp(value, 0.0, 1.0)
+        else:
+            value = clamp(value, self._minimum, self._maximum)
+        if self._value != value:
+            self._value = value
+            self._do_update()
+    def increment(self) -> bool:
+        minimum = 0.0 if self.has_smoothing() else self._minimum
+        maximum = 1.0 if self.has_smoothing() else self._maximum
+        if self._value == maximum:
+            if self._loop:
+                self._value = minimum
+            else:
+                return False
+        else:
+            self._value = min(self._value + self._step, maximum)
+        self._do_update()
+        return True
+    def decrement(self) -> bool:
+        minimum = 0.0 if self.has_smoothing() else self._minimum
+        maximum = 1.0 if self.has_smoothing() else self._maximum
+        if self._value == minimum:
+            if self._loop:
+                self._value = maximum
+            else:
+                return False
+        else:
+            self._value = max(self._value - self._step, minimum)
+        self._do_update()
+        return True
+    def reset(self) -> bool:
+        if self._value == self._initial:
+            return False
+        self._value = self._initial
+        return True
+    def set_update(self, callback:function):
+        self._update = callback
+    def _do_update(self):
+        if self._update: self._update(self.get())
 
 class BooleanMenuItem(IntMenuItem):
     def __init__(self, title:str="", group:str="", initial:bool=False, loop:bool=False, update:function=None, true_label:str="On", false_label:str="Off"):
-        NumberMenuItem.__init__(self, title, group, 1, int(initial), 0, 1, loop, update)
+        IntMenuItem.__init__(self, title, group, initial=int(initial), loop=loop, update=update)
         self._true_label=true_label
         self._false_label=false_label
     def get(self) -> bool:
         return bool(self._value)
     def get_label(self) -> str:
         return self._true_label if self.get() else self._false_label
-    def draw(self, display:Display):
-        display.write(self.get_label(), (0,1))
 
 class RampNumberMenuItem(NumberMenuItem):
     def __init__(self, title:str="", group:str="", step:float=0.1, initial:float=0.0, minimum:float=0.0, maximum:float=1.0, smoothing:float=2.0, loop:bool=False, update:function=None):
@@ -151,26 +214,28 @@ class RampNumberMenuItem(NumberMenuItem):
         return self._value
 
 class BarMenuItem(NumberMenuItem):
-    def __init__(self, title:str="", group:str="", step:float=1/16, initial:float=0.0, minimum:float=0.0, maximum:float=1.0, update:function=None):
-        NumberMenuItem.__init__(self, title, group, step, initial, minimum, maximum, False, update)
+    def __init__(self, title:str="", group:str="", step:float=1/16, initial:float=0.0, minimum:float=0.0, maximum:float=1.0, smoothing:float=1.0, update:function=None):
+        NumberMenuItem.__init__(self, title, group, step, initial, minimum, maximum, smoothing, False, update)
     def enable(self, display:Display):
         display.enable_horizontal_graph()
         NumberMenuItem.enable(self, display)
     def draw(self, display:Display):
         self.draw_bar(display)
     def draw_bar(self, display:Display, position=(0,1), length=16, centered=False):
-        display.write_horizontal_graph(self._value, self._minimum, self._maximum, position, length, centered)
+        minimum = 0.0 if self.has_smoothing() else self._minimum
+        maximum = 1.0 if self.has_smoothing() else self._maximum
+        display.write_horizontal_graph(self._value, minimum, maximum, position, length, centered)
     def get_bar_position(self, x=0, length=16) -> int:
         return x+min(int(length*self.get_relative()),length-1)
+    def get_cursor_position(self) -> tuple:
+        return (self.get_bar_position(),1)
 
 class ListMenuItem(IntMenuItem):
     def __init__(self, items:tuple[str], title:str="", group:str="", initial:int=0, loop:bool=True, update:function=None):
-        NumberMenuItem.__init__(self, title, group, 1, initial, 0, len(items)-1, loop, update)
+        IntMenuItem.__init__(self, title, group, initial=initial, maximum=len(items)-1, loop=loop, update=update)
         self._items = items
-    def get_item(self) -> str:
-        return self._items[int(self._value) % len(self._items)]
-    def draw(self, display:Display):
-        display.write(self.get_item(), (0,1))
+    def get_label(self) -> str:
+        return self._items[self.get()]
 
 class WaveformMenuItem(ListMenuItem):
     def __init__(self, group:str="", update:function=None):
@@ -355,7 +420,7 @@ class ADSREnvelopeMenuGroup(MenuGroup):
         )
         self._attack_level = NumberMenuItem(
             "Atk Lvl",
-            initial=voices[0]._attack_level,
+            initial=1.0,
             step=0.05,
             update=apply_value(voices, Oscillator.set_envelope_attack_level)
         )
@@ -367,7 +432,7 @@ class ADSREnvelopeMenuGroup(MenuGroup):
         )
         self._sustain_level = NumberMenuItem(
             "Stn Lvl",
-            initial=voices[0]._sustain_level,
+            initial=0.75,
             step=0.05,
             update=apply_value(voices, Oscillator.set_envelope_sustain_level)
         )
@@ -439,12 +504,14 @@ class LFOMenuGroup(MenuGroup):
             "Depth",
             step=1/64,
             maximum=0.5,
+            smoothing=2.0,
             update=update_depth
         )
-        self._rate = RampNumberMenuItem(
+        self._rate = NumberMenuItem(
             "Rate",
             step=0.01, # relative step
             maximum=32.0,
+            smoothing=2.0,
             update=update_rate
         )
         MenuGroup.__init__(self, (
@@ -471,7 +538,7 @@ class FilterMenuGroup(MenuGroup):
             "Type",
             update=apply_value(voices, Voice.set_filter_type)
         )
-        self._frequency = RampNumberMenuItem(
+        self._frequency = NumberMenuItem(
             "Freq",
             initial=1.0,
             step=0.01,
@@ -551,12 +618,11 @@ class MixMenuGroup(MenuGroup):
 
 class TuneMenuGroup(MenuGroup):
     def __init__(self, update_coarse:function=None, update_fine:function=None, update_glide:function=None, update_bend:function=None, group:str=""):
-        self._coarse = NumberMenuItem(
+        self._coarse = IntMenuItem(
             "Coarse",
-            step=1/12,
-            minimum=-2.0,
-            maximum=2.0,
-            update=update_coarse
+            minimum=-36,
+            maximum=36,
+            update=lambda value : update_coarse(value/12.0)
         )
         self._fine = BarMenuItem(
             "Fine",
@@ -572,7 +638,7 @@ class TuneMenuGroup(MenuGroup):
         )
         self._bend = BarMenuItem(
             "Bend",
-            step=1/12,
+            step=1/24,
             minimum=-1.0,
             update=update_bend
         )
@@ -591,14 +657,14 @@ class TuneMenuGroup(MenuGroup):
         display.write('+', (15,1), 1)
     def draw(self, display:Display):
         display.write(
-            value="{:+d}".format(int(self._coarse.get()*12)).replace("+0", "0"),
+            value=self._coarse.get_label(),
             position=(0,1),
             length=3,
             right_aligned=True
         )
         self._fine.draw_bar(display, (5,1), 2, True)
         display.write(
-            value="{:.1f}s".format(self._glide.get()).replace("0.", "."),
+            value=self._glide.get_label(),
             position=(8,1),
             length=4,
             right_aligned=True
@@ -625,7 +691,6 @@ class VoiceMenuGroup(MenuGroup):
             ),
             BarMenuItem(
                 "Velocity",
-                initial=0.0,
                 update=apply_value(voices, Voice.set_velocity_amount)
             ),
             FilterMenuGroup(voices, "Filter")
@@ -676,7 +741,7 @@ class OscillatorMenuGroup(MenuGroup):
             ),
             LFOMenuGroup(
                 update_depth=apply_value(voices, Oscillator.set_filter_lfo_depth),
-                update_rate=apply_value(voices, Oscillator.set_filter_lfo_rate),
+                update_rate=apply_value(voices, Oscillator.set_filter_lfo_rate, 0.025),
                 group=group+"FltrLFO"
             )
         ), group)
