@@ -20,7 +20,7 @@ display = Display(board)
 display.enable_horizontal_graph()
 display.write("PicoSynthSandbox", (0,0))
 display.write("Loading...", (0,1))
-display.update()
+display.force_update()
 
 audio = get_audio_driver(board)
 audio.mute()
@@ -163,7 +163,7 @@ elif board.num_encoders() > 1:
 display.write("Tune    Filter  ", position=(0,0))
 display.set_cursor_enabled(True)
 display.set_cursor_blink(True)
-display.update()
+display.force_update()
 
 audio.unmute()
 

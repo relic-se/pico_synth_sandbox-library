@@ -38,6 +38,8 @@ class Task:
                 break
     async def update(self):
         pass
+    def force_update(self):
+        asyncio.run(self.update())
 
 def run():
     loop = asyncio.get_event_loop()

@@ -47,4 +47,4 @@ while True:
             position = (i,0),
             height = 2
         )
-    display.update(reset_cursor=False)
+    display.force_update(reset_cursor=False)

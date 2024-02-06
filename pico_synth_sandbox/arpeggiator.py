@@ -47,7 +47,7 @@ class Arpeggiator(Timer):
             self.update_notes(self._keyboard.get_notes())
     def _disable(self):
         if self._keyboard:
-            self._keyboard.update()
+            self._keyboard.force_update()
 
     def get_mode(self):
         return self._mode

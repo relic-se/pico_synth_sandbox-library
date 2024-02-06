@@ -21,7 +21,7 @@ display = Display(board)
 display.enable_horizontal_graph()
 display.write("PicoSynthSandbox", (0,0))
 display.write("Loading...", (0,1))
-display.update()
+display.force_update()
 
 audio = get_audio_driver(board)
 synth = Synth(audio)
@@ -73,7 +73,7 @@ mic_level = MicrophoneLevel(microphone, update_level)
 
 def trigger():
     display.write("Recording")
-    display.update()
+    display.force_update()
 microphone.set_trigger(trigger)
 
 type = 0
@@ -121,7 +121,7 @@ def start_record():
     gc.collect()
 
     display.write("Waiting")
-    display.update()
+    display.force_update()
 
     sample_data = microphone.read(
         samples=4096,
@@ -130,7 +130,7 @@ def start_record():
     )
 
     display.write("Processing")
-    display.update()
+    display.force_update()
 
     # Normalize Volume
     sample_data = normalize(sample_data)
@@ -145,7 +145,7 @@ def start_record():
 
     display.clear()
     display.write("Complete!")
-    display.update()
+    display.force_update()
     time.sleep(0.5)
 
     reset_display()

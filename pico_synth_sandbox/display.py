@@ -2,6 +2,7 @@
 # 2023 Cooper Dalrymple - me@dcdalrymple.com
 # GPL v3 License
 
+import asyncio
 from pico_synth_sandbox.tasks import Task
 from pico_synth_sandbox import clamp, truncate_str, unmap_value
 import math
@@ -121,6 +122,9 @@ class Display(Task):
         for y in range(2):
             for x in range(16):
                 self._buffer[0][y][x] = '\0'
+    
+    def force_update(self, reset_cursor=True):
+        asyncio.run(self.update(reset_cursor))
 
     def _sanitize_position(self, column, row=0):
         if type(column) is tuple:

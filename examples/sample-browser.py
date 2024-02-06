@@ -20,7 +20,7 @@ display = Display(board)
 display.enable_horizontal_graph()
 display.write("PicoSynthSandbox", (0,0))
 display.write("Loading...", (0,1))
-display.update()
+display.force_update()
 
 audio = get_audio_driver(board)
 synth = Synth(audio)
@@ -113,7 +113,7 @@ def load_sample(write=True):
     audio.mute()
     if write:
         display.write("Loading...", (5,1))
-        display.update()
+        display.force_update()
 
     for voice in synth.voices:
         voice.unload()

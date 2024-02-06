@@ -19,7 +19,7 @@ display = Display(board)
 display.enable_vertical_graph()
 display.write("PicoSynthSandbox", (0,0))
 display.write("Loading...", (0,1))
-display.update()
+display.force_update()
 
 audio = get_audio_driver(board)
 audio.mute()

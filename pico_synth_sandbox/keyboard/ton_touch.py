@@ -34,7 +34,7 @@ class TonTouchKeyboard(Keyboard):
             max_voices=max_voices,
             root=root
         )
-        self.set_update_frequency(64.0) # 64hz max refresh rate
+        self.set_update_frequency(64) # 64hz max refresh rate
 
         self._sdo, self._scl = board.get_ttp()
         self._scl.value = self._invert_clk
