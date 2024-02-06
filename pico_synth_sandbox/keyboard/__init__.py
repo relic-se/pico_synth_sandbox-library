@@ -449,29 +449,32 @@ class Keyboard(Task):
             return
         
         if self.has_active_voice():
-
-            # Release voices without active notes
-            voices = self.get_active_voices()
-            self._release_voice([voice for voice in self.get_active_voices() if voice != notes])
-
-            # Remove currently active notes from list
-            voices = self.get_active_voices()
-            notes = filter(lambda note: voices != note, notes)
+            for voice in self.get_active_voices():
+                # Determine if voice has one of the notes in the buffer
+                has_note = False
+                for note in notes:
+                    if voice.note is note:
+                        has_note = True
+                        break
+                if not has_note:
+                    # Release voices without active notes
+                    self._release_voice(voice)
+                else:
+                    # Remove currently active notes from buffer
+                    notes.remove(voice.note)
 
         if not notes:
             return # No new notes
         
-        if not self.has_inactive_voices():
-            return # No voices left
-        
         # Activate new notes
-        voices = self.get_inactive_voices()
-        voice_index = 0
-        for note in notes:
-            self._press_voice(voices[voice_index], note)
-            voice_index += 1
-            if voice_index >= len(voices):
-                break
+        if self.has_inactive_voices(): # If no voices are available, it will ignore remaining notes
+            voices = self.get_inactive_voices()
+            voice_index = 0
+            for note in notes:
+                self._press_voice(voices[voice_index], note)
+                voice_index += 1
+                if voice_index >= len(voices):
+                    break
 
     def _press_voice(self, voice, note):
         voice.set_note(note)
