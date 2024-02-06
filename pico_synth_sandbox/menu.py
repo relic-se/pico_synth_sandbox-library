@@ -287,7 +287,7 @@ class WaveformMenuItem(ListMenuItem):
                     position=(i+j*wavelength,1)
                 )
         display.write(
-            value=self.get_item(),
+            value=self.get_label(),
             position=(12,0),
             length=4
         )
@@ -555,7 +555,7 @@ class FilterMenuGroup(MenuGroup):
         display.enable_horizontal_graph()
     def draw(self, display:Display):
         display.write(
-            self._type.get_item(),
+            self._type.get_label(),
             position=(0,1),
             length=2
         )
