@@ -202,16 +202,19 @@ class BooleanMenuItem(IntMenuItem):
     def get_label(self) -> str:
         return self._true_label if self.get() else self._false_label
 
-class RampNumberMenuItem(NumberMenuItem):
-    def __init__(self, title:str="", group:str="", step:float=0.1, initial:float=0.0, minimum:float=0.0, maximum:float=1.0, smoothing:float=2.0, loop:bool=False, update:function=None):
-        NumberMenuItem.__init__(self, title, group, step, initial, 0.0, 1.0, loop, update)
-        self._ramp_minimum = minimum
-        self._ramp_maximum = maximum
-        self._ramp_smoothing = smoothing
-    def get(self) -> float:
-        return map_value(math.pow(self._value, self._ramp_smoothing), self._ramp_minimum, self._ramp_maximum)
-    def get_relative(self) -> float:
-        return self._value
+class TimeMenuItem(NumberMenuItem):
+    def __init__(self, title:str="", group:str="", step:float=0.025, initial:float=0.0, minimum:float=0.001, maximum:float=4.0, smoothing:float=3.0, update:function=None):
+        NumberMenuItem.__init__(self, title, group,
+            step=step,
+            initial=initial,
+            minimum=minimum,
+            maximum=maximum,
+            smoothing=smoothing,
+            loop=False,
+            update=update
+        )
+    def get_label(self) -> str:
+        return "{:.1f}s".format(self.get()).replace("0.", ".")
 
 class BarMenuItem(NumberMenuItem):
     def __init__(self, title:str="", group:str="", step:float=1/16, initial:float=0.0, minimum:float=0.0, maximum:float=1.0, smoothing:float=1.0, update:function=None):
@@ -359,21 +362,16 @@ class MenuGroup(MenuItem):
 class AREnvelopeMenuGroup(MenuGroup):
     def __init__(self, envelopes:AREnvelope|tuple[AREnvelope], group:str=""):
         envelopes = tuple(envelopes)
-        self._attack = NumberMenuItem(
+        self._attack = TimeMenuItem(
             "Attack",
-            initial=envelopes[0].get_attack(),
-            maximum=2.0,
             update=apply_value(envelopes, AREnvelope.set_attack)
         )
-        self._release = NumberMenuItem(
+        self._release = TimeMenuItem(
             "Release",
-            initial=envelopes[0].get_release(),
-            maximum=2.0,
             update=apply_value(envelopes, AREnvelope.set_release)
         )
         self._amount = NumberMenuItem(
             "Amount",
-            initial=envelopes[0].get_amount(),
             step=0.05,
             update=apply_value(envelopes, AREnvelope.set_amount)
         )
@@ -412,10 +410,8 @@ class AREnvelopeMenuGroup(MenuGroup):
 class ADSREnvelopeMenuGroup(MenuGroup):
     def __init__(self, voices:Oscillator|tuple[Oscillator], group:str=""):
         voices = tuple(voices)
-        self._attack_time = NumberMenuItem(
+        self._attack_time = TimeMenuItem(
             title="Attack",
-            initial=voices[0]._attack_time,
-            maximum=2.0,
             update=apply_value(voices, Oscillator.set_envelope_attack_time)
         )
         self._attack_level = NumberMenuItem(
@@ -424,10 +420,8 @@ class ADSREnvelopeMenuGroup(MenuGroup):
             step=0.05,
             update=apply_value(voices, Oscillator.set_envelope_attack_level)
         )
-        self._decay_time = NumberMenuItem(
+        self._decay_time = TimeMenuItem(
             "Decay",
-            initial=voices[0]._decay_time,
-            maximum=2.0,
             update=apply_value(voices, Oscillator.set_envelope_decay_time)
         )
         self._sustain_level = NumberMenuItem(
@@ -436,10 +430,8 @@ class ADSREnvelopeMenuGroup(MenuGroup):
             step=0.05,
             update=apply_value(voices, Oscillator.set_envelope_sustain_level)
         )
-        self._release_time = NumberMenuItem(
+        self._release_time = TimeMenuItem(
             "Release",
-            initial=voices[0]._release_time,
-            maximum=2.0,
             update=apply_value(voices, Oscillator.set_envelope_release_time)
         )
         MenuGroup.__init__(self, (
@@ -631,9 +623,11 @@ class TuneMenuGroup(MenuGroup):
             maximum=1/12,
             update=update_fine
         )
-        self._glide = NumberMenuItem(
+        self._glide = TimeMenuItem(
             "Glide",
-            step=0.1,
+            step=0.05,
+            minimum=0.0,
+            maximum=2.0,
             update=update_glide
         )
         self._bend = BarMenuItem(
