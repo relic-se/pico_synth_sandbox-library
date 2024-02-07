@@ -37,6 +37,8 @@ class MenuItem:
         return ""
     def set(self, value):
         pass
+    def set_data(self, value):
+        self.set(value)
     def disable_title(self):
         self._title_enabled = False
     def navigate(self, step:int) -> bool:
@@ -315,6 +317,30 @@ class MenuGroup(MenuItem):
     
     def get(self) -> tuple:
         return tuple([item.get() for item in self._items])
+    def get_title(self) -> str:
+        return self._group
+    def get_data(self) -> dict:
+        data = {}
+        for item in self._items:
+            data[item.get_title()] = item.get_data()
+        return data
+    def get_item_by_title(self, title:str) -> MenuItem:
+        for item in self._items:
+            if item.get_title() == title:
+                return item
+        return None
+    def set_data(self, data:dict, reset:bool=True):
+        if reset:
+            self.reset(True)
+        for title in data:
+            item = self.get_item_by_title(title)
+            if item:
+                if isinstance(item, MenuGroup):
+                    item.set_data(data[title], False)
+                else:
+                    item.set_data(data[title])
+    def set(self, data:dict):
+        self.set_data(data)
     def disable_title(self):
         for item in self._items:
             item.disable_title()
@@ -328,7 +354,7 @@ class MenuGroup(MenuItem):
             self.get_current_item().disable()
             self._index = (self._index + step) % len(self._items)
             if issubclass(type(self.get_current_item()), MenuGroup):
-                self.get_current_item().enable(display, step < 0)
+                self.get_current_item().enable(display, False if force else step < 0)
             else:
                 self.get_current_item().enable(display)
             self.draw(display)
@@ -341,8 +367,15 @@ class MenuGroup(MenuItem):
         return self.get_current_item().increment()
     def decrement(self) -> bool:
         return self.get_current_item().decrement()
-    def reset(self) -> bool:
-        return self.get_current_item().reset()
+    def reset(self, full:bool=False) -> bool:
+        if full:
+            for item in self._items:
+                if isinstance(item, MenuGroup):
+                    item.reset(True)
+                else:
+                    item.reset()
+        else:
+            return self.get_current_item().reset()
     
     def enable(self, display:Display, last:bool = False):
         # NOTE: Don't call MenuItem.enable to avoid drawing MenuGroup
@@ -744,7 +777,7 @@ class OscillatorMenuGroup(MenuGroup):
             ),
             TuneMenuGroup(
                 update_coarse=apply_value(voices, Oscillator.set_coarse_tune),
-                update_fine=apply_value(voices, Oscillator.set_fine_tune, 1/12/16/12),
+                update_fine=apply_value(voices, Oscillator.set_fine_tune, 1/12/16),
                 update_glide=apply_value(voices, Oscillator.set_glide),
                 update_bend=apply_value(voices, Oscillator.set_pitch_bend_amount),
                 group="Tune"
@@ -793,6 +826,12 @@ class PatchMenuGroup(MenuGroup):
     def set(self, value:int, force:bool=False):
         if force:
             self._patch.set(value)
+    def set_data(self, data:dict, reset:bool=True):
+        if reset:
+            self.reset(True)
+        # Don't set index
+        if "Name" in data:
+            self._name.set_data(data["Name"], False)
     def get(self) -> int:
         return self._patch.get()
     def get_name(self) -> str:
@@ -810,6 +849,12 @@ class PatchMenuGroup(MenuGroup):
             return (14,0)
         else:
             return self._name.get_cursor_position()
+    def reset(self, full:bool=False) -> bool:
+        if full:
+            # Don't reset index
+            self._name.reset(True)
+        else:
+            return self.get_current_item().reset()
 
 class Menu(MenuGroup):
     def __init__(self, items:tuple, group:str = ""):
@@ -855,8 +900,8 @@ class Menu(MenuGroup):
         except:
             print("Failed to read JSON file: {}".format(path))
 
-        if not data:
+        if not data or not type(data) is dict:
             return False
         
-        self.set(data)
+        self.set_data(data)
         return True
