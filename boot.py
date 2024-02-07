@@ -16,6 +16,7 @@ usb_cdc.enable(console=True, data=False)
 free_module((storage, usb_hid, usb_cdc))
 
 # Create directories
+check_dir("/presets")
 check_dir("/samples")
 
 # Configure USB Midi
