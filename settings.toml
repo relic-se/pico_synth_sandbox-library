@@ -6,7 +6,7 @@ MIDI_UART=1 #bool
 MIDI_USB=0 #bool
 
 # Audio
-AUDIO_RATE=22050
+AUDIO_RATE=44100
 AUDIO_BUFFER=8192
 
 # Waveforms
