@@ -19,10 +19,12 @@ def apply_value(items:tuple, method:function|str, offset:float=0.0) -> function:
         return lambda value : [method(items[i], value) for i in range(len(items))]
 
 class MenuItem:
-    def __init__(self, title:str="", group:str=""):
+    def __init__(self, title:str="", group:str="", update:function=None):
         self._title = title
         self._group = group
+        self._update = update
         self._enabled = False
+        self._title_enabled = True
     def get_title(self) -> str:
         return self._title
     def get_group(self) -> str:
@@ -35,6 +37,8 @@ class MenuItem:
         return ""
     def set(self, value):
         pass
+    def disable_title(self):
+        self._title_enabled = False
     def navigate(self, step:int) -> bool:
         return True # Indicate to move on to another item
     def previous(self) -> bool:
@@ -51,24 +55,32 @@ class MenuItem:
         return self._enabled
     def enable(self, display:Display):
         self._enabled = True
-        title = ""
-        if self._group:
-            title += self._group
-            if self._title: title += ":"
-        if self._title:
-            title += self._title
-        if title:
-            display.write(title)
+        if self._title_enabled:
+            title = ""
+            if self._group:
+                title += self._group
+                if self._title: title += ":"
+            if self._title:
+                title += self._title
+            if title:
+                display.write(title)
+        self.set_cursor_position(display)
     def disable(self):
         self._enabled = False
     def draw(self, display:Display):
         display.write(self.get_label(), (0,1))
     def get_cursor_position(self) -> tuple:
         return (0,1)
+    def set_cursor_position(self, display:Display):
+        display.set_cursor_position(self.get_cursor_position())
+    def set_update(self, callback:function):
+        self._update = callback
+    def _do_update(self):
+        if self._update: self._update(self.get())
     
 class IntMenuItem(MenuItem):
     def __init__(self, title:str="", group:str="", step:int=1, initial:int=0, minimum:int=0, maximum:int=1, loop:bool=False, sign:bool=False, update:function=None):
-        MenuItem.__init__(self, title, group)
+        MenuItem.__init__(self, title, group, update)
         self._step = step
         self._initial = initial
         self._value = initial
@@ -76,7 +88,6 @@ class IntMenuItem(MenuItem):
         self._maximum = maximum
         self._loop = loop
         self._sign = sign
-        self._update = update
     def get(self) -> int:
         return self._value
     def get_relative(self) -> float:
@@ -120,14 +131,10 @@ class IntMenuItem(MenuItem):
             return False
         self._value = self._initial
         return True
-    def set_update(self, callback:function):
-        self._update = callback
-    def _do_update(self):
-        if self._update: self._update(self.get())
 
 class NumberMenuItem(MenuItem):
     def __init__(self, title:str="", group:str="", step:float=0.1, initial:float=0.0, minimum:float=0.0, maximum:float=1.0, smoothing:float=1.0, loop:bool=False, update:function=None):
-        MenuItem.__init__(self, title, group)
+        MenuItem.__init__(self, title, group, update)
         self._step = step
         self._initial = initial
         self._value = initial
@@ -135,7 +142,6 @@ class NumberMenuItem(MenuItem):
         self._maximum = maximum
         self._smoothing = smoothing
         self._loop = loop
-        self._update = update
     def has_smoothing(self) -> bool:
         return self._smoothing != 1.0
     def get(self) -> float:
@@ -191,10 +197,6 @@ class NumberMenuItem(MenuItem):
             return False
         self._value = self._initial
         return True
-    def set_update(self, callback:function):
-        self._update = callback
-    def _do_update(self):
-        if self._update: self._update(self.get())
 
 class BooleanMenuItem(IntMenuItem):
     def __init__(self, title:str="", group:str="", initial:bool=False, loop:bool=False, update:function=None, true_label:str="On", false_label:str="Off"):
@@ -228,6 +230,7 @@ class BarMenuItem(NumberMenuItem):
         NumberMenuItem.enable(self, display)
     def draw(self, display:Display):
         self.draw_bar(display)
+        self.set_cursor_position(display)
     def draw_bar(self, display:Display, position=(0,1), length=16, centered=False):
         minimum = 0.0 if self.has_smoothing() else self._minimum
         maximum = 1.0 if self.has_smoothing() else self._maximum
@@ -312,14 +315,9 @@ class MenuGroup(MenuItem):
     
     def get(self) -> tuple:
         return tuple([item.get() for item in self._items])
-    def get_data(self) -> tuple:
-        return tuple([item.get_data() for item in self._items])
-    def set(self, data:tuple):
-        if type(data) is tuple or type(data) is list:
-            for i in range(len(data)):
-                if i >= len(self._items):
-                    break
-                self._items[i].set(data[i])
+    def disable_title(self):
+        for item in self._items:
+            item.disable_title()
     
     def navigate(self, step:int, display:Display, force:bool=False) -> bool:
         if not force and issubclass(type(self.get_current_item()), MenuGroup) and not self.get_current_item().navigate(step, display):
@@ -363,6 +361,40 @@ class MenuGroup(MenuItem):
     def get_cursor_position(self) -> tuple:
         return self.get_current_item().get_cursor_position()
 
+CHARACTERS = " abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!-_#$%&+@~^"
+class CharMenuItem(IntMenuItem):
+    def __init__(self, title:str="", group:str="", update:function=None):
+        IntMenuItem.__init__(self, title, group, maximum=len(CHARACTERS)-1, loop=True, update=update)
+    def get_label(self) -> str:
+        return CHARACTERS[self._value]
+    def set(self, value:str):
+        if len(value) == 0:
+            return
+        IntMenuItem.set(self, CHARACTERS.index(value[0]))
+    def reset(self):
+        IntMenuItem.reset(self)
+
+class StringMenuItem(MenuGroup):
+    def __init__(self, group:str="", length:int=16, update:function=None):
+        self._length = length
+        MenuGroup.__init__(self, tuple([CharMenuItem(str(i+1)) for i in range(length)]), group)
+    def get_label(self) -> str:
+        return "".join([char.get_label() for char in self._items])
+    def get_data(self) -> str:
+        return self.get_label()
+    def set(self, value:str):
+        for i in range(min(len(value), self._length)):
+            self._items[i].set(value[i])
+    def set_data(self, value:str, reset:bool=True):
+        if reset:
+            self.reset(True)
+        self.set(value)
+    def draw(self, display:Display):
+        MenuItem.draw(self, display)
+        self.set_cursor_position(display)
+    def get_cursor_position(self) -> tuple:
+        return (self._index,1)
+
 class AREnvelopeMenuGroup(MenuGroup):
     def __init__(self, envelopes:AREnvelope|tuple[AREnvelope], group:str=""):
         envelopes = tuple(envelopes)
@@ -370,16 +402,16 @@ class AREnvelopeMenuGroup(MenuGroup):
             "Attack",
             update=apply_value(envelopes, AREnvelope.set_attack)
         )
-        self._release = TimeMenuItem(
-            "Release",
-            update=apply_value(envelopes, AREnvelope.set_release)
-        )
         self._amount = NumberMenuItem(
             "Amount",
             step=0.05,
             update=apply_value(envelopes, AREnvelope.set_amount)
         )
-        MenuGroup.__init__(self, (self._attack, self._release, self._amount), group)
+        self._release = TimeMenuItem(
+            "Release",
+            update=apply_value(envelopes, AREnvelope.set_release)
+        )
+        MenuGroup.__init__(self, (self._attack, self._amount, self._release), group)
     def enable(self, display:Display, last:bool = False):
         MenuGroup.enable(self, display, last)
         display.enable_vertical_graph()
@@ -401,6 +433,7 @@ class AREnvelopeMenuGroup(MenuGroup):
                 display.write_vertical_graph(amount, position=(attack_bars+i,1))
         for i in range(release_bars):
             display.write_vertical_graph(amount * ((i + 1) / release_bars), position=(15-i,1))
+        self.set_cursor_position(display)
     def get_cursor_position(self) -> tuple:
         x = 0
         if self._attack.is_enabled():
@@ -480,6 +513,7 @@ class ADSREnvelopeMenuGroup(MenuGroup):
                 value = sustain_level * ((i + 1) / release_bars),
                 position = (15-i,1)
             )
+        self.set_cursor_position(display)
     def get_cursor_position(self) -> tuple:
         x = 0
         if self._attack_time.is_enabled():
@@ -520,6 +554,7 @@ class LFOMenuGroup(MenuGroup):
     def draw(self, display:Display):
         self._depth.draw_bar(display, (0,1), 10)
         display.write("{:.1f}hz".format(self._rate.get()), position=(10,1), length=6, right_aligned=True)
+        self.set_cursor_position(display)
     def get_cursor_position(self) -> tuple:
         if self.get_current_item() is self._rate:
             return (10,1)
@@ -567,6 +602,7 @@ class FilterMenuGroup(MenuGroup):
             right_aligned=True
         )
         self._resonance.draw_bar(display, (10,1), 6)
+        self.set_cursor_position(display)
     def get_cursor_position(self) -> tuple:
         if self.get_current_item() is self._frequency:
             return (2,1)
@@ -606,6 +642,7 @@ class MixMenuGroup(MenuGroup):
             right_aligned=True
         )
         self._pan.draw_bar(display, (9,1), 6, True)
+        self.set_cursor_position(display)
     def get_cursor_position(self) -> tuple:
         if self.get_current_item() is self._pan:
             return (self._pan.get_bar_position(9,6),1)
@@ -669,6 +706,7 @@ class TuneMenuGroup(MenuGroup):
             right_aligned=True
         )
         self._bend.draw_bar(display, (13,1), 2, True)
+        self.set_cursor_position(display)
     def get_cursor_position(self) -> tuple:
         if self.get_current_item() is self._fine:
             return (self._fine.get_bar_position(5,2),1)
@@ -744,6 +782,34 @@ class OscillatorMenuGroup(MenuGroup):
                 group=group+"FltrLFO"
             )
         ), group)
+
+class PatchMenuGroup(MenuGroup):
+    def __init__(self, group:str="", count:int=16, update:function=None):
+        self._patch = IntMenuItem("Index", maximum=count-1, loop=True, update=lambda value: self._do_update())
+        self._name = StringMenuItem("Name")
+        MenuGroup.__init__(self, (self._patch, self._name), group)
+        self.disable_title()
+        self.set_update(update)
+    def set(self, value:int, force:bool=False):
+        if force:
+            self._patch.set(value)
+    def get(self) -> int:
+        return self._patch.get()
+    def get_name(self) -> str:
+        return self._name.get()
+    def enable(self, display:Display, last:bool = False):
+        MenuGroup.enable(self, display, last)
+        display.write(self._group, (0,0), 14)
+        self.set_cursor_position(display)
+    def draw(self, display:Display):
+        display.write("{:02d}".format(self._patch.get()+1), position=(14,0), length=2, right_aligned=True)
+        self._name.draw(display)
+        self.set_cursor_position(display)
+    def get_cursor_position(self) -> tuple:
+        if self.get_current_item() is self._patch:
+            return (14,0)
+        else:
+            return self._name.get_cursor_position()
 
 class Menu(MenuGroup):
     def __init__(self, items:tuple, group:str = ""):
