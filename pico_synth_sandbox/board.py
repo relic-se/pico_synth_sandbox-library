@@ -286,7 +286,7 @@ class Rev2(Board):
     spi_miso            = board.GP0
     spi_cs              = board.GP1
 
-    cpu_freq            = 250000000 # 125MHz => 200MHz, causes issues with LCD at 250MHz+
+    cpu_freq            = 250000000
 
 def get_board(name=None, overclock=True):
     if name is None:
