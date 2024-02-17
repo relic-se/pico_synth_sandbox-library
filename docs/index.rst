@@ -53,7 +53,6 @@ Table of Contents
     software
     examples
     library
-    build
 
 Indices and tables
 ==================
