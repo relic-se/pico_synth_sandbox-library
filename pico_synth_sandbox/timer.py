@@ -4,7 +4,7 @@
 
 from pico_synth_sandbox.tasks import Task
 from pico_synth_sandbox import clamp
-import time
+import time, asyncio
 
 class Timer(Task):
     """An abstract class to help handle timing functionality of the :class:`pico_synth_sandbox.arpeggiator.Arpeggiator` and :class:`pico_synth_sandbox.sequencer.Sequencer` classes. Note press and release timing is managed by bpm (beats per minute), steps (divisions of a beat), and gate (note duration during step).
@@ -51,7 +51,7 @@ class Timer(Task):
         self._release = None
         self._last_press = []
 
-        Task.__init__(self, update_frequency=1000) # Run as fast as possible
+        Task.__init__(self)
 
     def _update_timing(self, bpm=None, steps=None):
         if bpm: self._bpm = bpm
@@ -118,6 +118,16 @@ class Timer(Task):
         :rtype: bool
         """
         return self._enabled
+    def set_enabled(self, value:bool):
+        """Directly set whether or not the timer object is enabled (running).
+
+        :param value: The state of the timer.
+        :type value: bool
+        """
+        if value and not self._enabled:
+            self.enable()
+        elif not value and self._enabled:
+            self.disable()
     def enable(self):
         """Enable the timer object to start timing beat steps and triggering note press and release callbacks. The first step will immediately trigger.
         """
@@ -167,18 +177,24 @@ class Timer(Task):
     def _is_active(self):
         return self._enabled
 
-    def update(self):
+    async def update(self):
         """Update the timer object and call any relevant callbacks if a new beat step or the end of the gate of a step is reached. The actual functionality of this method will depend on the child class that utilizes the :class:`pico_synth_sandbox.timer.Timer` parent class.
         """
-        if not self._is_active(): return
-
-        now = time.monotonic()
-        if now >= self._now + self._step_time:
-            self._now = self._now + self._step_time
+        while True:
+            if not self._is_active():
+                break
             self._update()
             self._do_step()
-        if now - self._now > self._gate_duration:
-            self._do_release()
+            if self._last_press:
+                await self.sleep(self._gate_duration)
+                self._do_release()
+                await self.sleep(self._step_time - self._gate_duration)
+            else:
+                await self.sleep(self._step_time)
+    async def sleep(self, delay:float):
+        self._now += delay
+        await asyncio.sleep(self._now - time.monotonic())
+
     def _update(self):
         pass
 

@@ -20,7 +20,7 @@ display = Display(board)
 display.enable_horizontal_graph()
 display.write("PicoSynthSandbox", (0,0))
 display.write("Loading...", (0,1))
-display.update()
+display.force_update()
 
 audio = get_audio_driver(board)
 audio.mute()
@@ -32,7 +32,7 @@ root = fftfreq(
 )
 
 synth = Synth(audio)
-synth.add_voices(Sample(loop=True) for i in range(12))
+synth.add_voices(Sample(loop=True) for i in range(4))
 for voice in synth.voices:
     voice.load(sample_data, sample_rate, root)
     voice.set_envelope(
@@ -58,17 +58,13 @@ for voice in synth.voices:
     voice.set_pan_rate(random.randint(0,80)/100.0+0.1)
     voice.set_pan_depth(0.8)
 
-keyboard = get_keyboard_driver(board)
-def press(notenum, velocity, keynum=None):
-    if keynum is None:
-        keynum = (notenum - keyboard.root) % len(keyboard.keys)
-    synth.press(keynum, notenum=notenum)
-keyboard.set_press(press)
-def release(notenum, keynum=None):
-    if keynum is None:
-        keynum = (notenum - keyboard.root) % len(keyboard.keys)
-    synth.release(keynum)
-keyboard.set_release(release)
+keyboard = get_keyboard_driver(board, max_voices=len(synth.voices))
+def press(voice, notenum, velocity, keynum=None):
+    synth.press(voice, notenum, velocity)
+keyboard.set_voice_press(press)
+def release(voice, notenum, keynum=None):
+    synth.release(voice)
+keyboard.set_voice_release(release)
 
 type = 0
 semitone = 0
@@ -167,7 +163,7 @@ elif board.num_encoders() > 1:
 display.write("Tune    Filter  ", position=(0,0))
 display.set_cursor_enabled(True)
 display.set_cursor_blink(True)
-display.update()
+display.force_update()
 
 audio.unmute()
 

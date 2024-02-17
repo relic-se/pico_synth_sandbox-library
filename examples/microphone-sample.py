@@ -21,7 +21,7 @@ display = Display(board)
 display.enable_horizontal_graph()
 display.write("PicoSynthSandbox", (0,0))
 display.write("Loading...", (0,1))
-display.update()
+display.force_update()
 
 audio = get_audio_driver(board)
 synth = Synth(audio)
@@ -41,19 +41,15 @@ voice.set_filter(
     synth=synth
 )
 
-keyboard = get_keyboard_driver(board, root=60)
+keyboard = get_keyboard_driver(board, root=60, max_voices=1)
 
-def press(notenum, velocity, keynum=None):
-    if keynum is None:
-        keynum = (notenum - keyboard.root) % len(keyboard.keys)
+def voice_press(index, notenum, velocity, keynum=None):
     synth.press(0, notenum, velocity)
-keyboard.set_press(press)
+keyboard.set_voice_press(voice_press)
 
-def release(notenum, keynum=None):
-    if keynum is None:
-        keynum = (notenum - keyboard.root) % len(keyboard.keys)
+def voice_release(index, notenum, keynum=None):
     synth.release(0)
-keyboard.set_release(release)
+keyboard.set_voice_release(voice_release)
 
 microphone = Microphone(board)
 
@@ -63,7 +59,7 @@ class MicrophoneLevel(Task):
         self._max_level = 0.0
         self._update = update
         Task.__init__(self, update_frequency=5)
-    def update(self):
+    async def update(self):
         self._level = self._microphone.get_level()
         self._max_level = max(self._level, self._max_level)
         if self._update:
@@ -77,7 +73,7 @@ mic_level = MicrophoneLevel(microphone, update_level)
 
 def trigger():
     display.write("Recording")
-    display.update()
+    display.force_update()
 microphone.set_trigger(trigger)
 
 type = 0
@@ -125,7 +121,7 @@ def start_record():
     gc.collect()
 
     display.write("Waiting")
-    display.update()
+    display.force_update()
 
     sample_data = microphone.read(
         samples=4096,
@@ -134,7 +130,7 @@ def start_record():
     )
 
     display.write("Processing")
-    display.update()
+    display.force_update()
 
     # Normalize Volume
     sample_data = normalize(sample_data)
@@ -149,7 +145,7 @@ def start_record():
 
     display.clear()
     display.write("Complete!")
-    display.update()
+    display.force_update()
     time.sleep(0.5)
 
     reset_display()

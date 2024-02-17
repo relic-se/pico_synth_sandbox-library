@@ -153,5 +153,5 @@ class Voice:
         if update and not synth is None: self._update_filter(synth)
 
     # Loop
-    def update(self, synth):
+    async def update(self, synth):
         self._update_filter(synth)

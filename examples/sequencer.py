@@ -17,7 +17,7 @@ board = get_board()
 display = Display(board)
 display.write("PicoSynthSandbox", (0,0))
 display.write("Loading...", (0,1))
-display.update()
+display.force_update()
 display.set_cursor_enabled(True)
 display.set_cursor_blink(False)
 
@@ -62,11 +62,9 @@ def update_display():
         line += "*" if sequencer.has_note(i, voice) else "_"
     display.write(line, (0,1))
 
-keyboard = get_keyboard_driver(board)
-def key_press(notenum, velocity, keynum=None):
+keyboard = get_keyboard_driver(board, max_voices=0)
+def key_press(keynum, notenum, velocity):
     global sequencer
-    
-    if keynum is None: return
     
     position = keynum
     if len(keyboard.keys) < 16:
@@ -96,7 +94,7 @@ def key_press(notenum, velocity, keynum=None):
             track=voice
         )
         display.write("_", (position,1), 1)
-keyboard.set_press(key_press)
+keyboard.set_key_press(key_press)
 
 def update_alt_enc():
     global alt_enc

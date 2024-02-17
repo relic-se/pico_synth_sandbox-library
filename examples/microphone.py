@@ -16,7 +16,7 @@ display = Display(board)
 display.enable_horizontal_graph()
 display.write("PicoSynthSandbox", (0,0))
 display.write("Loading...", (0,1))
-display.update()
+display.force_update()
 
 microphone = Microphone(board)
 
@@ -32,7 +32,7 @@ class MicrophoneLevel(Task):
         Task.__init__(self, update_frequency=5)
     def set_update(self, callback):
         self._update = callback
-    def update(self):
+    async def update(self):
         self._level = self._microphone.get_level()
         self._prev_max_level = self._max_level
         self._max_level = max(self._level, self._max_level)
@@ -85,7 +85,7 @@ def start_record():
     pico_synth_sandbox.tasks.pause()
     display.clear()
     display.write("Waiting")
-    display.update()
+    display.force_update()
     microphone.record(
         name="test",
         samples=4096,
@@ -93,7 +93,7 @@ def start_record():
         clip=trigger_level*trigger_level_step
     )
     display.write("Complete!")
-    display.update()
+    display.force_update()
     time.sleep(1)
     display.clear()
     display_trigger()

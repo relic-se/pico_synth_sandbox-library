@@ -20,11 +20,11 @@ display = Display(board)
 display.enable_horizontal_graph()
 display.write("PicoSynthSandbox", (0,0))
 display.write("Loading...", (0,1))
-display.update()
+display.force_update()
 
 audio = get_audio_driver(board)
 synth = Synth(audio)
-synth.add_voices(Sample(loop=False) for i in range(12))
+synth.add_voices(Sample(loop=False) for i in range(4))
 for voice in synth.voices:
     voice.set_envelope(
         attack_time=0.05,
@@ -43,17 +43,13 @@ if not sample_files:
     print("No samples available. Try running \"make samples --always-make\" in the library root directory.")
     exit()
 
-keyboard = get_keyboard_driver(board, root=60)
-def press(notenum, velocity, keynum=None):
-    if keynum is None:
-        keynum = (notenum - keyboard.root) % len(keyboard.keys)
-    synth.press(keynum, notenum)
-keyboard.set_press(press)
-def release(notenum, keynum=None):
-    if keynum is None:
-        keynum = (notenum - keyboard.root) % len(keyboard.keys)
-    synth.release(keynum)
-keyboard.set_release(release)
+keyboard = get_keyboard_driver(board, root=60, max_voices=len(synth.voices))
+def press(voice, notenum, velocity, keynum=None):
+    synth.press(voice, notenum, velocity)
+keyboard.set_voice_press(press)
+def release(voice, notenum, keynum=None):
+    synth.release(voice)
+keyboard.set_voice_release(release)
 
 type = 0
 semitone = 0
@@ -117,7 +113,7 @@ def load_sample(write=True):
     audio.mute()
     if write:
         display.write("Loading...", (5,1))
-        display.update()
+        display.force_update()
 
     for voice in synth.voices:
         voice.unload()

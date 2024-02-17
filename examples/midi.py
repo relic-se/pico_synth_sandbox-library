@@ -15,7 +15,7 @@ board = get_board()
 display = Display(board)
 display.write("PicoSynthSandbox", (0,0))
 display.write("Loading...", (0,1))
-display.update()
+display.force_update()
 
 mod_value = 0
 
@@ -23,23 +23,19 @@ midi = Midi(board)
 midi.set_channel(1)
 midi.set_thru(True)
 
-keyboard = get_keyboard_driver(board)
+keyboard = get_keyboard_driver(board, max_voices=0)
 arpeggiator = Arpeggiator()
 keyboard.set_arpeggiator(arpeggiator)
 
-def press(notenum, velocity, keynum=None):
-    if keynum is None:
-        keynum = (notenum - keyboard.root) % len(keyboard.keys)
+def key_press(keynum, notenum, velocity):
     midi.send_note_on(notenum, velocity)
     display.write("*", (keynum,1), 1)
-keyboard.set_press(press)
+keyboard.set_key_press(key_press)
 
-def release(notenum, keynum=None):
-    if keynum is None:
-        keynum = (notenum - keyboard.root) % len(keyboard.keys)
+def key_release(keynum, notenum):
     midi.send_note_off(notenum)
     display.write("_", (keynum,1), 1)
-keyboard.set_release(release)
+keyboard.set_key_release(key_release)
 
 encoder = Encoder(board)
 def increment():

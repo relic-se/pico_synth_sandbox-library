@@ -5,7 +5,7 @@
 import time, asyncio
 from pico_synth_sandbox import clamp
 
-tasks = []
+_tasks = []
 
 class Task:
     def __init__(self, update_frequency=1):
@@ -13,8 +13,8 @@ class Task:
         self._async_paused = False
         self._async_task = None
         self.register()
-        global tasks
-        tasks.append(self)
+        global _tasks
+        _tasks.append(self)
     def set_update_frequency(self, frequency=1):
         self._async_time = max(1.0/float(clamp(frequency, 1, 1000)), 0.001)
     def register(self):
@@ -32,12 +32,14 @@ class Task:
             try:
                 start = time.monotonic()
                 if not self._async_paused:
-                    self.update()
+                    await self.update()
                 await asyncio.sleep(max(self._async_time - (time.monotonic() - start), 0.001))
             except asyncio.CancelledError:
                 break
-    def update(self):
+    async def update(self):
         pass
+    def force_update(self):
+        asyncio.run(self.update())
 
 def run():
     loop = asyncio.get_event_loop()
@@ -48,8 +50,9 @@ def run():
 def stop():
     asyncio.get_event_loop().stop()
 def pause():
-    for task in tasks:
+    global _tasks
+    for task in _tasks:
         task.pause()
 def resume():
-    for task in tasks:
+    for task in _tasks:
         task.resume()

@@ -2,7 +2,7 @@
 # 2024 Cooper Dalrymple - me@dcdalrymple.com
 # GPL v3 License
 
-import board, os
+import board, os, microcontroller
 from digitalio import DigitalInOut, Direction, Pull
 from rotaryio import IncrementalEncoder
 from busio import UART, SPI
@@ -14,6 +14,10 @@ import sdcardio
 import storage
 
 class Board:
+
+    def __init__(self, overclock:bool=True):
+        if overclock:
+            self.overclock()
 
     led = None
     def has_led(self):
@@ -182,6 +186,21 @@ class Board:
         vfs = storage.VfsFat(sdcard)
         storage.mount(vfs, path)
         return True
+    
+    cpu_freq = None
+    def can_overclock(self):
+        return not self.cpu_freq is None
+    def overclock(self, freq:int=None):
+        if freq is None and not self.cpu_freq is None:
+            freq = self.cpu_freq
+        elif freq is None:
+            return False
+        microcontroller.cpu.frequency = freq
+        return microcontroller.cpu.frequency == freq
+
+    def bootloader(self):
+        microcontroller.on_next_reset(microcontroller.RunMode.BOOTLOADER)
+        microcontroller.reset()
 
 class Rev1(Board):
     led                 = board.LED
@@ -195,12 +214,12 @@ class Rev1(Board):
     uart_tx             = board.GP4
     uart_rx             = board.GP5
 
-    lcd_rs          = board.GP20
-    lcd_en          = board.GP21
-    lcd_d4          = board.GP22
-    lcd_d5          = board.GP26
-    lcd_d6          = board.GP27
-    lcd_d7          = board.GP28
+    lcd_rs              = board.GP20
+    lcd_en              = board.GP21
+    lcd_d4              = board.GP22
+    lcd_d5              = board.GP26
+    lcd_d6              = board.GP27
+    lcd_d7              = board.GP28
 
     pwm_audio_left      = board.GP16
     pwm_audio_right     = board.GP17
@@ -243,12 +262,12 @@ class Rev2(Board):
     uart_tx             = board.GP4
     uart_rx             = board.GP5
 
-    lcd_rs          = board.GP7
-    lcd_en          = board.GP6
-    lcd_d4          = board.GP22
-    lcd_d5          = board.GP26
-    lcd_d6          = board.GP27
-    lcd_d7          = board.GP28
+    lcd_rs              = board.GP7
+    lcd_en              = board.GP6
+    lcd_d4              = board.GP22
+    lcd_d5              = board.GP26
+    lcd_d6              = board.GP27
+    lcd_d7              = board.GP28
 
     i2s_out_bit_clock   = board.GP19
     i2s_out_word_select = board.GP20
@@ -267,12 +286,14 @@ class Rev2(Board):
     spi_miso            = board.GP0
     spi_cs              = board.GP1
 
-def get_board(name=None):
+    cpu_freq            = 250000000 # 125MHz => 200MHz, causes issues with LCD at 250MHz+
+
+def get_board(name=None, overclock=True):
     if name is None:
         name = os.getenv("BOARD", "Rev2")
     if name == "Rev2":
-        return Rev2()
+        return Rev2(overclock)
     elif name == "Rev1":
-        return Rev1()
+        return Rev1(overclock)
     else:
-        return Board()
+        return Board(overclock)

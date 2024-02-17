@@ -17,7 +17,7 @@ board = get_board()
 display = Display(board)
 display.write("PicoSynthSandbox", (0,0))
 display.write("Loading...", (0,1))
-display.update()
+display.force_update()
 
 audio = get_audio_driver(board)
 synth = Synth(audio)
@@ -29,25 +29,29 @@ open_hat = OpenHat()
 synth.add_voice(closed_hat)
 synth.add_voice(open_hat)
 
-keyboard = get_keyboard_driver(board)
+keyboard = get_keyboard_driver(board, max_voices=1)
 arpeggiator = Arpeggiator()
 keyboard.set_arpeggiator(arpeggiator)
 
-def press(notenum, velocity, keynum=None):
-    if keynum is None:
-        keynum = (notenum - keyboard.root) % len(keyboard.keys)
-    synth.press(keynum % 12, notenum, velocity)
-    if keynum % 12 == 2: # Closed Hat
+def voice_press(voice, notenum, velocity, keynum=None):
+    voice = (notenum - keyboard.root) % len(synth.voices) # Ignore voice allocation
+    synth.press(voice, notenum, velocity)
+    if voice == 2: # Closed Hat
         synth.release(open_hat, True) # Force release
-    display.write("*", (keynum,1), 1)
-keyboard.set_press(press)
+keyboard.set_voice_press(voice_press)
 
-def release(notenum, keynum=None):
-    if keynum is None:
-        keynum = (notenum - keyboard.root) % len(keyboard.keys)
-    synth.release(keynum % 12)
+def voice_release(voice, notenum, keynum=None):
+    voice = (notenum - keyboard.root) % len(synth.voices) # Ignore voice allocation
+    synth.release(voice)
+keyboard.set_voice_release(voice_release)
+
+def key_press(keynum, notenum, velocity):
+    display.write("*", (keynum,1), 1)
+keyboard.set_key_press(key_press)
+
+def key_release(keynum, notenum):
     display.write("_", (keynum,1), 1)
-keyboard.set_release(release)
+keyboard.set_key_release(key_release)
 
 mod_value = 64
 encoder = Encoder(board)

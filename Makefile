@@ -26,7 +26,8 @@ LIB_SRCS := \
 	voice/oscillator \
 	voice/drum \
 	voice/sample \
-	microphone
+	microphone \
+	menu
 LIB_MPY = $(LIB_SRCS:%=$(LIB)/%.mpy)
 
 SRCS := boot.py

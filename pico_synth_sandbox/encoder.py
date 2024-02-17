@@ -65,7 +65,7 @@ class Encoder(Task):
         """
         self._long_press = callback
 
-    def update(self):
+    async def update(self):
         """Update the encoder logic and call any pre-defined callbacks if triggered.
         """
         position = self._encoder.position

@@ -2,6 +2,7 @@
 # 2023 Cooper Dalrymple - me@dcdalrymple.com
 # GPL v3 License
 
+import asyncio
 from pico_synth_sandbox.tasks import Task
 from pico_synth_sandbox import clamp, truncate_str, unmap_value
 import math
@@ -63,7 +64,7 @@ class Display(Task):
             self._buffer[0][position[1]][position[0]+x] = value[x]
         self._needs_update = True
 
-    def update(self, reset_cursor=True):
+    async def update(self, reset_cursor=True):
         """Write buffer to display. Must be called after any changes are made to the display for those changes to be visible.
 
         :param reset_cursor: It is required to manipulate the cursor position in order to make writes to the display. By default, the cursor is reset to the previous position if needed for other applications. If you would like to keep the cursor at it's newly written location, set this value as False.
@@ -121,6 +122,9 @@ class Display(Task):
         for y in range(2):
             for x in range(16):
                 self._buffer[0][y][x] = '\0'
+    
+    def force_update(self, reset_cursor=True):
+        asyncio.run(self.update(reset_cursor))
 
     def _sanitize_position(self, column, row=0):
         if type(column) is tuple:
@@ -231,6 +235,11 @@ class Display(Task):
                 char = 0x00 + int(math.floor((value - (segment*i+bar)) / bar))
             data.append(chr(char))
 
+        # Convert \0 to spaces
+        for i in range(len(data)):
+            if data[i] == '\0':
+                data[i] = " "
+
         for i in range(length):
             if vertical:
                 self._buffer[0][position[1]+(length-i-1)][position[0]] = data[i]
@@ -242,5 +251,5 @@ class Display(Task):
         self._write_graph(value, minimum, maximum, position, height, True, False)
 
     def write_horizontal_graph(self, value=0.0, minimum=0.0, maximum=1.0, position=(0,0), width=1, centered=False):
-        # NOTE: If horizontal centered, length must be divisible by 2.
+        # NOTE: If horizontally centered, length must be divisible by 2.
         self._write_graph(value, minimum, maximum, position, width, False, centered)
