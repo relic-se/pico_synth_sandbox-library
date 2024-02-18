@@ -291,7 +291,7 @@ class PWMAudio(Audio):
         """
         Audio.__init__(self, board.get_pwm_out(), voice_count)
 
-def get_audio_driver(board:object, voice_count:int=1):
+def get_audio_driver(board:object, voice_count:int=1) -> Audio:
     """Automatically generate the proper audio output object based on the board configuration.
 
     :param board: The global board instance.

@@ -6,6 +6,11 @@ Library Reference
     :inherited-members:
     :show-inheritance:
 
+.. automodule:: pico_synth_sandbox.board
+    :members:
+    :inherited-members:
+    :show-inheritance:
+
 .. automodule:: pico_synth_sandbox.display
     :members:
     :inherited-members:
