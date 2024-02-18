@@ -47,12 +47,45 @@ Table of Contents
 =================
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 4
+    :hidden:
 
-    Home<self>
-    software
+    Overview <self>
+
+.. toctree::
+    :caption: Installation
+    
+    install
+
+.. toctree::
+    :caption: Examples
+
     examples
-    library
+
+.. toctree::
+    :caption: Library Reference
+
+    library/global
+    library/tasks
+    library/board
+    library/display
+    library/encoder
+    library/audio
+    library/microphone
+    library/midi
+    library/keyboard
+    library/timer
+    library/waveform
+    library/synth
+    library/voice
+    library/menu
+
+.. toctree::
+    :caption: Other Links
+
+    Download from Github <https://github.com/dcooperdalrymple/pico_synth_sandbox/releases/latest/>
+    Latest Hardware <https://github.com/dcooperdalrymple/pico_synth_sandbox-hardware/release/latest/>
+    Project Website <https://pico-synth-sandbox.dcdalrymple.com/>
 
 Indices and tables
 ==================
