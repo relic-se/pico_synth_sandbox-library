@@ -121,7 +121,7 @@ class Display(Task):
                 self._buffer[0][y][x] = '\0'
     
     def force_update(self, reset_cursor=True):
-        asyncio.run(self.update(reset_cursor))
+        run_task(self.update(reset_cursor))
 
     def _sanitize_position(self, column, row=0):
         if type(column) is tuple:
