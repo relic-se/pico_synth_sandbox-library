@@ -2,7 +2,7 @@
 # 2023 Cooper Dalrymple - me@dcdalrymple.com
 # GPL v3 License
 
-import time, asyncio
+import gc, time, asyncio
 from pico_synth_sandbox import clamp
 
 _tasks = []
@@ -35,6 +35,7 @@ def cancel_tasks():
 
 def run():
     global _running
+    gc.collect()
     loop = get_loop()
     try:
         _running = True
