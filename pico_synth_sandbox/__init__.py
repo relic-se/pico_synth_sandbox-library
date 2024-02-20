@@ -3,7 +3,7 @@
 # GPL v3 License
 
 import gc, os, sys, board, math
-import ulab
+import ulab.utils
 import ulab.numpy as numpy
 
 # Global Constants

@@ -4,7 +4,6 @@
 
 import os, time
 from pico_synth_sandbox.tasks import Task
-from adafruit_debouncer import Debouncer
 
 class Key:
     """An abstract layer to use physical key objects with the :class:`pico_synth_sandbox.keyboard.Keyboard` class.
@@ -40,6 +39,7 @@ class DebouncerKey(Key):
     :type io_or_predicate: ROValueIO | Callable[[], bool]
     """
     def __init__(self, io_or_predicate, invert=False):
+        from adafruit_debouncer import Debouncer
         self._debouncer = Debouncer(io_or_predicate)
         self._inverted = invert
 

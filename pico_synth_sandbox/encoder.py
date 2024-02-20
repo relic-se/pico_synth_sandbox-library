@@ -3,7 +3,6 @@
 # GPL v3 License
 
 from pico_synth_sandbox.tasks import Task
-from adafruit_debouncer import Button
 
 class Encoder(Task):
     """Use the on-board encoder to control your program with simple function callbacks. Supports increment, decrement, click, double click, and long press actions.
@@ -13,6 +12,7 @@ class Encoder(Task):
         self._encoder, self._button_pin = board.get_encoder(index)
         self._value_when_pressed = value_when_pressed
         self._position = None
+        from adafruit_debouncer import Button
         self._button = Button(
             self._button_pin,
             short_duration_ms=200,

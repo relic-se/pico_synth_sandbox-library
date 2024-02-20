@@ -3,9 +3,7 @@
 # GPL v3 License
 
 from pico_synth_sandbox import resample
-import os
-import adafruit_wave
-import array
+import os, array
 import ulab.numpy as numpy
 
 class Microphone:
@@ -98,6 +96,7 @@ class Microphone:
             pass
 
         # Write to file
+        import adafruit_wave
         writer = adafruit_wave.open(filepath, mode="wb")
         writer.setframerate(self.desired_sample_rate)
         writer.setnchannels(1)

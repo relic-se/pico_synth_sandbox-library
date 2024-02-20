@@ -5,8 +5,6 @@
 # NOTE: If using module, close jumpers TP3 & TP4 for multi-key output, TP1 for serial interface (active-high), and TP2 for 16-key inputs (leave open for 8-key).
 
 from pico_synth_sandbox.keyboard import DebouncerKey, Keyboard
-import rp2pio
-import adafruit_pioasm
 import array
 
 tontouch_data = array.array('H', [0])
@@ -27,6 +25,9 @@ class TonTouchKeyboard(Keyboard):
     MODE_16KEY = 1
 
     def __init__(self, board, max_voices=1, root=None, input_mode=MODE_16KEY, invert_clk=True):
+        import rp2pio
+        import adafruit_pioasm
+        
         self._input_mode = input_mode
         self._input_bits = (input_mode + 1) * 8
         #self._invert_clk = invert_clk

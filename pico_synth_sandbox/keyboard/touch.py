@@ -3,7 +3,6 @@
 # GPL v3 License
 
 from pico_synth_sandbox.keyboard import DebouncerKey, Keyboard
-from touchio import TouchIn
 
 class TouchPad(DebouncerKey):
     """This class is used by the :class:`pico_synth_sandbox.keyboard.touch.TouchKeyboard` class to handle logic related to the capacitive touch inputs of the hardware platform.
@@ -12,6 +11,7 @@ class TouchPad(DebouncerKey):
     :type pin: :class:`microcontroller.Pin`
     """
     def __init__(self, pin):
+        from touchio import TouchIn
         DebouncerKey.__init__(self, TouchIn(pin))
 
 class TouchKeyboard(Keyboard):
