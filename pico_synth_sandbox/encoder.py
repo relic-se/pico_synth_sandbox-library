@@ -11,14 +11,15 @@ class Encoder(Task):
     """Use the on-board encoder to control your program with simple function callbacks. Supports increment, decrement, click, double click, and long press actions.
     """
 
-    def __init__(self, board, index=0):
+    def __init__(self, board, index=0, value_when_pressed=False):
         self._encoder, self._button_pin = board.get_encoder(index)
+        self._value_when_pressed = value_when_pressed
         self._position = None
         self._button = Button(
             self._button_pin,
             short_duration_ms=200,
             long_duration_ms=500,
-            value_when_pressed=False
+            value_when_pressed=self._value_when_pressed
         )
 
         self._increment = None
@@ -64,6 +65,14 @@ class Encoder(Task):
         :type callback: function
         """
         self._long_press = callback
+
+    def is_pressed(self) -> bool:
+        """Get the current state of the button pin without debouncing.
+
+        :return: state of the button, True = pressed, False = released
+        :rtype: bool
+        """
+        return self._button_pin.value == self._value_when_pressed
 
     async def update(self):
         """Update the encoder logic and call any pre-defined callbacks if triggered.
