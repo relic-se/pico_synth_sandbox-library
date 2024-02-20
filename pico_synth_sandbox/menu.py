@@ -132,6 +132,7 @@ class IntMenuItem(MenuItem):
         if self._value == self._initial:
             return False
         self._value = self._initial
+        self._do_update()
         return True
 
 class NumberMenuItem(MenuItem):
@@ -198,6 +199,7 @@ class NumberMenuItem(MenuItem):
         if self._value == self._initial:
             return False
         self._value = self._initial
+        self._do_update()
         return True
 
 class BooleanMenuItem(IntMenuItem):
