@@ -3,8 +3,6 @@
 # GPL v3 License
 
 from pico_synth_sandbox.tasks import Task
-from digitalio import DigitalInOut, Direction, Pull
-from rotaryio import IncrementalEncoder
 from adafruit_debouncer import Button
 
 class Encoder(Task):

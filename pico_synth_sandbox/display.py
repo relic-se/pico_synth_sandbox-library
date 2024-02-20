@@ -2,12 +2,9 @@
 # 2023 Cooper Dalrymple - me@dcdalrymple.com
 # GPL v3 License
 
-import asyncio
-from pico_synth_sandbox.tasks import Task
+from pico_synth_sandbox.tasks import Task, run_task
 from pico_synth_sandbox import clamp, truncate_str, unmap_value
 import math
-from digitalio import DigitalInOut
-from adafruit_character_lcd.character_lcd import Character_LCD_Mono
 
 class Display(Task):
     """Control the connected 16x2 character display (aka *1602*). Hardware connections are abstracted and text writing and cursor management is simplified.

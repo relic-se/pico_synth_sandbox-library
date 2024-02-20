@@ -3,7 +3,7 @@
 # GPL v3 License
 
 import os
-from pico_synth_sandbox import fftfreq, LOG_2, clamp
+from pico_synth_sandbox import fftfreq, LOG_2
 from pico_synth_sandbox.voice import Voice
 from pico_synth_sandbox.voice.oscillator import Oscillator
 import pico_synth_sandbox.waveform as waveform
