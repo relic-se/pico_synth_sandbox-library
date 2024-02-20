@@ -333,13 +333,14 @@ class MenuGroup(MenuItem):
     def set_data(self, data:dict, reset:bool=True):
         if reset:
             self.reset(True)
-        for title in data:
-            item = self.get_item_by_title(title)
-            if item:
-                if isinstance(item, MenuGroup):
-                    item.set_data(data[title], False)
-                else:
-                    item.set_data(data[title])
+        if type(data) is dict:
+            for title in data:
+                item = self.get_item_by_title(title)
+                if item:
+                    if isinstance(item, MenuGroup):
+                        item.set_data(data[title], False)
+                    else:
+                        item.set_data(data[title])
     def set(self, data:dict):
         self.set_data(data)
     def disable_title(self):
@@ -879,7 +880,7 @@ class PatchMenuGroup(MenuGroup):
         if reset:
             self.reset(True)
         # Don't set index
-        if "Name" in data:
+        if type(data) is dict and "Name" in data:
             self._name.set_data(data["Name"], False)
     def get(self) -> int:
         return self._patch.get()
