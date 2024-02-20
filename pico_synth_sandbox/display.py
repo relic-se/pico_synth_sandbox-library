@@ -71,6 +71,7 @@ class Display(Task):
         # Exit early if no buffer updates recorded
         if not self._needs_update:
             return
+        self._needs_update = False # Prevent future unnecessary update
 
         # Locate the end of front buffer data
         end = -1
