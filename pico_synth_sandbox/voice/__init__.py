@@ -199,9 +199,13 @@ class AREnvelope:
 
 class Voice:
     """A "voice" to be used with a :class:`pico_synth_sandbox.synth.Synth` object. Manages one or multiple :class:`synthio.Note` objects to be used with the primary :class:`synthio.Synthesizer` object.
+    
+    The standard :class:`pico_synth_sandbox.voice.Voice` class is not meant to be used directly but instead inherited by one of the provided voice classes or within a custom class. This class helps manage note frequency, velocity, and filter state and provides an interface with a :class:`pico_synth_sandbox.synth.Synth` object.
     """
     
     def __init__(self):
+        """Constructor method
+        """
         self._notenum = -1
         self._velocity = 0.0
 
@@ -212,42 +216,78 @@ class Voice:
 
         self._velocity_amount = 1.0
 
-    def get_notes(self):
+    def get_notes(self) -> list[synthio.Note]:
+        """Get all :class:`synthio.Note` objects attributed to this voice. Used by the :class:`pico_synth_sandbox.synth.Synth` to handle press and release states.
+
+        :return: list of note objects
+        :rtype: list[:class:`synthio.Note`]
+        """
         return []
-    def get_blocks(self):
+    
+    def get_blocks(self) -> list[synthio.BlockInput]:
+        """Get all :class:`synthio.BlockInput` objects attributed to this voice. Needed to register all block inputs within a :class:`pico_synth_sandbox.synth.Synth` object.
+
+        :return: list of blocks
+        :rtype: list[:class:`synthio.BlockInput`]
+        """
         return []
 
-    def press(self, notenum, velocity=1.0):
+    def press(self, notenum:int, velocity:float=1.0) -> bool:
+        """Update the voice to be "pressed" with a specific MIDI note number and velocity. Returns whether or not a new note is received to avoid unnecessary retriggering. The envelope is updated with the new velocity value regardless. Updating :class:`synthio.Note` objects should typically occur within the child class after calling this method and checking its return value.
+
+        :param notenum: The MIDI note number representing the note frequency.
+        :type notenum: int
+        :param velocity: The strength at which the note was received, between 0.0 and 1.0.
+        :type velocity: float
+        :return: if a new note was received
+        :rtype: bool
+        """
         self._velocity = velocity
         self._update_envelope()
         if notenum == self._notenum: return False
         self._notenum = notenum
         return True
-    def release(self):
+    
+    def release(self) -> bool:
+        """Release the voice if a note is currently being played. Updating :class:`synthio.Note` objects should typically occur within the child class after calling this method and checking its return value.
+
+        :return: Whether or not a note was currently being played
+        :rtype: bool
+        """
         if self._notenum <= 0: return False
         self._notenum = 0
         return True
 
-    def set_level(self, value):
+    def set_level(self, value:float):
+        """Change the overall volume of the voice. This method should be implemented within the child class.
+
+        :param value: the level of the voice from 0.0 to 1.0
+        :type value: float
+        """
         pass
 
     # Velocity
-    def _get_velocity_mod(self):
+    def _get_velocity_mod(self) -> float:
         return 1.0 - (1.0 - clamp(self._velocity)) * self._velocity_amount
-    def set_velocity_amount(self, value):
+    def set_velocity_amount(self, value:float):
+        """Set the amount that this voice will respond to note velocity, from 0.0 to 1.0. A value of 0.0 represents no response to velocity. The voice will be at full level regardless of note velocity. Whereas a value of 1.0 represents full response to velocity.
+
+        :param value: the amount of velocity response from 0.0 to 1.0
+        :type value: float
+        """
         self._velocity_amount = value
     def _update_envelope(self):
         pass
 
     # Filter
-    def _get_filter_type(self):
+    def _get_filter_type(self) -> int:
         return self._filter_type
-    def _get_filter_frequency_value(self):
+    def _get_filter_frequency_value(self) -> float:
         return self._filter_frequency
-    def _get_filter_frequency(self, sample_rate=None):
+    def _get_filter_frequency(self, sample_rate:int=None) -> float:
         range = get_filter_frequency_range(sample_rate)
         return map_value(self._get_filter_frequency_value(), range[0], range[1])
-    def _get_filter_resonance(self):
+    def _get_filter_resonance(self) -> float:
         range = get_filter_resonance_range()
         return map_value(self._filter_resonance, range[0], range[1])
 
@@ -264,16 +304,59 @@ class Voice:
         for note in self.get_notes():
             note.filter = filter
 
-    def set_filter_type(self, value, synth=None, update=True):
+    def set_filter_type(self, value:int, synth=None, update:bool=True):
+        """Change the type of filter used by the voice. Use one of the filter type constants provided by :class:`pico_synth_sandbox.synth.Synth` such as :class:`pico_synth_sandbox.synth.Synth.FILTER_LPF`.
+
+        :param value: The type of filter (LPF=0, HPF=1, BPF=2). An invalid type will default to a band pass filter.
+        :type value: int
+        :param synth: The governing :class:`pico_synth_sandbox.synth.Synth` object. Must be provided in order to immediately update the filter.
+        :type synth: :class:`pico_synth_sandbox.synth.Synth`
+        :param update: Whether or not to immediately update the voice's filter. Defaults to `True`.
+        :type update: bool
+        """
         self._filter_type = value
         if update and not synth is None: self._update_filter(synth)
-    def set_filter_frequency(self, value, synth=None, update=True):
+
+    def set_filter_frequency(self, value:float, synth=None, update:bool=True):
+        """Change the frequency of the filter used by the voice. Value provided is a relative number from 0.0 (low frequency) to 1.0 (high frequency). The actual frequency range allowed by the voice is determined by the sample rate of output.
+
+        :param value: The frequency of the filter from 0.0 to 1.0.
+        :type value: float
+        :param synth: The governing :class:`pico_synth_sandbox.synth.Synth` object. Must be provided in order to immediately update the filter.
+        :type synth: :class:`pico_synth_sandbox.synth.Synth`
+        :param update: Whether or not to immediately update the voice's filter. Defaults to `True`.
+        :type update: bool
+        """
         self._filter_frequency = value
         if update and not synth is None: self._update_filter(synth)
-    def set_filter_resonance(self, value, synth=None, update=True):
+
+    def set_filter_resonance(self, value:float, synth=None, update:bool=True):
+        """Change the resonance of the filter used by the voice. Value provided is a relative number from 0.0 to 1.0. The actual resonance range allowed by the voice is determined by library defaults (typically 0.7 to 8.0 to avoid feedback).
+
+        :param value: The resonance of the filter from 0.0 to 1.0.
+        :type value: float
+        :param synth: The governing :class:`pico_synth_sandbox.synth.Synth` object. Must be provided in order to immediately update the filter.
+        :type synth: :class:`pico_synth_sandbox.synth.Synth`
+        :param update: Whether or not to immediately update the voice's filter. Defaults to `True`.
+        :type update: bool
+        """
         self._filter_resonance = value
         if update and not synth is None: self._update_filter(synth)
-    def set_filter(self, type=0, frequency=1.0, resonance=0.0, synth=None, update=True):
+
+    def set_filter(self, type:int=0, frequency:float=1.0, resonance:float=0.0, synth=None, update:bool=True):
+        """Define all settings of the filter used by the voice.
+
+        :param type: The type of filter (LPF=0, HPF=1, BPF=2). An invalid type will default to a band pass filter.
+        :type type: int
+        :param frequency: The frequency of the filter from 0.0 to 1.0. Actual frequency is determined by sample rate of audio output.
+        :type frequency: float
+        :param resonance: The resonance of the filter from 0.0 to 1.0. Actual resonance range is determined by library defaults (typically 0.7 to 8.0).
+        :type resonance: float
+        :param synth: The governing :class:`pico_synth_sandbox.synth.Synth` object. Must be provided in order to immediately update the filter.
+        :type synth: :class:`pico_synth_sandbox.synth.Synth`
+        :param update: Whether or not to immediately update the voice's filter. Defaults to `True`.
+        :type update: bool
+        """
         self.set_filter_type(type, update=False)
         self.set_filter_frequency(frequency, update=False)
         self.set_filter_resonance(resonance, update=False)
@@ -281,4 +364,9 @@ class Voice:
 
     # Loop
     async def update(self, synth):
+        """Update all time-based voice logic controlled outside of `synthio` such as filter modulation.
+
+        :param synth: The :class:`pico_synth_sandbox.synth.Synth` object managing the voice. Used to obtain sample rate and calculate filters.
+        :type synth: :class:`pico_synth_sandbox.synth.Synth`
+        """
         self._update_filter(synth)
