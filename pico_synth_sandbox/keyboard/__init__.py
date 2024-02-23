@@ -238,7 +238,7 @@ class Keyboard(Task):
     """int: When the keyboard is set as this mode, it will prioritize notes by the order in when they were played/appended.
     """
 
-    def __init__(self, keys:list=[], max_voices:int=1, root:int=None):
+    def __init__(self, keys:list[Key]=[], max_voices:int=1, root:int=None):
         """Constructor method
         """
         if root is None:
