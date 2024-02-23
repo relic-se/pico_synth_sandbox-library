@@ -27,11 +27,11 @@ class LerpBlockInput:
         )
         self.lerp = synthio.Math(synthio.MathOperation.CONSTRAINED_LERP, value, value, self.position)
 
-    def get(self) -> synthio.Math:
+    def get(self) -> synthio.BlockInput:
         """Get the block input to be used with a :class:`synthio.Note` object.
 
         :return: linear interpolation block input
-        :rtype: :class:`synthio.Math`
+        :rtype: :class:`synthio.BlockInput`
         """
         return self.lerp
     
@@ -78,43 +78,121 @@ class LerpBlockInput:
         return self.position.rate
 
 class AREnvelope:
-    def __init__(self, attack=0.05, release=0.05, amount=1.0):
+    """A simple attack, sustain and release envelope using linear interpolation. Useful for controlling parameters of a :class:`synthio.Note` object other than amplitude which accept :class:`synthio.BlockInput` values.
+
+    :param attack: The amount of time to go from 0.0 to the specified amount in seconds when the envelope is pressed. Must be greater than 0.0s.
+    :type attack: float
+    :param release: The amount of time to go from the specified amount back to 0.0 in seconds when the envelope is released. Must be greater than 0.0s.
+    :type release: float
+    :param amount: The level at which to rise or fall to when the envelope is pressed. Value is arbitrary and can be positive or negative, but 0.0 will result in no change.
+    :type amount: float
+    """
+
+    def __init__(self, attack:float=0.05, release:float=0.05, amount:float=1.0):
+        """Constructor method
+        """
         self._pressed = False
         self._lerp = LerpBlockInput()
         self.set_attack(attack)
         self.set_release(release)
         self.set_amount(amount)
-    def get(self):
+
+    def get(self) -> synthio.BlockInput:
+        """Get the :class:`synthio.BlockInput` object to be applied to a parameter.
+
+        :return: envelope block input
+        :rtype: :class:`synthio.BlockInput`
+        """
         return self._lerp.get()
-    def get_blocks(self):
+    
+    def get_blocks(self) -> list[synthio.BlockInput]:
+        """Get all blocks used by this object. In order for it to function properly, these blocks must be added to the primary :class:`synthio.Synthesizer` object using `synth.blocks.append(...)` or to a :class:`pico_synth_sandbox.synth.Synth` object using `synth.append(...)`.
+
+        :return: list of blocks
+        :rtype: list[:class:`synthio.BlockInput`]
+        """
         return self._lerp.get_blocks()
-    def get_value(self):
+    
+    def get_value(self) -> float:
+        """Get the current value of the envelope.
+
+        :return: envelope value
+        :rtype: float
+        """
         return self._lerp.get_value()
-    def is_pressed(self):
+    
+    def is_pressed(self) -> bool:
+        """Check whether or not the envelope is currently in a "pressed" state.
+
+        :return: if the envelope is pressed
+        :rtype: bool
+        """
         return self._pressed
-    def set_attack(self, value):
+    
+    def set_attack(self, value:float):
+        """Change the attack time in seconds. If the envelope is currently in the attack state, it will update the rate immediately.
+
+        :param value: The amount of time to go from 0.0 to the specified amount in seconds when the envelope is pressed. Must be greater than 0.0s.
+        :type value: float
+        """
         self._attack_time = value
         if self._pressed:
             self._lerp.set_rate(self._attack_time)
-    def get_attack(self):
+
+    def get_attack(self) -> float:
+        """Get the rate of attack in seconds.
+
+        :return: attack time in seconds
+        :rtype: float
+        """
         return self._attack_time
+    
     def set_release(self, value):
+        """Change the release time in seconds. If the envelope is currently in the release state, it will update the rate immediately.
+
+        :param value: The amount of time to go from the specified amount back to 0.0 in seconds when the envelope is released. Must be greater than 0.0s.
+        :type value: float
+        """
         self._release_time = value
         if not self._pressed:
             self._lerp.set_rate(self._release_time)
-    def get_release(self):
+
+    def get_release(self) -> float:
+        """Get the rate of release in seconds.
+
+        :return: release time in seconds
+        :rtype: float
+        """
         return self._release_time
+    
     def set_amount(self, value):
+        """Update the value at which the envelope will rise (or fall) to. If the envelope is currently in the attack/press state, the targeted value will be updated immediately.
+
+        :param value: The level at which to rise or fall to when the envelope is pressed. Value is arbitrary and can be positive or negative, but 0.0 will result in no change.
+        :type value: float
+        """
         self._amount = value
         if self._pressed:
             self._lerp.set(self._amount)
-    def get_amount(self):
+
+    def get_amount(self) -> float:
+        """Get the envelope amount (or sustained value).
+
+        :return: envelope amount
+        :rtype: float
+        """
         return self._amount
+    
     def press(self):
+        """Active the envelope by setting it into the "pressed" state. The envelope's attack phase will start immediately.
+        """
         self._pressed = True
         self._lerp.set_rate(self._attack_time)
         self._lerp.set(self._amount)
+
     def release(self):
+        """Deactivate the envelope by setting it into the "released" state. The envelope's release phase will start immediately.
+        """
         self._lerp.set_rate(self._release_time)
         self._lerp.set(0.0)
         self._pressed = False
