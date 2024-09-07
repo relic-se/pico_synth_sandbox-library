@@ -5,7 +5,6 @@
 from pico_synth_sandbox.tasks import Task
 from pico_synth_sandbox import clamp
 import os, time
-import usb_midi
 import adafruit_midi
 from adafruit_midi.note_on import NoteOn
 from adafruit_midi.note_off import NoteOff
@@ -39,6 +38,7 @@ class Midi(Task):
             self._uart_midi = None
 
         if os.getenv("MIDI_USB", 0) > 0:
+            import usb_midi
             self._usb_midi = adafruit_midi.MIDI(
                 midi_in=usb_midi.ports[0],
                 midi_out=usb_midi.ports[1],

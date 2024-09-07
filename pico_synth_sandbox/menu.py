@@ -132,6 +132,7 @@ class IntMenuItem(MenuItem):
         if self._value == self._initial:
             return False
         self._value = self._initial
+        self._do_update()
         return True
 
 class NumberMenuItem(MenuItem):
@@ -198,6 +199,7 @@ class NumberMenuItem(MenuItem):
         if self._value == self._initial:
             return False
         self._value = self._initial
+        self._do_update()
         return True
 
 class BooleanMenuItem(IntMenuItem):
@@ -278,8 +280,14 @@ class WaveformMenuItem(ListMenuItem):
         ListMenuItem.enable(self, display)
         display.enable_vertical_graph()
     def draw(self, display:Display):
+        self.draw_waveform(display)
+        display.write(
+            value=self.get_label(),
+            position=(12,0),
+            length=4
+        )
+    def draw_waveform(self, display:Display, periods:int=2):
         wave = self.get_waveform()
-        periods = 2
         wavelength = 16//periods
         segment = len(wave)//wavelength
         amplitude = waveform.get_amplitude()
@@ -291,11 +299,6 @@ class WaveformMenuItem(ListMenuItem):
                     maximum=amplitude,
                     position=(i+j*wavelength,1)
                 )
-        display.write(
-            value=self.get_label(),
-            position=(12,0),
-            length=4
-        )
     def get_cursor_position(self) -> tuple:
         return (12,0)
 
@@ -332,13 +335,14 @@ class MenuGroup(MenuItem):
     def set_data(self, data:dict, reset:bool=True):
         if reset:
             self.reset(True)
-        for title in data:
-            item = self.get_item_by_title(title)
-            if item:
-                if isinstance(item, MenuGroup):
-                    item.set_data(data[title], False)
-                else:
-                    item.set_data(data[title])
+        if type(data) is dict:
+            for title in data:
+                item = self.get_item_by_title(title)
+                if item:
+                    if isinstance(item, MenuGroup):
+                        item.set_data(data[title], False)
+                    else:
+                        item.set_data(data[title])
     def set(self, data:dict):
         self.set_data(data)
     def disable_title(self):
@@ -427,6 +431,56 @@ class StringMenuItem(MenuGroup):
         self.set_cursor_position(display)
     def get_cursor_position(self) -> tuple:
         return (self._index,1)
+
+class WaveformMenuGroup(MenuGroup):
+    def __init__(self, voices:Oscillator|tuple[Oscillator], group:str=""):
+        self._voices = tuple(voices)
+        self._waveform = WaveformMenuItem(update=apply_value(self._voices, Oscillator.set_waveform))
+        self._loop_start = NumberMenuItem("LoopStart", step=0.01, initial=0.0, update=lambda value : self.update_loop())
+        self._loop_end = NumberMenuItem("LoopEnd", step=0.01, initial=1.0, update=lambda value : self.update_loop())
+        MenuGroup.__init__(self, (self._waveform, self._loop_start, self._loop_end), group)
+        self.disable_title()
+    def update_loop(self):
+        print((self._loop_start.get(), self._loop_end.get()))
+        for voice in self._voices:
+            voice.set_loop(self._loop_start.get(), self._loop_end.get())
+    def enable(self, display:Display, last:bool = False):
+        MenuGroup.enable(self, display, last)
+        display.enable_vertical_graph()
+    def draw(self, display:Display):
+        if self.get_current_item() is self._waveform:
+            self._waveform.draw_waveform(display)
+            display.write(self._group, (0,0), 12)
+            display.write(
+                value=self._waveform.get_label(),
+                position=(12,0),
+                length=4
+            )
+        else:
+            self._waveform.draw_waveform(display, 1)
+            display.write(self.get_loop_str(), (0,0), 16)
+        self.set_cursor_position(display)
+    def get_start_pos(self) -> int:
+        return round(self._loop_start.get() * 15.0)
+    def get_end_pos(self) -> int:
+        return round(self._loop_end.get() * 15.0)
+    def get_loop_str(self) -> str:
+        value = [" " for i in range(16)]
+        start = self.get_start_pos()
+        end = self.get_end_pos()
+        if start == end:
+            value[start] = "O"
+        else:
+            value[start] = "["
+            value[end] = "]"
+        return "".join(value)
+    def get_cursor_position(self) -> tuple:
+        if self.get_current_item() is self._loop_start:
+            return (self.get_start_pos(),0)
+        elif self.get_current_item() is self._loop_end:
+            return (self.get_end_pos(),0)
+        else:
+            return (12,0)
 
 class AREnvelopeMenuGroup(MenuGroup):
     def __init__(self, envelopes:AREnvelope|tuple[AREnvelope], group:str=""):
@@ -782,9 +836,7 @@ class OscillatorMenuGroup(MenuGroup):
                 update_bend=apply_value(voices, Oscillator.set_pitch_bend_amount),
                 group="Tune"
             ),
-            WaveformMenuItem(
-                update=apply_value(voices, Oscillator.set_waveform)
-            ),
+            WaveformMenuGroup(voices, "Waveform"),
             FilterMenuGroup(voices, "Filter"),
             ADSREnvelopeMenuGroup(
                 voices,
@@ -830,7 +882,7 @@ class PatchMenuGroup(MenuGroup):
         if reset:
             self.reset(True)
         # Don't set index
-        if "Name" in data:
+        if type(data) is dict and "Name" in data:
             self._name.set_data(data["Name"], False)
     def get(self) -> int:
         return self._patch.get()

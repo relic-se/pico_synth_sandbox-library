@@ -3,3 +3,4 @@ adafruit_debouncer
 adafruit_midi
 adafruit_character_lcd
 adafruit_wave
+adafruit_pioasm

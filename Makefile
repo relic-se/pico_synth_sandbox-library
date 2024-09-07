@@ -35,15 +35,15 @@ SETTINGS = settings.toml
 SAMPLES_DIR = ./samples
 SAMPLES := $(shell find $(SAMPLES_DIR) -type f)
 
-all: upload
-
-upload: clean $(LIB_MPY:%=./%) src lib requirements settings samples
-
-update: clean $(LIB_MPY:%=./%) src lib requirements
+all: package
 
 compile: clean $(LIB_MPY:%=./%)
 
-package: clean $(LIB_MPY:%=./%) zip
+upload: compile src lib requirements settings samples
+
+update: compile src lib requirements
+
+package: compile zip
 
 clean:
 	@rm $(LIB_MPY) || true

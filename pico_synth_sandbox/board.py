@@ -4,14 +4,6 @@
 
 import board, os, microcontroller
 from digitalio import DigitalInOut, Direction, Pull
-from rotaryio import IncrementalEncoder
-from busio import UART, SPI
-from adafruit_character_lcd.character_lcd import Character_LCD_Mono
-from audiopwmio import PWMAudioOut
-from audiobusio import I2SOut
-from audiobusio import PDMIn
-import sdcardio
-import storage
 
 class Board:
     """A hardware abstraction configuration utility to quickly designate between the capabilities and GPIO assignments of different board types. Official board revisions are provided, but custom board implementations can be defined by inheriting this class and defining public attributes.
@@ -65,6 +57,7 @@ class Board:
         """
         if not self.has_encoders() or len(self.encoders) <= index or not len(self.encoders[index]) in [2,3]:
             return None
+        from rotaryio import IncrementalEncoder
         encoder = IncrementalEncoder(self.encoders[index][0], self.encoders[index][1])
         button = None
         if len(self.encoders[index]) == 3:
@@ -109,6 +102,7 @@ class Board:
         return not self.uart_tx is None and not self.uart_rx is None
     def get_uart(self, baudrate=31250) -> UART:
         if not self.has_uart(): return None
+        from busio import UART
         return UART(
             tx=self.uart_tx,
             rx=self.uart_rx,
@@ -151,6 +145,7 @@ class Board:
         :rtype: :class:`adafruit_character_lcd.character_lcd.Character_LCD_Mono`
         """
         if not self.has_lcd(): return None
+        from adafruit_character_lcd.character_lcd import Character_LCD_Mono
         return Character_LCD_Mono(
             DigitalInOut(self.lcd_rs),
             DigitalInOut(self.lcd_en),
@@ -182,6 +177,7 @@ class Board:
         :rtype: :class:`audiopwmio.PWMAudioOut`
         """
         if not self.has_pwm_out(): return None
+        from audiopwmio import PWMAudioOut
         return PWMAudioOut(
             left_channel=self.pwm_out_left,
             right_channel=self.pwm_out_right
@@ -210,6 +206,7 @@ class Board:
         :rtype: :class:`audiobusio.I2SOut`
         """
         if not self.has_i2s_out(): return None
+        from audiobusio import I2SOut
         return I2SOut(
             bit_clock=self.i2s_out_bit_clock,
             word_select=self.i2s_out_word_select,
@@ -269,6 +266,7 @@ class Board:
         :rtype: :class:`audiobusio.PDMIn`
         """
         if not self.has_pdm(): return None
+        from audiobusio import PDMIn
         return PDMIn(
             clock_pin=self.pdm_clock,
             data_pin=self.pdm_data,
@@ -357,6 +355,7 @@ class Board:
         :rtype: :class:`busio.SPI`
         """
         if not self.has_spi(): return None
+        from busio import SPI
         return SPI(
             clock=self.spi_clock,
             MOSI=self.spi_mosi,
@@ -390,6 +389,7 @@ class Board:
         :rtype: :class:`sdcardio.SDCard`
         """
         if not self.has_sd_card(): return None
+        import sdcardio
         return sdcardio.SDCard(self.get_spi(), self.get_spi_cs())
     def mount_sd_card(self, path="/sd") -> bool:
         """Mount the sd card at the designated path if supported. All necessary hardware and file system objects will be generated during this operation. If the board does not support SD card storage, this method will return False.
@@ -401,6 +401,7 @@ class Board:
         """
         if not self.has_sd_card(): return False
         sdcard = self.get_sd_card()
+        import storage
         vfs = storage.VfsFat(sdcard)
         storage.mount(vfs, path)
         return True
