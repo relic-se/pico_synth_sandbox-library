@@ -15,14 +15,16 @@ class TouchPad(DebouncerKey):
         DebouncerKey.__init__(self, TouchIn(pin))
 
 class TouchKeyboard(Keyboard):
-    """Use the built-in 12 capacitive touch inputs as a :class:`pico_synth_sandbox.keyboard.Keyboard` object.
+    """Use direct capactivie touch GPIO inputs as a :class:`pico_synth_sandbox.keyboard.Keyboard` object. GPIO pins and order are defined by `board.get_touch_keys()`.
 
-    :param max_voices: The maximum number of voices to be played at once.
+    :param board: The designated board configuration object. Can be obtained by calling `pico_synth_sandbox.board.get_board()`.
+    :type board: :class:`pico_synth_sandbox.board.Board`
+    :param max_voices: The maximum number of voices/notes to be played at once.
     :type max_voices: int
     :param root: Set the base note number of the physical key inputs. If left as `None`, the `KEYBOARD_ROOT` settings.toml value will be used instead.
     :type root: int
     """
-    def __init__(self, board, max_voices=1, root=None):
+    def __init__(self, board, max_voices:int=1, root:int=None):
         keys = []
         for pin in board.get_touch_keys():
             keys.append(TouchPad(pin))

@@ -10,7 +10,7 @@ from pico_synth_sandbox.voice import Voice, AREnvelope
 from pico_synth_sandbox.voice.oscillator import Oscillator
 import pico_synth_sandbox.waveform as waveform
 
-def apply_value(items:tuple, method:function|str, offset:float=0.0) -> function:
+def apply_value(items:tuple, method:callable|str, offset:float=0.0) -> callable:
     if type(method) is str:
         method = getattr(type(items[0]), method)
     if offset > 0.0:
@@ -19,7 +19,7 @@ def apply_value(items:tuple, method:function|str, offset:float=0.0) -> function:
         return lambda value : [method(items[i], value) for i in range(len(items))]
 
 class MenuItem:
-    def __init__(self, title:str="", group:str="", update:function=None):
+    def __init__(self, title:str="", group:str="", update:callable=None):
         self._title = title
         self._group = group
         self._update = update
@@ -75,13 +75,13 @@ class MenuItem:
         return (0,1)
     def set_cursor_position(self, display:Display):
         display.set_cursor_position(self.get_cursor_position())
-    def set_update(self, callback:function):
+    def set_update(self, callback:callable):
         self._update = callback
     def _do_update(self):
         if self._update: self._update(self.get())
     
 class IntMenuItem(MenuItem):
-    def __init__(self, title:str="", group:str="", step:int=1, initial:int=0, minimum:int=0, maximum:int=1, loop:bool=False, sign:bool=False, update:function=None):
+    def __init__(self, title:str="", group:str="", step:int=1, initial:int=0, minimum:int=0, maximum:int=1, loop:bool=False, sign:bool=False, update:callable=None):
         MenuItem.__init__(self, title, group, update)
         self._step = step
         self._initial = initial
@@ -136,7 +136,7 @@ class IntMenuItem(MenuItem):
         return True
 
 class NumberMenuItem(MenuItem):
-    def __init__(self, title:str="", group:str="", step:float=0.1, initial:float=0.0, minimum:float=0.0, maximum:float=1.0, smoothing:float=1.0, loop:bool=False, update:function=None):
+    def __init__(self, title:str="", group:str="", step:float=0.1, initial:float=0.0, minimum:float=0.0, maximum:float=1.0, smoothing:float=1.0, loop:bool=False, update:callable=None):
         MenuItem.__init__(self, title, group, update)
         self._step = step
         self._initial = initial
@@ -203,7 +203,7 @@ class NumberMenuItem(MenuItem):
         return True
 
 class BooleanMenuItem(IntMenuItem):
-    def __init__(self, title:str="", group:str="", initial:bool=False, loop:bool=False, update:function=None, true_label:str="On", false_label:str="Off"):
+    def __init__(self, title:str="", group:str="", initial:bool=False, loop:bool=False, update:callable=None, true_label:str="On", false_label:str="Off"):
         IntMenuItem.__init__(self, title, group, initial=int(initial), loop=loop, update=update)
         self._true_label=true_label
         self._false_label=false_label
@@ -213,7 +213,7 @@ class BooleanMenuItem(IntMenuItem):
         return self._true_label if self.get() else self._false_label
 
 class TimeMenuItem(NumberMenuItem):
-    def __init__(self, title:str="", group:str="", step:float=0.025, initial:float=0.0, minimum:float=0.001, maximum:float=4.0, smoothing:float=3.0, update:function=None):
+    def __init__(self, title:str="", group:str="", step:float=0.025, initial:float=0.0, minimum:float=0.001, maximum:float=4.0, smoothing:float=3.0, update:callable=None):
         NumberMenuItem.__init__(self, title, group,
             step=step,
             initial=initial,
@@ -227,7 +227,7 @@ class TimeMenuItem(NumberMenuItem):
         return "{:.1f}s".format(self.get()).replace("0.", ".")
 
 class BarMenuItem(NumberMenuItem):
-    def __init__(self, title:str="", group:str="", step:float=1/16, initial:float=0.0, minimum:float=0.0, maximum:float=1.0, smoothing:float=1.0, update:function=None):
+    def __init__(self, title:str="", group:str="", step:float=1/16, initial:float=0.0, minimum:float=0.0, maximum:float=1.0, smoothing:float=1.0, update:callable=None):
         NumberMenuItem.__init__(self, title, group, step, initial, minimum, maximum, smoothing, False, update)
     def enable(self, display:Display):
         display.enable_horizontal_graph()
@@ -245,14 +245,14 @@ class BarMenuItem(NumberMenuItem):
         return (self.get_bar_position(),1)
 
 class ListMenuItem(IntMenuItem):
-    def __init__(self, items:tuple[str], title:str="", group:str="", initial:int=0, loop:bool=True, update:function=None):
+    def __init__(self, items:tuple[str], title:str="", group:str="", initial:int=0, loop:bool=True, update:callable=None):
         IntMenuItem.__init__(self, title, group, initial=initial, maximum=len(items)-1, loop=loop, update=update)
         self._items = items
     def get_label(self) -> str:
         return self._items[self.get()]
 
 class WaveformMenuItem(ListMenuItem):
-    def __init__(self, group:str="", update:function=None):
+    def __init__(self, group:str="", update:callable=None):
         ListMenuItem.__init__(
             self,
             items=("SQUR", "SAWT", "TRNGL", "SINE", "NOISE", "SINN"),
@@ -400,7 +400,7 @@ class MenuGroup(MenuItem):
 
 CHARACTERS = " abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!-_#$%&+@~^"
 class CharMenuItem(IntMenuItem):
-    def __init__(self, title:str="", group:str="", update:function=None):
+    def __init__(self, title:str="", group:str="", update:callable=None):
         IntMenuItem.__init__(self, title, group, maximum=len(CHARACTERS)-1, loop=True, update=update)
     def get_label(self) -> str:
         return CHARACTERS[self._value]
@@ -412,7 +412,7 @@ class CharMenuItem(IntMenuItem):
         IntMenuItem.reset(self)
 
 class StringMenuItem(MenuGroup):
-    def __init__(self, group:str="", length:int=16, update:function=None):
+    def __init__(self, group:str="", length:int=16, update:callable=None):
         self._length = length
         MenuGroup.__init__(self, tuple([CharMenuItem(str(i+1)) for i in range(length)]), group)
     def get_label(self) -> str:
@@ -616,7 +616,7 @@ class ADSREnvelopeMenuGroup(MenuGroup):
         return (round(x),1)
 
 class LFOMenuGroup(MenuGroup):
-    def __init__(self, update_depth:function=None, update_rate:function=None, group:str=""):
+    def __init__(self, update_depth:callable=None, update_rate:callable=None, group:str=""):
         self._depth = BarMenuItem(
             "Depth",
             step=1/64,
@@ -699,7 +699,7 @@ class FilterMenuGroup(MenuGroup):
             return (0,1)
 
 class MixMenuGroup(MenuGroup):
-    def __init__(self, update_level:function=None, update_pan:function=None, group:str=""):
+    def __init__(self, update_level:callable=None, update_pan:callable=None, group:str=""):
         self._level = NumberMenuItem(
             "Level",
             initial=1.0,
@@ -737,7 +737,7 @@ class MixMenuGroup(MenuGroup):
             return (0,1)
 
 class TuneMenuGroup(MenuGroup):
-    def __init__(self, update_coarse:function=None, update_fine:function=None, update_glide:function=None, update_bend:function=None, group:str=""):
+    def __init__(self, update_coarse:callable=None, update_fine:callable=None, update_glide:callable=None, update_bend:callable=None, group:str=""):
         self._coarse = IntMenuItem(
             "Coarse",
             minimum=-36,
@@ -869,7 +869,7 @@ class OscillatorMenuGroup(MenuGroup):
         ), group)
 
 class PatchMenuGroup(MenuGroup):
-    def __init__(self, group:str="", count:int=16, update:function=None):
+    def __init__(self, group:str="", count:int=16, update:callable=None):
         self._patch = IntMenuItem("Index", maximum=count-1, loop=True, update=lambda value: self._do_update())
         self._name = StringMenuItem("Name")
         MenuGroup.__init__(self, (self._patch, self._name), group)

@@ -8,7 +8,7 @@ requires = [
 [project]
 name = "pico_synth_sandbox"
 description = "Hardware abstraction library for the pico_synth_sandbox device with additional music-based functionality."
-version = "0.1.1"
+version = "0.3.0"
 readme = "README.rst"
 authors = [
     {name = "Cooper Dalrymple", email = "me@dcdalrymple.com"}
