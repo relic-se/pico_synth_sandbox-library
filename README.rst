@@ -11,6 +11,17 @@ pico_synth_sandbox
 
 A CircuitPython library designed for the `pico_synth_sandbox device <https://github.com/dcooperdalrymple/pico_synth_sandbox-hardware>`_ to provide hardware abstraction and a number of additional audio synthesis features.
 
+Project Archival
+----------------
+
+As of October 21st, 2024, this repository has been archived due to a restructuring of this project. Components of this project are now separated into separate libraries with less emphasis on the overall hardware infrastructure and more on individual tasks. For more information on this project and the new aforementioned libraries, please `visit the project's website <https://pico-synth-sandbox.dcdalrymple.com/>`_.
+
+* `CircuitPython_SynthWaveform <https://github.com/dcooperdalrymple/CircuitPython_SynthWaveform/>`_
+* `CircuitPython_SynthVoice <https://github.com/dcooperdalrymple/CircuitPython_SynthVoice/>`_
+* `CircuitPython_SynthKeyboard <https://github.com/dcooperdalrymple/CircuitPython_SynthKeyboard/>`_
+* `CircuitPython_SynthMenu <https://github.com/dcooperdalrymple/CircuitPython_SynthMenu/>`_
+* `CircuitPython_TTP229 <https://github.com/dcooperdalrymple/CircuitPython_TTP229/>`_
+
 Features
 --------
 
